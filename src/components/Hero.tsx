@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Server, Zap, Clock, Zap as ZapIcon, Globe } from "lucide-react";
 
@@ -20,13 +21,12 @@ export default function Hero() {
         }}
       />
       
-      {/* Enhanced overlay gradient for better text contrast - updated to include top blend */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-transparent z-10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-minecraft-dark via-black/85 to-transparent z-10" />
+      {/* Enhanced overlay gradient for better text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-t from-minecraft-dark via-black/85 to-black/40" />
       
       {/* Grid pattern overlay */}
       <div 
-        className="absolute inset-0 opacity-15 mix-blend-soft-light z-20"
+        className="absolute inset-0 opacity-15 mix-blend-soft-light"
         style={{ 
           backgroundImage: `linear-gradient(#8E9196 1px, transparent 1px), linear-gradient(to right, #8E9196 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
@@ -34,7 +34,7 @@ export default function Hero() {
         }}
       />
       
-      <div className="container mx-auto px-4 py-16 relative z-30">
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center justify-center px-4 py-2 mb-8 bg-black/70 rounded-full animate-fade-up backdrop-blur-md border border-minecraft-secondary/50 shadow-lg">
             <Server className="w-4 h-4 mr-2 text-minecraft-secondary" />
