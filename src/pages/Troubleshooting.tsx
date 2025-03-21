@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -12,14 +11,16 @@ import {
   AccordionTrigger 
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { 
   HelpCircle, 
   AlertTriangle, 
   Info, 
   MessageSquare, 
-  Settings, 
-  Search
+  Settings,
+  ArrowLeft
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface FAQ {
   question: string;
@@ -245,6 +246,16 @@ const Troubleshooting = () => {
         <Navigation />
         
         <main className="container mx-auto px-4 py-20 relative z-10">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Link to="/">
+              <Button variant="ghost" className="text-gray-300 hover:text-white flex items-center gap-2">
+                <ArrowLeft className="w-5 h-5" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
+
           <section className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
               Support & Troubleshooting
@@ -252,17 +263,6 @@ const Troubleshooting = () => {
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               Find answers to common questions and troubleshooting steps to resolve issues with your Minecraft server.
             </p>
-            
-            <div className="relative max-w-lg mx-auto mt-8">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search for help..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-black/40 backdrop-blur-sm border border-white/10 rounded-full text-white focus:outline-none focus:ring-2 focus:ring-minecraft-secondary"
-              />
-            </div>
           </section>
           
           <AnimateOnScroll variant="fade-up">
@@ -383,7 +383,7 @@ const Troubleshooting = () => {
           </section>
         </main>
         
-        <Footer />
+        <Footer simplified={true} />
       </div>
     </PageTransition>
   );
