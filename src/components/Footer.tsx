@@ -39,12 +39,15 @@ export default function Footer({ simplified = false }: FooterProps) {
                   mail@enderhost.in
                 </a>
               </li>
-              <li>
-                <Link to="/troubleshooting" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base">
-                  <HelpCircle className="w-5 h-5" />
-                  FAQ's
-                </Link>
-              </li>
+              {/* Only show FAQ link when not in simplified mode (not on troubleshooting page) */}
+              {!simplified && (
+                <li>
+                  <Link to="/troubleshooting" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base">
+                    <HelpCircle className="w-5 h-5" />
+                    FAQ's
+                  </Link>
+                </li>
+              )}
               <li className="text-gray-400 text-base">
                 We're here to help with any questions you might have about our services.
               </li>
