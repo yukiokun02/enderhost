@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee } from "lucide-react";
+import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Navigation() {
@@ -48,7 +48,7 @@ export default function Navigation() {
                 <div
                   className={`absolute right-0 mt-2 bg-black/90 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 ease-in-out w-48 ${
                     desktopMenuOpen
-                      ? "max-h-[300px] opacity-100 translate-y-0"
+                      ? "max-h-[350px] opacity-100 translate-y-0"
                       : "max-h-0 opacity-0 -translate-y-4 pointer-events-none"
                   }`}
                 >
@@ -80,6 +80,14 @@ export default function Navigation() {
                       Pricing
                     </a>
                     <a
+                      href="/troubleshooting"
+                      className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+                      onClick={() => setDesktopMenuOpen(false)}
+                    >
+                      <HelpCircle className="w-4 h-4" />
+                      Support
+                    </a>
+                    <a
                       href="https://discord.gg/bsGPB9VpUY"
                       className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
                       onClick={() => setDesktopMenuOpen(false)}
@@ -91,7 +99,7 @@ export default function Navigation() {
                         alt="Discord" 
                         className="w-4 h-4" 
                       />
-                      Support
+                      Discord
                     </a>
                   </div>
                 </div>
@@ -120,7 +128,7 @@ export default function Navigation() {
       <div
         className={`md:hidden bg-black/90 backdrop-blur-md border border-white/10 rounded-2xl mt-2 overflow-hidden transition-all duration-300 ease-in-out ${
           mobileMenuOpen
-            ? "max-h-[300px] opacity-100 translate-y-0"
+            ? "max-h-[350px] opacity-100 translate-y-0"
             : "max-h-0 opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
@@ -152,6 +160,14 @@ export default function Navigation() {
             Pricing
           </a>
           <a
+            href="/troubleshooting"
+            className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <HelpCircle className="w-4 h-4" />
+            Support
+          </a>
+          <a
             href="https://discord.gg/bsGPB9VpUY"
             className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
             onClick={() => setMobileMenuOpen(false)}
@@ -163,7 +179,7 @@ export default function Navigation() {
               alt="Discord" 
               className="w-4 h-4" 
             />
-            Support
+            Discord
           </a>
         </div>
       </div>

@@ -11,6 +11,7 @@ import TermsOfService from "@/pages/TermsOfService";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import RefundPolicy from "@/pages/RefundPolicy";
 import PurchaseForm from "@/pages/PurchaseForm";
+import Troubleshooting from "@/pages/Troubleshooting";
 import PageTransition from "./components/PageTransition";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,12 @@ const AnimatedRoutes = () => {
             <PageTransition>
               <PurchaseForm />
             </PageTransition>
+          } 
+        />
+        <Route 
+          path="/troubleshooting" 
+          element={
+            <Troubleshooting />
           } 
         />
         <Route 

@@ -8,7 +8,6 @@ import Footer from "@/components/Footer";
 import PromoOffer from "@/components/PromoOffer";
 import UptimeStats from "@/components/UptimeStats";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
-import FloatingChat from "@/components/FloatingChat";
 import { useEffect } from "react";
 
 const Index = () => {
@@ -57,9 +56,6 @@ const Index = () => {
       </AnimateOnScroll>
       
       <Footer />
-      
-      {/* Floating Chat Component */}
-      <FloatingChat />
     </div>
   );
 };
