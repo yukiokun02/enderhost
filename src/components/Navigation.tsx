@@ -85,7 +85,7 @@ export default function Navigation() {
                       onClick={() => setDesktopMenuOpen(false)}
                     >
                       <HelpCircle className="w-4 h-4" />
-                      Support
+                      FAQ's
                     </a>
                     <a
                       href="https://discord.gg/bsGPB9VpUY"
@@ -165,7 +165,7 @@ export default function Navigation() {
             onClick={() => setMobileMenuOpen(false)}
           >
             <HelpCircle className="w-4 h-4" />
-            Support
+            FAQ's
           </a>
           <a
             href="https://discord.gg/bsGPB9VpUY"

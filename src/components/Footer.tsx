@@ -1,5 +1,5 @@
 
-import { GamepadIcon, CreditCard, Mail } from "lucide-react";
+import { GamepadIcon, CreditCard, Mail, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Footer() {
@@ -63,6 +63,12 @@ export default function Footer() {
                   <Mail className="w-5 h-5" />
                   mail@enderhost.in
                 </a>
+              </li>
+              <li>
+                <Link to="/troubleshooting" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base">
+                  <HelpCircle className="w-5 h-5" />
+                  FAQ's
+                </Link>
               </li>
               <li className="text-gray-400 text-base">
                 We're here to help with any questions you might have about our services.

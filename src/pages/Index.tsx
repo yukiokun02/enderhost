@@ -9,6 +9,8 @@ import PromoOffer from "@/components/PromoOffer";
 import UptimeStats from "@/components/UptimeStats";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { HelpCircle } from "lucide-react";
 
 const Index = () => {
   // Apply smooth scrolling behavior to the html element
@@ -54,6 +56,17 @@ const Index = () => {
       <AnimateOnScroll variant="fade-up" delay={0.4}>
         <ServerTypes />
       </AnimateOnScroll>
+      
+      {/* FAQ Pill Button */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <Link 
+          to="/troubleshooting"
+          className="inline-flex items-center gap-2 bg-minecraft-secondary hover:bg-minecraft-primary text-white px-5 py-3 rounded-full transition-colors shadow-lg"
+        >
+          <HelpCircle className="w-5 h-5" />
+          <span className="font-medium">FAQ's</span>
+        </Link>
+      </div>
       
       <Footer />
     </div>
