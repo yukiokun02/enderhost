@@ -25,7 +25,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black overflow-hidden pt-16 relative">
+    <div className="min-h-screen bg-black overflow-hidden relative">
       {/* Global Grid Pattern */}
       <div 
         className="fixed inset-0 grid-background"
@@ -34,28 +34,30 @@ const Index = () => {
         }}
       />
       
-      <Navigation />
-      <Hero />
-      
-      <AnimateOnScroll variant="fade-up">
-        <PromoOffer />
-      </AnimateOnScroll>
-      
-      <AnimateOnScroll variant="fade-up" delay={0.1}>
-        <Pricing />
-      </AnimateOnScroll>
-      
-      <AnimateOnScroll variant="fade-up" delay={0.2}>
-        <UptimeStats />
-      </AnimateOnScroll>
-      
-      <AnimateOnScroll variant="fade-up" delay={0.3}>
-        <Features />
-      </AnimateOnScroll>
-      
-      <AnimateOnScroll variant="fade-up" delay={0.4}>
-        <ServerTypes />
-      </AnimateOnScroll>
+      <div className="pt-16 relative">
+        <Navigation />
+        <Hero />
+        
+        <AnimateOnScroll variant="fade-up">
+          <PromoOffer />
+        </AnimateOnScroll>
+        
+        <AnimateOnScroll variant="fade-up" delay={0.1}>
+          <Pricing />
+        </AnimateOnScroll>
+        
+        <AnimateOnScroll variant="fade-up" delay={0.2}>
+          <UptimeStats />
+        </AnimateOnScroll>
+        
+        <AnimateOnScroll variant="fade-up" delay={0.3}>
+          <Features />
+        </AnimateOnScroll>
+        
+        <AnimateOnScroll variant="fade-up" delay={0.4}>
+          <ServerTypes />
+        </AnimateOnScroll>
+      </div>
       
       {/* FAQ Pill Button */}
       <div className="fixed bottom-6 right-6 z-40">
