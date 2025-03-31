@@ -4,6 +4,8 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import Footer from "@/components/Footer";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // QR code images for each plan
 const planQRCodes: Record<string, string> = {
@@ -108,23 +110,23 @@ const QRCodePayment = () => {
   }
   
   return (
-    <div className="flex flex-col min-h-screen bg-[#F0F4F9]">
+    <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
       {/* Logo Header */}
-      <header className="w-full bg-white py-6 text-center shadow-sm">
+      <header className="w-full bg-black/80 backdrop-blur-sm py-6 text-center shadow-md border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <img
             src="/lovable-uploads/d0061f99-fbb0-48a4-917d-ea5a0d94dbda.png"
             alt="Ender Host Logo"
             className="h-16"
           />
-          <h1 className="text-3xl ml-4 font-bold text-gray-800">Ender Host</h1>
+          <h1 className="text-3xl ml-4 font-bold text-gray-100">Ender<span className="text-minecraft-secondary">HOST</span></h1>
         </div>
       </header>
       
       <Button
         variant="ghost"
         size="sm"
-        className="absolute top-8 left-8 text-gray-700"
+        className="absolute top-8 left-8 text-gray-200 hover:text-white hover:bg-gray-800/60"
         onClick={() => navigate("/purchase")}
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -133,34 +135,34 @@ const QRCodePayment = () => {
 
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
-          <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="max-w-md mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl shadow-lg overflow-hidden">
             {/* QR Code Section */}
             <div className="p-8 text-center">
-              <h2 className="text-2xl font-bold mb-2 text-gray-800">
+              <h2 className="text-2xl font-bold mb-2 text-white">
                 {planNames[planId]} Plan
               </h2>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-gray-400 mb-6">
                 Scan the QR code below to make your payment
               </p>
               
-              <div className="mb-6">
+              <div className="mb-6 bg-white p-4 rounded-lg inline-block">
                 <img
                   src={planQRCodes[planId]}
                   alt="Payment QR Code"
-                  className="mx-auto w-64 h-64"
+                  className="mx-auto w-64 h-64 object-contain"
                 />
               </div>
               
               <div className="mb-6 space-y-4">
-                <div className="text-left bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm font-medium text-gray-500">UPI ID</p>
+                <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                  <p className="text-sm font-medium text-gray-400">UPI ID</p>
                   <div className="flex items-center justify-between mt-1">
-                    <p className="font-mono text-gray-800">{UPI_ID}</p>
+                    <p className="font-mono text-gray-100">{UPI_ID}</p>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={copyUpiId}
-                      className="ml-2 h-8"
+                      className="ml-2 h-8 border-gray-700 hover:bg-gray-800 text-gray-200"
                     >
                       <Copy className="h-4 w-4 mr-1" />
                       Copy
@@ -168,60 +170,93 @@ const QRCodePayment = () => {
                   </div>
                 </div>
                 
-                <div className="text-left bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm font-medium text-gray-500">Amount</p>
-                  <p className="font-mono text-gray-800 text-xl font-bold">
+                <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                  <p className="text-sm font-medium text-gray-400">Amount</p>
+                  <p className="font-mono text-gray-100 text-xl font-bold">
                     ₹{planPrices[planId].toLocaleString()}.00
                   </p>
                 </div>
               </div>
               
-              <p className="text-center text-gray-600 mb-4">
+              <p className="text-center text-gray-400 mb-4">
                 Scan to pay with any UPI app
               </p>
             </div>
             
-            {/* Instructions */}
-            <div className="bg-[#EEF2F7] p-6 border-t border-gray-100">
-              <h3 className="font-bold text-gray-700 mb-2">After Payment:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-gray-600 text-sm">
-                <li>Take a screenshot of your payment confirmation</li>
-                <li>
-                  Join our Discord server and create a ticket
+            {/* Instructions - Highlighted */}
+            <div className="bg-minecraft-accent/10 p-6 border-t border-gray-800">
+              <h3 className="font-bold text-white mb-4 text-lg">After Payment:</h3>
+              
+              <div className="bg-gradient-to-r from-minecraft-secondary/20 to-minecraft-secondary/10 p-4 rounded-lg border border-minecraft-secondary/30 mb-6">
+                <ol className="list-decimal list-inside space-y-3 text-gray-300">
+                  <li>Take a screenshot of your payment confirmation</li>
+                  <li className="font-medium">
+                    Join our Discord server and create a ticket
+                  </li>
+                  <li>Share the screenshot with your order details</li>
+                  <li>Our team will set up your server and provide access details</li>
+                </ol>
+                
+                <Button
+                  className="w-full mt-4 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white"
+                  size="lg"
+                >
                   <Link 
                     to="https://discord.gg/bsGPB9VpUY"
                     target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-minecraft-primary hover:underline ml-1 inline-flex items-center"
+                    rel="noopener noreferrer" 
+                    className="flex items-center justify-center w-full"
                   >
-                    Join Discord
-                    <ExternalLink className="h-3 w-3 ml-1" />
+                    <img 
+                      src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
+                      alt="Discord" 
+                      className="w-5 h-5 mr-2" 
+                    />
+                    Join Our Discord Server
+                    <ExternalLink className="h-4 w-4 ml-2" />
                   </Link>
-                </li>
-                <li>Share the screenshot with your order details</li>
-                <li>Our team will set up your server and provide access details</li>
-              </ol>
+                </Button>
+              </div>
               
-              <div className="mt-4 bg-blue-50 border border-blue-100 p-3 rounded-md">
-                <p className="text-sm text-blue-700">
-                  <strong>Note:</strong> Your server will be set up within 24 hours after payment verification. 
+              <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-md">
+                <p className="text-sm text-blue-300 flex items-start">
+                  <span className="font-bold mr-2">Note:</span>
+                  Your server will be set up within 24 hours after payment verification. 
                   For immediate assistance, please contact us on Discord.
                 </p>
               </div>
+              
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="mt-4 text-gray-400 hover:text-minecraft-secondary">
+                    View Refund Policy
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-gray-900 border-gray-800 text-white">
+                  <DialogHeader>
+                    <DialogTitle>Refund Policy</DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription className="text-gray-300">
+                    <p className="mb-2">- All payments are non-refundable unless the service cannot be provided.</p>
+                    <p className="mb-2">- Refund requests for server issues must be made within 24 hours of payment.</p>
+                    <p>- For any refund inquiries, please create a ticket on our Discord server.</p>
+                  </DialogDescription>
+                  <DialogFooter>
+                    <Button 
+                      className="bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white"
+                      onClick={() => window.open("/refund-policy", "_blank")}
+                    >
+                      View Full Policy
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
       </main>
       
-      <footer className="bg-gray-800 text-white py-6">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <p className="text-sm opacity-80">
-              Copyright © {new Date().getFullYear()} EnderHOST<sup className="text-xs">®</sup>. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer simplified={true} />
     </div>
   );
 };
