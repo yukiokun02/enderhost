@@ -111,11 +111,11 @@ const QRCodePayment = () => {
   
   return (
     <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
-      {/* Logo Header */}
+      {/* Logo Header - Updated with EnderHOST logo */}
       <header className="w-full bg-black/80 backdrop-blur-sm py-6 text-center shadow-md border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <img
-            src="/lovable-uploads/d0061f99-fbb0-48a4-917d-ea5a0d94dbda.png"
+            src="/lovable-uploads/e1341b42-612c-4eb3-b5f9-d6ac7e41acf3.png"
             alt="Ender Host Logo"
             className="h-16"
           />
@@ -136,7 +136,7 @@ const QRCodePayment = () => {
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl shadow-lg overflow-hidden">
-            {/* QR Code Section */}
+            {/* QR Code Section - Improved centering */}
             <div className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-2 text-white">
                 {planNames[planId]} Plan
@@ -145,8 +145,8 @@ const QRCodePayment = () => {
                 Scan the QR code below to make your payment
               </p>
               
-              {/* Fixed QR code display - not stretched */}
-              <div className="mb-6 bg-white inline-block p-4 rounded-lg w-64 h-64 flex items-center justify-center">
+              {/* Properly centered QR code display */}
+              <div className="mb-6 bg-white mx-auto p-4 rounded-lg w-64 h-64 flex items-center justify-center">
                 <img
                   src={planQRCodes[planId]}
                   alt="Payment QR Code"
@@ -184,11 +184,11 @@ const QRCodePayment = () => {
               </p>
             </div>
             
-            {/* Instructions - Highlighted with stronger styling */}
+            {/* Instructions - Enhanced visibility */}
             <div className="bg-minecraft-accent/10 p-6 border-t border-gray-800">
               <h3 className="font-bold text-white mb-4 text-lg">After Payment:</h3>
               
-              {/* Highlighted instructions box */}
+              {/* Highlighted instructions box with better styling */}
               <div className="bg-gradient-to-r from-minecraft-secondary/20 to-minecraft-secondary/10 p-5 rounded-lg border-2 border-minecraft-secondary/50 mb-6 shadow-[0_0_15px_rgba(0,200,83,0.15)]">
                 <ol className="list-decimal list-inside space-y-3 text-gray-200">
                   <li>Take a screenshot of your payment confirmation</li>
@@ -199,7 +199,7 @@ const QRCodePayment = () => {
                   <li>Our team will set up your server and provide access details</li>
                 </ol>
                 
-                {/* Call-to-action button for Discord */}
+                {/* Call-to-action button for Discord - Centered and enhanced */}
                 <Button
                   className="w-full mt-6 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white font-medium shadow-lg shadow-minecraft-secondary/20 py-6"
                   size="lg"
@@ -260,7 +260,14 @@ const QRCodePayment = () => {
         </div>
       </main>
       
-      <Footer simplified={true} />
+      {/* Simplified footer - copyright only */}
+      <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm py-6">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-400 text-sm">
+            Copyright © {new Date().getFullYear()} EnderHOST. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

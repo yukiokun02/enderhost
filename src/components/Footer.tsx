@@ -1,12 +1,24 @@
-
 import { GamepadIcon, CreditCard, Mail, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface FooterProps {
   simplified?: boolean;
+  copyrightOnly?: boolean;
 }
 
-export default function Footer({ simplified = false }: FooterProps) {
+export default function Footer({ simplified = false, copyrightOnly = false }: FooterProps) {
+  if (copyrightOnly) {
+    return (
+      <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm py-6">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-400 text-sm">
+            Copyright © {new Date().getFullYear()} EnderHOST. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-16">
@@ -39,7 +51,6 @@ export default function Footer({ simplified = false }: FooterProps) {
                   mail@enderhost.in
                 </a>
               </li>
-              {/* Only show FAQ link when not in simplified mode (not on troubleshooting page) */}
               {!simplified && (
                 <li>
                   <Link to="/troubleshooting" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base">
