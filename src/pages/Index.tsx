@@ -25,7 +25,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black overflow-hidden pt-16 relative">
+    <div className="min-h-screen bg-black overflow-hidden relative">
       {/* Global Grid Pattern */}
       <div 
         className="fixed inset-0 grid-background"

@@ -18,8 +18,8 @@ export default function Navigation() {
   };
 
   return (
-    <div className="fixed top-4 left-4 right-4 z-50">
-      <nav className="mx-auto max-w-7xl bg-black/80 backdrop-blur-md border border-white/10 rounded-full">
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <nav className="bg-black/70 backdrop-blur-md border-b border-white/10">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <a href="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
@@ -126,7 +126,7 @@ export default function Navigation() {
       </nav>
 
       <div
-        className={`md:hidden bg-black/90 backdrop-blur-md border border-white/10 rounded-2xl mt-2 overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`md:hidden bg-black/90 backdrop-blur-md border border-white/10 mt-2 mx-4 rounded-2xl overflow-hidden transition-all duration-300 ease-in-out ${
           mobileMenuOpen
             ? "max-h-[350px] opacity-100 translate-y-0"
             : "max-h-0 opacity-0 -translate-y-4 pointer-events-none"
