@@ -3,11 +3,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { visible } = useScrollDirection();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -18,7 +20,11 @@ export default function Navigation() {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
+    <div 
+      className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${
+        visible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
       <nav className="bg-black/70 backdrop-blur-md border-b border-white/10">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
