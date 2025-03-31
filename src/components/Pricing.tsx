@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -29,7 +29,7 @@ const planCategories = [
     plans: [
       {
         name: "Getting Woods",
-        price: 159,
+        price: 149,
         features: [
           "2GB RAM",
           "100% CPU",
@@ -43,7 +43,7 @@ const planCategories = [
       },
       {
         name: "Getting an Upgrade",
-        price: 349,
+        price: 339,
         features: [
           "4GB RAM",
           "200% CPU",
@@ -72,7 +72,7 @@ const planCategories = [
       },
       {
         name: "Acquire Hardware",
-        price: 709,
+        price: 699,
         features: [
           "8GB RAM",
           "300% CPU",
@@ -102,7 +102,7 @@ const planCategories = [
     plans: [
       {
         name: "Isn't It Iron Pick?",
-        price: 889,
+        price: 859,
         features: [
           "10GB RAM",
           "350% CPU",
@@ -116,7 +116,7 @@ const planCategories = [
       },
       {
         name: "Diamonds",
-        price: 1059,
+        price: 1029,
         features: [
           "12GB RAM",
           "400% CPU",
@@ -131,7 +131,7 @@ const planCategories = [
       },
       {
         name: "Ice Bucket Challenge",
-        price: 1409,
+        price: 1399,
         features: [
           "16GB RAM",
           "450% CPU",
@@ -161,7 +161,7 @@ const planCategories = [
     plans: [
       {
         name: "We Need to Go Deeper",
-        price: 1759,
+        price: 1699,
         features: [
           "20GB RAM",
           "450% CPU",
@@ -175,7 +175,7 @@ const planCategories = [
       },
       {
         name: "Hidden in the Depths",
-        price: 2129,
+        price: 2119,
         features: [
           "24GB RAM",
           "500% CPU",

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
 
@@ -17,7 +18,7 @@ const allPlans = [
   {
     id: "getting-woods",
     name: "Getting Woods",
-    price: 159,
+    price: 149,
     category: "PLAY VANILLA",
     specs: {
       ram: "2GB RAM",
@@ -31,7 +32,7 @@ const allPlans = [
   {
     id: "getting-an-upgrade",
     name: "Getting an Upgrade",
-    price: 349,
+    price: 339,
     category: "PLAY VANILLA",
     specs: {
       ram: "4GB RAM",
@@ -59,7 +60,7 @@ const allPlans = [
   {
     id: "acquire-hardware",
     name: "Acquire Hardware",
-    price: 709,
+    price: 699,
     category: "PLAY VANILLA",
     specs: {
       ram: "8GB RAM",
@@ -75,7 +76,7 @@ const allPlans = [
   {
     id: "isnt-it-iron-pick",
     name: "Isn't It Iron Pick?",
-    price: 889,
+    price: 859,
     category: "PLAY WITH MODPACKS",
     specs: {
       ram: "10GB RAM",
@@ -89,7 +90,7 @@ const allPlans = [
   {
     id: "diamonds",
     name: "Diamonds",
-    price: 1059,
+    price: 1029,
     category: "PLAY WITH MODPACKS",
     specs: {
       ram: "12GB RAM",
@@ -103,7 +104,7 @@ const allPlans = [
   {
     id: "ice-bucket-challenge",
     name: "Ice Bucket Challenge",
-    price: 1409,
+    price: 1399,
     category: "PLAY WITH MODPACKS",
     specs: {
       ram: "16GB RAM",
@@ -119,7 +120,7 @@ const allPlans = [
   {
     id: "we-need-to-go-deeper",
     name: "We Need to Go Deeper",
-    price: 1759,
+    price: 1699,
     category: "START A COMMUNITY SERVER",
     specs: {
       ram: "20GB RAM",
@@ -133,7 +134,7 @@ const allPlans = [
   {
     id: "hidden-in-the-depths",
     name: "Hidden in the Depths",
-    price: 2129,
+    price: 2119,
     category: "START A COMMUNITY SERVER",
     specs: {
       ram: "24GB RAM",
@@ -183,9 +184,9 @@ const PurchaseForm = () => {
     password: "",
     phone: "",
     plan: "",
-    payment_method: "upi", // Default payment method
   });
   const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -200,10 +201,6 @@ const PurchaseForm = () => {
     setSelectedPlan(plan || null);
   };
 
-  const handlePaymentMethodChange = (method: string) => {
-    setFormData((prev) => ({ ...prev, payment_method: method }));
-  };
-
   const getSpecIcon = (spec: string) => {
     if (spec.includes("RAM")) return <Gauge className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
     if (spec.includes("CPU")) return <Cpu className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
@@ -211,6 +208,21 @@ const PurchaseForm = () => {
     if (spec.includes("Bandwidth")) return <Signal className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
     if (spec.includes("Backup")) return <Cloud className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
     return null;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Navigate to QR code payment page with form data
+    navigate("/payment", { state: formData });
   };
 
   return (
@@ -257,7 +269,7 @@ const PurchaseForm = () => {
             </div>
 
             <div className="bg-black/50 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-sm shadow-xl">
-              <form action="/payment_process.php" method="POST" className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label
                     htmlFor="serverName"
@@ -425,32 +437,12 @@ const PurchaseForm = () => {
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/90">
-                    Payment Methods We Support
-                  </label>
-                  <div className="bg-black/70 border border-white/10 rounded-md p-4 backdrop-blur-sm">
-                    <div className="flex items-center justify-center gap-6">
-                      <img 
-                        src="/lovable-uploads/cb954d69-7821-4704-9097-55b6924a4a9f.png" 
-                        alt="UPI" 
-                        className="h-10 object-contain" 
-                      />
-                      <img 
-                        src="/lovable-uploads/d388e7a8-1138-4512-be96-e93b72c348ee.png" 
-                        alt="Credit/Debit Card" 
-                        className="h-10 object-contain" 
-                      />
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">We support these payment methods for your convenience.</p>
-                </div>
-
                 <Button
                   type="submit"
                   className="w-full py-6 mt-6 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(94,66,227,0.3)]"
+                  disabled={isSubmitting}
                 >
-                  <span>Proceed to Checkout</span>
+                  <span>Proceed to Payment</span>
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </form>
