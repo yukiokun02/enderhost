@@ -145,11 +145,12 @@ const QRCodePayment = () => {
                 Scan the QR code below to make your payment
               </p>
               
-              <div className="mb-6 bg-white p-4 rounded-lg inline-block">
+              {/* Fixed QR code display - not stretched */}
+              <div className="mb-6 bg-white inline-block p-4 rounded-lg w-64 h-64 flex items-center justify-center">
                 <img
                   src={planQRCodes[planId]}
                   alt="Payment QR Code"
-                  className="mx-auto w-64 h-64 object-contain"
+                  className="max-w-full max-h-full object-contain"
                 />
               </div>
               
@@ -183,22 +184,24 @@ const QRCodePayment = () => {
               </p>
             </div>
             
-            {/* Instructions - Highlighted */}
+            {/* Instructions - Highlighted with stronger styling */}
             <div className="bg-minecraft-accent/10 p-6 border-t border-gray-800">
               <h3 className="font-bold text-white mb-4 text-lg">After Payment:</h3>
               
-              <div className="bg-gradient-to-r from-minecraft-secondary/20 to-minecraft-secondary/10 p-4 rounded-lg border border-minecraft-secondary/30 mb-6">
-                <ol className="list-decimal list-inside space-y-3 text-gray-300">
+              {/* Highlighted instructions box */}
+              <div className="bg-gradient-to-r from-minecraft-secondary/20 to-minecraft-secondary/10 p-5 rounded-lg border-2 border-minecraft-secondary/50 mb-6 shadow-[0_0_15px_rgba(0,200,83,0.15)]">
+                <ol className="list-decimal list-inside space-y-3 text-gray-200">
                   <li>Take a screenshot of your payment confirmation</li>
-                  <li className="font-medium">
+                  <li className="font-semibold text-white">
                     Join our Discord server and create a ticket
                   </li>
                   <li>Share the screenshot with your order details</li>
                   <li>Our team will set up your server and provide access details</li>
                 </ol>
                 
+                {/* Call-to-action button for Discord */}
                 <Button
-                  className="w-full mt-4 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white"
+                  className="w-full mt-6 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white font-medium shadow-lg shadow-minecraft-secondary/20 py-6"
                   size="lg"
                 >
                   <Link 
@@ -226,6 +229,7 @@ const QRCodePayment = () => {
                 </p>
               </div>
               
+              {/* Refund Policy Dialog */}
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="link" className="mt-4 text-gray-400 hover:text-minecraft-secondary">
