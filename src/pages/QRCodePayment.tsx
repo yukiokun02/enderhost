@@ -6,43 +6,11 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-// QR code images for each plan
-const planQRCodes: Record<string, string> = {
-  // Vanilla Plans
-  "getting-woods": "/lovable-uploads/941ff633-d2ed-4b1f-bb49-a0b0658f8888.png",
-  "getting-an-upgrade": "/lovable-uploads/78f5ca0a-a479-4a79-94f9-6f2dd3802172.png",
-  "stone-age": "/lovable-uploads/f77c1651-4ada-4856-81cb-6497b4bf8b93.png",
-  "acquire-hardware": "/lovable-uploads/6caffe8f-7b9d-4bdf-b7a9-24605e595ddb.png",
-  
-  // Modpack Plans
-  "isnt-it-iron-pick": "/lovable-uploads/40a4d5ab-68ce-40fd-87bb-24cb80450dd6.png",
-  "diamonds": "/lovable-uploads/983e3330-d444-4d20-a84b-5716d7e05033.png",
-  "ice-bucket-challenge": "/lovable-uploads/918020ef-6f2d-4b7e-b7ba-28545f5cc074.png",
-  
-  // Community Server Plans
-  "we-need-to-go-deeper": "/lovable-uploads/d5a73dcd-6235-4333-ab3b-a4d7a9747ca3.png",
-  "hidden-in-the-depths": "/lovable-uploads/95cda4c0-20b2-410b-b002-0208a7f9b2c9.png",
-  "the-end": "/lovable-uploads/d7a5e501-86ea-4acd-9184-823b6224e358.png",
-  "sky-is-the-limit": "/lovable-uploads/8d4763e8-df42-4ec6-a7f9-f92036c9a2cf.png"
-};
+// Single static QR code
+const PAYMENT_QR_CODE = "/lovable-uploads/941ff633-d2ed-4b1f-bb49-a0b0658f8888.png";
 
 // UPI ID
 const UPI_ID = "mail.enderhost@okhdfcbank";
-
-// Plan prices
-const planPrices: Record<string, number> = {
-  "getting-woods": 149,
-  "getting-an-upgrade": 339,
-  "stone-age": 529,
-  "acquire-hardware": 699,
-  "isnt-it-iron-pick": 859,
-  "diamonds": 1029,
-  "ice-bucket-challenge": 1399,
-  "we-need-to-go-deeper": 1699,
-  "hidden-in-the-depths": 2119,
-  "the-end": 2899,
-  "sky-is-the-limit": 3399
-};
 
 // Plan display names
 const planNames: Record<string, string> = {
@@ -59,15 +27,33 @@ const planNames: Record<string, string> = {
   "sky-is-the-limit": "Sky is the Limit"
 };
 
+// Base plan prices
+const planPrices: Record<string, number> = {
+  "getting-woods": 149,
+  "getting-an-upgrade": 339,
+  "stone-age": 529,
+  "acquire-hardware": 699,
+  "isnt-it-iron-pick": 859,
+  "diamonds": 1029,
+  "ice-bucket-challenge": 1399,
+  "we-need-to-go-deeper": 1699,
+  "hidden-in-the-depths": 2119,
+  "the-end": 2899,
+  "sky-is-the-limit": 3399
+};
+
 const QRCodePayment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [planId, setPlanId] = useState<string>("");
   const [customerDetails, setCustomerDetails] = useState<any>(null);
   const [emailSent, setEmailSent] = useState(false);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [additionalBackups, setAdditionalBackups] = useState<number>(0);
+  const [additionalPorts, setAdditionalPorts] = useState<number>(0);
   
   // Email sending function
-  const sendOrderNotification = async (details: any, plan: string) => {
+  const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     try {
       const response = await fetch('/api/send-order-email.php', {
         method: 'POST',
@@ -80,7 +66,10 @@ const QRCodePayment = () => {
           customerPhone: details.phone || 'Not provided',
           serverName: details.serverName,
           plan: planNames[plan] || plan,
-          planPrice: planPrices[plan] || 'Unknown',
+          basePlanPrice: planPrices[plan] || 'Unknown',
+          additionalBackups: details.additionalBackups || 0,
+          additionalPorts: details.additionalPorts || 0,
+          totalPrice: totalPrice,
           orderDate: new Date().toISOString(),
         }),
       });
@@ -101,13 +90,33 @@ const QRCodePayment = () => {
   useEffect(() => {
     // Get state passed from purchase form
     if (location.state) {
-      const { plan, ...details } = location.state;
+      const { plan, additionalBackups, additionalPorts, totalPrice, ...details } = location.state;
+      
       setPlanId(plan);
       setCustomerDetails(details);
+      setAdditionalBackups(parseInt(additionalBackups) || 0);
+      setAdditionalPorts(parseInt(additionalPorts) || 0);
+      
+      // Calculate total price if not provided directly
+      if (totalPrice) {
+        setTotalPrice(totalPrice);
+      } else {
+        // Calculate from components
+        const basePrice = planPrices[plan] || 0;
+        const backupCost = (parseInt(additionalBackups) || 0) * 19;
+        const portCost = (parseInt(additionalPorts) || 0) * 9;
+        setTotalPrice(basePrice + backupCost + portCost);
+      }
       
       // Send email with customer details
       if (!emailSent && details) {
-        sendOrderNotification(details, plan).then(success => {
+        const finalTotalPrice = totalPrice || (planPrices[plan] + (parseInt(additionalBackups) || 0) * 19 + (parseInt(additionalPorts) || 0) * 9);
+        
+        sendOrderNotification(
+          { ...details, additionalBackups, additionalPorts }, 
+          plan, 
+          finalTotalPrice
+        ).then(success => {
           if (success) {
             setEmailSent(true);
             toast.success("Your order details have been sent to our team!", {
@@ -131,7 +140,7 @@ const QRCodePayment = () => {
     toast.success("UPI ID copied to clipboard!");
   };
   
-  if (!planId || !planQRCodes[planId]) {
+  if (!planId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
@@ -143,6 +152,12 @@ const QRCodePayment = () => {
       </div>
     );
   }
+  
+  // Calculate price breakdowns
+  const basePlanPrice = planPrices[planId] || 0;
+  const backupsCost = additionalBackups * 19;
+  const portsCost = additionalPorts * 9;
+  const hasAddons = additionalBackups > 0 || additionalPorts > 0;
   
   return (
     <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
@@ -183,7 +198,7 @@ const QRCodePayment = () => {
               {/* Centered QR code display */}
               <div className="mb-6 bg-white mx-auto p-4 rounded-lg w-64 h-64 flex items-center justify-center">
                 <img
-                  src={planQRCodes[planId]}
+                  src={PAYMENT_QR_CODE}
                   alt="Payment QR Code"
                   className="max-w-full max-h-full object-contain"
                 />
@@ -207,10 +222,43 @@ const QRCodePayment = () => {
                 </div>
                 
                 <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
-                  <p className="text-sm font-medium text-gray-400">Amount</p>
-                  <p className="font-mono text-gray-100 text-xl font-bold">
-                    ₹{planPrices[planId].toLocaleString()}.00
-                  </p>
+                  {hasAddons ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
+                      <div className="space-y-1 text-sm mb-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Base Plan:</span>
+                          <span className="text-gray-300">₹{basePlanPrice.toLocaleString()}</span>
+                        </div>
+                        
+                        {additionalBackups > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Additional Backups ({additionalBackups}):</span>
+                            <span className="text-gray-300">₹{backupsCost.toLocaleString()}</span>
+                          </div>
+                        )}
+                        
+                        {additionalPorts > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
+                            <span className="text-gray-300">₹{portsCost.toLocaleString()}</span>
+                          </div>
+                        )}
+                        
+                        <div className="border-t border-gray-700 mt-2 pt-2 flex justify-between font-medium">
+                          <span className="text-white">Total:</span>
+                          <span className="text-white">₹{totalPrice.toLocaleString()}.00</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-gray-400">Amount</p>
+                      <p className="font-mono text-gray-100 text-xl font-bold">
+                        ₹{totalPrice.toLocaleString()}.00
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
               
@@ -236,7 +284,7 @@ const QRCodePayment = () => {
                 
                 {/* Call-to-action button for Discord - Centered and enhanced */}
                 <Button
-                  className="w-full mt-6 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white font-medium shadow-lg shadow-minecraft-secondary/20 py-6"
+                  className="w-full mt-6 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white font-medium shadow-lg shadow-minecraft-secondary/20 py-6 button-texture"
                   size="lg"
                 >
                   <Link 
@@ -282,7 +330,7 @@ const QRCodePayment = () => {
                   </DialogDescription>
                   <DialogFooter>
                     <Button 
-                      className="bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white"
+                      className="bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white button-texture"
                       onClick={() => window.open("/refund-policy", "_blank")}
                     >
                       View Full Policy

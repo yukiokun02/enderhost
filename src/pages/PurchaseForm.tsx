@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Toggle } from "@/components/ui/toggle";
 
 const allPlans = [
   // Vanilla plans
@@ -25,7 +26,7 @@ const allPlans = [
       cpu: "100% CPU",
       storage: "10GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "No Cloud Backup",
     },
     players: "3+ Players"
   },
@@ -53,7 +54,7 @@ const allPlans = [
       cpu: "250% CPU",
       storage: "20GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "2 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "8+ Players"
   },
@@ -67,7 +68,7 @@ const allPlans = [
       cpu: "300% CPU",
       storage: "25GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "2 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "15+ Players"
   },
@@ -83,7 +84,7 @@ const allPlans = [
       cpu: "350% CPU",
       storage: "30GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "2 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "20+ Players"
   },
@@ -97,7 +98,7 @@ const allPlans = [
       cpu: "400% CPU",
       storage: "35GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "3 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "25+ Players"
   },
@@ -111,7 +112,7 @@ const allPlans = [
       cpu: "450% CPU",
       storage: "40GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "3 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "30+ Players"
   },
@@ -127,7 +128,7 @@ const allPlans = [
       cpu: "450% CPU",
       storage: "45GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "3 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "40+ Players"
   },
@@ -141,7 +142,7 @@ const allPlans = [
       cpu: "500% CPU",
       storage: "50GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "4 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "50+ Players"
   },
@@ -155,7 +156,7 @@ const allPlans = [
       cpu: "600% CPU",
       storage: "80GB SSD",
       bandwidth: "Unmetered Bandwidth",
-      backups: "4 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "60+ Players"
   },
@@ -169,7 +170,7 @@ const allPlans = [
       cpu: "800% CPU",
       storage: "100GB SSD",
       bandwidth: "Unmetered Bandwidth",
-      backups: "4 Cloud Backups",
+      backups: "1 Cloud Backup",
     },
     players: "100+ Players"
   },
@@ -184,9 +185,22 @@ const PurchaseForm = () => {
     password: "",
     phone: "",
     plan: "",
+    additionalBackups: "0",
+    additionalPorts: "0"
   });
   const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Calculate total price based on plan and add-ons
+  const calculateTotalPrice = () => {
+    if (!selectedPlan) return 0;
+    
+    const basePrice = selectedPlan.price;
+    const backupPrice = parseInt(formData.additionalBackups) * 19;
+    const portPrice = parseInt(formData.additionalPorts) * 9;
+    
+    return basePrice + backupPrice + portPrice;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -197,8 +211,10 @@ const PurchaseForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     
     // Find the selected plan
-    const plan = allPlans.find(p => p.id === value);
-    setSelectedPlan(plan || null);
+    if (name === "plan") {
+      const plan = allPlans.find(p => p.id === value);
+      setSelectedPlan(plan || null);
+    }
   };
 
   const getSpecIcon = (spec: string) => {
@@ -221,8 +237,16 @@ const PurchaseForm = () => {
     
     setIsSubmitting(true);
     
-    // Navigate to QR code payment page with form data
-    navigate("/payment", { state: formData });
+    // Calculate total price
+    const totalPrice = calculateTotalPrice();
+    
+    // Navigate to QR code payment page with form data and total price
+    navigate("/payment", { 
+      state: {
+        ...formData,
+        totalPrice 
+      }
+    });
   };
 
   return (
@@ -405,41 +429,122 @@ const PurchaseForm = () => {
                 </div>
 
                 {selectedPlan && (
-                  <div className="space-y-3 bg-black/70 border border-white/10 rounded-md p-4 mt-4 backdrop-blur-sm">
-                    <h3 className="font-medium text-white flex items-center gap-2">
-                      <span>{selectedPlan.name}</span>
-                      <span className="text-xs px-2 py-0.5 bg-white/10 rounded-full text-white/70">
-                        {selectedPlan.players}
-                      </span>
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex items-center gap-2">
-                        {getSpecIcon(selectedPlan.specs.ram)}
-                        <span className="text-sm text-white/80">{selectedPlan.specs.ram}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getSpecIcon(selectedPlan.specs.cpu)}
-                        <span className="text-sm text-white/80">{selectedPlan.specs.cpu}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getSpecIcon(selectedPlan.specs.storage)}
-                        <span className="text-sm text-white/80">{selectedPlan.specs.storage}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getSpecIcon(selectedPlan.specs.bandwidth)}
-                        <span className="text-sm text-white/80">{selectedPlan.specs.bandwidth}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getSpecIcon(selectedPlan.specs.backups)}
-                        <span className="text-sm text-white/80">{selectedPlan.specs.backups}</span>
+                  <>
+                    <div className="space-y-3 bg-black/70 border border-white/10 rounded-md p-4 mt-4 backdrop-blur-sm">
+                      <h3 className="font-medium text-white flex items-center gap-2">
+                        <span>{selectedPlan.name}</span>
+                        <span className="text-xs px-2 py-0.5 bg-white/10 rounded-full text-white/70">
+                          {selectedPlan.players}
+                        </span>
+                      </h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.ram)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.ram}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.cpu)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.cpu}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.storage)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.storage}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.bandwidth)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.bandwidth}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.backups)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.backups}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                    
+                    {/* Additional options section */}
+                    <div className="bg-black/70 border border-white/10 rounded-md p-4 space-y-4">
+                      <h3 className="font-medium text-white">Additional Options</h3>
+                      
+                      {/* Additional backups */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/90">
+                          Additional Cloud Backups (₹19 each)
+                        </label>
+                        <Select
+                          name="additionalBackups"
+                          value={formData.additionalBackups}
+                          onValueChange={(value) => handleSelectChange("additionalBackups", value)}
+                        >
+                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
+                            <SelectValue placeholder="Select number of additional backups" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-black/90 border-white/10 text-white">
+                            <SelectItem value="0">No additional backups</SelectItem>
+                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
+                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
+                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
+                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
+                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Additional ports */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/90">
+                          Additional Ports (₹9 each)
+                        </label>
+                        <Select
+                          name="additionalPorts"
+                          value={formData.additionalPorts}
+                          onValueChange={(value) => handleSelectChange("additionalPorts", value)}
+                        >
+                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
+                            <SelectValue placeholder="Select number of additional ports" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-black/90 border-white/10 text-white">
+                            <SelectItem value="0">No additional ports</SelectItem>
+                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
+                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
+                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
+                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
+                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Total price */}
+                      {(parseInt(formData.additionalBackups) > 0 || parseInt(formData.additionalPorts) > 0) && (
+                        <div className="mt-4 p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
+                          <div className="flex justify-between text-white">
+                            <span>Base plan price:</span>
+                            <span>₹{selectedPlan.price}</span>
+                          </div>
+                          {parseInt(formData.additionalBackups) > 0 && (
+                            <div className="flex justify-between text-white">
+                              <span>Additional backups ({formData.additionalBackups}):</span>
+                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
+                            </div>
+                          )}
+                          {parseInt(formData.additionalPorts) > 0 && (
+                            <div className="flex justify-between text-white">
+                              <span>Additional ports ({formData.additionalPorts}):</span>
+                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
+                            <span>Total price:</span>
+                            <span>₹{calculateTotalPrice()}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
 
                 <Button
                   type="submit"
-                  className="w-full py-6 mt-6 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(94,66,227,0.3)]"
+                  className="w-full py-6 mt-6 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(94,66,227,0.3)] button-texture"
                   disabled={isSubmitting}
                 >
                   <span>Proceed to Payment</span>
