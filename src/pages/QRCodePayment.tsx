@@ -4,7 +4,6 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import Footer from "@/components/Footer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // QR code images for each plan
@@ -67,6 +66,38 @@ const QRCodePayment = () => {
   const [customerDetails, setCustomerDetails] = useState<any>(null);
   const [emailSent, setEmailSent] = useState(false);
   
+  // Email sending function
+  const sendOrderNotification = async (details: any, plan: string) => {
+    try {
+      const response = await fetch('/api/send-order-email.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerName: details.name,
+          customerEmail: details.email,
+          customerPhone: details.phone || 'Not provided',
+          serverName: details.serverName,
+          plan: planNames[plan] || plan,
+          planPrice: planPrices[plan] || 'Unknown',
+          orderDate: new Date().toISOString(),
+        }),
+      });
+      
+      if (response.ok) {
+        console.log('Order notification email sent successfully');
+        return true;
+      } else {
+        console.error('Failed to send order notification email');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error sending email notification:', error);
+      return false;
+    }
+  };
+  
   useEffect(() => {
     // Get state passed from purchase form
     if (location.state) {
@@ -76,13 +107,17 @@ const QRCodePayment = () => {
       
       // Send email with customer details
       if (!emailSent && details) {
-        // In a real implementation, you would send an API request here
-        console.log("Sending email with customer details:", details);
-        setEmailSent(true);
-        
-        // Show a toast notification that the order was received
-        toast.success("Your order details have been sent to our team!", {
-          duration: 5000,
+        sendOrderNotification(details, plan).then(success => {
+          if (success) {
+            setEmailSent(true);
+            toast.success("Your order details have been sent to our team!", {
+              duration: 5000,
+            });
+          } else {
+            toast.error("We received your order, but there was an issue sending the confirmation email. Please contact support if needed.", {
+              duration: 7000,
+            });
+          }
         });
       }
     } else {
@@ -136,7 +171,7 @@ const QRCodePayment = () => {
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl shadow-lg overflow-hidden">
-            {/* QR Code Section - Improved centering */}
+            {/* QR Code Section */}
             <div className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-2 text-white">
                 {planNames[planId]} Plan
@@ -145,7 +180,7 @@ const QRCodePayment = () => {
                 Scan the QR code below to make your payment
               </p>
               
-              {/* Properly centered QR code display */}
+              {/* Centered QR code display */}
               <div className="mb-6 bg-white mx-auto p-4 rounded-lg w-64 h-64 flex items-center justify-center">
                 <img
                   src={planQRCodes[planId]}
