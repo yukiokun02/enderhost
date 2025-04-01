@@ -40,7 +40,7 @@ const allPlans = [
       cpu: "200% CPU",
       storage: "15GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "No Cloud Backup",
     },
     players: "5+ Players"
   },
@@ -54,7 +54,7 @@ const allPlans = [
       cpu: "250% CPU",
       storage: "20GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "No Cloud Backup",
     },
     players: "8+ Players"
   },
@@ -68,7 +68,7 @@ const allPlans = [
       cpu: "300% CPU",
       storage: "25GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "No Cloud Backup",
     },
     players: "15+ Players"
   },
@@ -84,7 +84,7 @@ const allPlans = [
       cpu: "350% CPU",
       storage: "30GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "No Cloud Backup",
     },
     players: "20+ Players"
   },
@@ -98,7 +98,7 @@ const allPlans = [
       cpu: "400% CPU",
       storage: "35GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "No Cloud Backup",
     },
     players: "25+ Players"
   },
@@ -112,7 +112,7 @@ const allPlans = [
       cpu: "450% CPU",
       storage: "40GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "No Cloud Backup",
     },
     players: "30+ Players"
   },
@@ -156,7 +156,7 @@ const allPlans = [
       cpu: "600% CPU",
       storage: "80GB SSD",
       bandwidth: "Unmetered Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "2 Cloud Backups",
     },
     players: "60+ Players"
   },
@@ -170,7 +170,7 @@ const allPlans = [
       cpu: "800% CPU",
       storage: "100GB SSD",
       bandwidth: "Unmetered Bandwidth",
-      backups: "1 Cloud Backup",
+      backups: "2 Cloud Backups",
     },
     players: "100+ Players"
   },

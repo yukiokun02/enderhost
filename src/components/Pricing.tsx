@@ -49,7 +49,7 @@ const planCategories = [
           "200% CPU",
           "15GB SSD",
           "1Gbps Bandwidth",
-          "1 Cloud Backup",
+          "No Cloud Backup",
         ],
         icon: "Stone Pickaxe",
         players: "5+ Players",
@@ -63,7 +63,7 @@ const planCategories = [
           "250% CPU",
           "20GB SSD",
           "1Gbps Bandwidth",
-          "1 Cloud Backup",
+          "No Cloud Backup",
         ],
         icon: "Cobblestone",
         players: "8+ Players",
@@ -78,7 +78,7 @@ const planCategories = [
           "300% CPU",
           "25GB SSD",
           "1Gbps Bandwidth",
-          "1 Cloud Backup",
+          "No Cloud Backup",
         ],
         icon: "Iron Pickaxe",
         players: "15+ Players",
@@ -86,9 +86,9 @@ const planCategories = [
       },
     ],
     included: [
-      "Unlimited Player Slots",
-      "Automatic Backups",
-      "Instant Setup"
+      "Custom Domain Support",
+      "DDoS Protection",
+      "Dedicated IP Address"
     ]
   },
   {
@@ -108,7 +108,7 @@ const planCategories = [
           "350% CPU",
           "30GB SSD",
           "1Gbps Bandwidth",
-          "1 Cloud Backup",
+          "No Cloud Backup",
         ],
         icon: "Iron Ore",
         players: "20+ Players",
@@ -122,7 +122,7 @@ const planCategories = [
           "400% CPU",
           "35GB SSD",
           "1Gbps Bandwidth",
-          "1 Cloud Backup",
+          "No Cloud Backup",
         ],
         icon: "Diamond",
         players: "25+ Players",
@@ -137,7 +137,7 @@ const planCategories = [
           "450% CPU",
           "40GB SSD",
           "1Gbps Bandwidth",
-          "1 Cloud Backup",
+          "No Cloud Backup",
         ],
         icon: "Ice Block",
         players: "30+ Players",
@@ -145,9 +145,9 @@ const planCategories = [
       },
     ],
     included: [
-      "Unlimited Player Slots",
-      "Modpack Installer",
-      "Instant Setup"
+      "Server Performance Monitor",
+      "Custom Server Branding",
+      "Premium Support"
     ]
   },
   {
@@ -195,7 +195,7 @@ const planCategories = [
           "600% CPU",
           "80GB SSD",
           "Unmetered Bandwidth",
-          "1 Cloud Backup",
+          "2 Cloud Backups",
         ],
         icon: "End Portal Frame",
         players: "60+ Players",
@@ -210,7 +210,7 @@ const planCategories = [
           "800% CPU",
           "100GB SSD",
           "Unmetered Bandwidth",
-          "1 Cloud Backup",
+          "2 Cloud Backups",
         ],
         icon: "Elytra",
         players: "100+ Players",
@@ -218,10 +218,10 @@ const planCategories = [
       },
     ],
     included: [
-      "Unlimited Player Slots",
-      "Plugin Manager",
-      "Instant Setup",
-      "Priority Support"
+      "Advanced Analytics Dashboard",
+      "Enterprise Support SLA",
+      "Custom Plugin Development",
+      "Dedicated Technical Manager"
     ]
   }
 ];
