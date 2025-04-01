@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
@@ -6,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-// Single static QR code
-const PAYMENT_QR_CODE = "/lovable-uploads/941ff633-d2ed-4b1f-bb49-a0b0658f8888.png";
+// Single static QR code - Updated with the new QR code
+const PAYMENT_QR_CODE = "/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png";
 
 // UPI ID
 const UPI_ID = "mail.enderhost@okhdfcbank";
@@ -195,7 +194,7 @@ const QRCodePayment = () => {
                 Scan the QR code below to make your payment
               </p>
               
-              {/* Centered QR code display */}
+              {/* Centered QR code display - Updated with new QR code */}
               <div className="mb-6 bg-white mx-auto p-4 rounded-lg w-64 h-64 flex items-center justify-center">
                 <img
                   src={PAYMENT_QR_CODE}
