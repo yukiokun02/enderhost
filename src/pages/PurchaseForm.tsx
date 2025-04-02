@@ -1,335 +1,583 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, CheckCircle, CreditCard, ShoppingCart } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 
-const formSchema = z.object({
-  fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  discordTag: z.string().min(2, { message: "Discord username is required." }),
-  plan: z.string().min(1, { message: "Please select a hosting plan." }),
-  paymentMethod: z.string().min(1, { message: "Please select a payment method." }),
-  additionalNotes: z.string().optional(),
-  upiId: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-export default function PurchaseForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      discordTag: "",
-      plan: "",
-      paymentMethod: "upi",
-      additionalNotes: "",
-      upiId: "",
+const allPlans = [
+  // Vanilla plans
+  {
+    id: "getting-woods",
+    name: "Getting Woods",
+    price: 149,
+    category: "PLAY VANILLA",
+    specs: {
+      ram: "2GB RAM",
+      cpu: "100% CPU",
+      storage: "10GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "",
     },
+    players: "3+ Players"
+  },
+  {
+    id: "getting-an-upgrade",
+    name: "Getting an Upgrade",
+    price: 339,
+    category: "PLAY VANILLA",
+    specs: {
+      ram: "4GB RAM",
+      cpu: "200% CPU",
+      storage: "15GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "",
+    },
+    players: "5+ Players"
+  },
+  {
+    id: "stone-age",
+    name: "Stone Age",
+    price: 529,
+    category: "PLAY VANILLA",
+    specs: {
+      ram: "6GB RAM",
+      cpu: "250% CPU",
+      storage: "20GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "",
+    },
+    players: "8+ Players"
+  },
+  {
+    id: "acquire-hardware",
+    name: "Acquire Hardware",
+    price: 699,
+    category: "PLAY VANILLA",
+    specs: {
+      ram: "8GB RAM",
+      cpu: "300% CPU",
+      storage: "25GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "",
+    },
+    players: "15+ Players"
+  },
+  
+  // Modpack plans
+  {
+    id: "isnt-it-iron-pick",
+    name: "Isn't It Iron Pick?",
+    price: 859,
+    category: "PLAY WITH MODPACKS",
+    specs: {
+      ram: "10GB RAM",
+      cpu: "350% CPU",
+      storage: "30GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "",
+    },
+    players: "20+ Players"
+  },
+  {
+    id: "diamonds",
+    name: "Diamonds",
+    price: 1029,
+    category: "PLAY WITH MODPACKS",
+    specs: {
+      ram: "12GB RAM",
+      cpu: "400% CPU",
+      storage: "35GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "",
+    },
+    players: "25+ Players"
+  },
+  {
+    id: "ice-bucket-challenge",
+    name: "Ice Bucket Challenge",
+    price: 1399,
+    category: "PLAY WITH MODPACKS",
+    specs: {
+      ram: "16GB RAM",
+      cpu: "450% CPU",
+      storage: "40GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "",
+    },
+    players: "30+ Players"
+  },
+  
+  // Community server plans
+  {
+    id: "we-need-to-go-deeper",
+    name: "We Need to Go Deeper",
+    price: 1699,
+    category: "START A COMMUNITY SERVER",
+    specs: {
+      ram: "20GB RAM",
+      cpu: "450% CPU",
+      storage: "45GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "1 Cloud Backup",
+    },
+    players: "40+ Players"
+  },
+  {
+    id: "hidden-in-the-depths",
+    name: "Hidden in the Depths",
+    price: 2119,
+    category: "START A COMMUNITY SERVER",
+    specs: {
+      ram: "24GB RAM",
+      cpu: "500% CPU",
+      storage: "50GB SSD",
+      bandwidth: "1Gbps Bandwidth",
+      backups: "1 Cloud Backup",
+    },
+    players: "50+ Players"
+  },
+  {
+    id: "the-end",
+    name: "The End",
+    price: 2899,
+    category: "START A COMMUNITY SERVER",
+    specs: {
+      ram: "32GB RAM",
+      cpu: "600% CPU",
+      storage: "80GB SSD",
+      bandwidth: "Unmetered Bandwidth",
+      backups: "2 Cloud Backups",
+    },
+    players: "60+ Players"
+  },
+  {
+    id: "sky-is-the-limit",
+    name: "Sky is the Limit",
+    price: 3399,
+    category: "START A COMMUNITY SERVER",
+    specs: {
+      ram: "64GB RAM",
+      cpu: "800% CPU",
+      storage: "100GB SSD",
+      bandwidth: "Unmetered Bandwidth",
+      backups: "2 Cloud Backups",
+    },
+    players: "100+ Players"
+  },
+];
+
+const PurchaseForm = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    serverName: "",
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    plan: "",
+    additionalBackups: "0",
+    additionalPorts: "0"
   });
-
-  const paymentMethod = form.watch("paymentMethod");
-  const selectedPlan = form.watch("plan");
-
-  const calculatePrice = (plan: string) => {
-    const planPrices = {
-      "basic": 149,
-      "standard": 339,
-      "premium": 529,
-      "pro": 859,
-      "enterprise": 1699,
-    };
-    return planPrices[plan as keyof typeof planPrices] || 0;
+  const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const calculateTotalPrice = () => {
+    if (!selectedPlan) return 0;
+    
+    const basePrice = selectedPlan.price;
+    const backupPrice = parseInt(formData.additionalBackups) * 19;
+    const portPrice = parseInt(formData.additionalPorts) * 9;
+    
+    return basePrice + backupPrice + portPrice;
   };
 
-  const basePrice = calculatePrice(selectedPlan);
-  const discountPrice = basePrice * 0.75;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  useEffect(() => {
-    document.documentElement.style.scrollBehavior = "smooth";
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
     
-    return () => {
-      document.documentElement.style.scrollBehavior = "";
-    };
-  }, []);
-
-  const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      sessionStorage.setItem('purchaseFormData', JSON.stringify({
-        ...data,
-        amount: discountPrice,
-        planName: getPlanName(selectedPlan),
-        transactionId: `TXN${Math.floor(Math.random() * 1000000)}`,
-        timestamp: new Date().toISOString(),
-      }));
-      
-      navigate('/payment');
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "There was a problem submitting your information."
-      });
-    } finally {
-      setIsSubmitting(false);
+    if (name === "plan") {
+      const plan = allPlans.find(p => p.id === value);
+      setSelectedPlan(plan || null);
     }
   };
 
+  const getSpecIcon = (spec: string) => {
+    if (spec.includes("RAM")) return <Gauge className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
+    if (spec.includes("CPU")) return <Cpu className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
+    if (spec.includes("SSD") || spec.includes("storage")) return <HardDrive className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
+    if (spec.includes("Bandwidth")) return <Signal className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
+    if (spec.includes("Backup")) return <Cloud className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
+    return null;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    const totalPrice = calculateTotalPrice();
+    
+    navigate("/payment", { 
+      state: {
+        ...formData,
+        totalPrice 
+      }
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-black flex flex-col relative">
+    <div className="flex flex-col min-h-screen bg-black">
       <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: 'url("/Image-elements/hero-background.png")',
+          backgroundImage: 'url("/lovable-uploads/9de719a9-cca7-4faa-bc79-f87f3245bd99.png")',
           backgroundPosition: '50% 20%',
-          opacity: 0.15,
-          filter: 'blur(3px)'
+          zIndex: 0
         }}
       />
       
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/95 to-black/80" />
-
-      <div 
-        className="fixed inset-0 opacity-10 mix-blend-soft-light"
-        style={{ 
-          backgroundImage: `linear-gradient(#8E9196 1px, transparent 1px), linear-gradient(to right, #8E9196 1px, transparent 1px)`,
-          backgroundSize: '30px 30px'
+      <div className="fixed inset-0 bg-gradient-to-t from-minecraft-dark via-black/85 to-black/40 z-0" />
+      
+      <div
+        className="fixed inset-0 grid-background z-0"
+        style={{
+          opacity: 0.06,
+          backgroundSize: "35px 35px",
         }}
       />
 
-      <div className="container mx-auto px-4 py-12 flex-1 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white">Complete Your Purchase</h1>
-            <p className="text-gray-400 mt-2">Fill in your details to get your Minecraft server up and running</p>
-          </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute top-8 left-8 text-white z-20 md:top-8 md:left-8"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Home
+      </Button>
 
-          <Card className="border-white/10 bg-black/80 backdrop-blur-sm shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-minecraft-dark/80 to-black border-b border-white/10 space-y-1">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <ShoppingCart className="h-5 w-5" />
-                Order Details
-              </CardTitle>
-              <CardDescription>Complete the form below to finalize your server order</CardDescription>
-            </CardHeader>
-            
-            <CardContent className="p-6">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="you@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="discordTag"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Discord Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="username" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="plan"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hosting Plan</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a plan" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="basic">Getting Woods (2GB) - ₹149/mo</SelectItem>
-                              <SelectItem value="standard">Getting an Upgrade (4GB) - ₹339/mo</SelectItem>
-                              <SelectItem value="premium">Stone Age (6GB) - ₹529/mo</SelectItem>
-                              <SelectItem value="pro">Acquire Hardware (8GB) - ₹699/mo</SelectItem>
-                              <SelectItem value="enterprise">We Need to Go Deeper (20GB) - ₹1699/mo</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <Separator className="my-4 bg-white/10" />
-                  
-                  <div>
-                    <h3 className="text-lg font-medium mb-3 text-white">Payment Method</h3>
-                    <FormField
-                      control={form.control}
-                      name="paymentMethod"
-                      render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormControl>
-                            <RadioGroup 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                              className="flex flex-col space-y-1"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="upi" id="upi" />
-                                <label htmlFor="upi" className="flex items-center gap-2 text-sm cursor-pointer font-medium">
-                                  <img src="/Image-elements/upi-icon.png" alt="UPI" className="w-5 h-5" />
-                                  UPI Payment
-                                </label>
-                              </div>
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  {selectedPlan && (
-                    <div className="rounded-lg bg-black/40 p-4 border border-white/10">
-                      <h4 className="text-sm font-medium mb-2 text-white">Order Summary</h4>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-gray-400">Plan:</span>
-                        <span className="text-white">{getPlanName(selectedPlan)}</span>
-                      </div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-gray-400">Regular Price:</span>
-                        <span className="text-white">₹{basePrice}/month</span>
-                      </div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-gray-400">Discount:</span>
-                        <span className="text-green-500">-25%</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold">
-                        <span className="text-white">Total:</span>
-                        <span className="text-white">₹{discountPrice}/month</span>
-                      </div>
-                      <div className="mt-2 flex items-center gap-2 text-xs text-green-500">
-                        <CheckCircle className="h-3 w-3" />
-                        <span>Limited Time Offer: 25% Off</span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <FormField
-                    control={form.control}
-                    name="additionalNotes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Additional Notes (Optional)</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Any special requirements or questions..."
-                            className="resize-y"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="bg-amber-900/20 border border-amber-600/30 rounded-lg p-3">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-amber-300">
-                        After submitting, you'll be redirected to complete the payment. Your server will be
-                        set up within 5 minutes of confirmed payment.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white py-3"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>Processing...</>
-                    ) : (
-                      <>
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        Continue to Payment
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-            
-            <CardFooter className="bg-black/50 border-t border-white/5 py-3 px-6">
-              <p className="text-xs text-gray-400">
-                By proceeding, you agree to our <a href="/terms-of-service" className="text-minecraft-secondary hover:underline">Terms of Service</a> and <a href="/privacy-policy" className="text-minecraft-secondary hover:underline">Privacy Policy</a>.
+      <main className="flex-grow relative z-10">
+        <div className="container mx-auto px-4 py-12 md:py-24">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-10">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+                Purchase Your Minecraft Server
+              </h1>
+              <p className="text-gray-400">
+                Fill in the details below to get started.
               </p>
-            </CardFooter>
-          </Card>
+            </div>
+
+            <div className="bg-black/50 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-sm shadow-xl">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="serverName"
+                    className="text-sm font-medium text-white/90"
+                  >
+                    Server Name
+                  </label>
+                  <Input
+                    id="serverName"
+                    name="serverName"
+                    placeholder="Enter your preferred server name"
+                    value={formData.serverName}
+                    onChange={handleChange}
+                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="name"
+                    className="text-sm font-medium text-white/90"
+                  >
+                    Your Full Name
+                  </label>
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Your Full Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="email"
+                    className="text-sm font-medium text-white/90"
+                  >
+                    Email Address
+                  </label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Your Email Address"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="phone"
+                    className="text-sm font-medium text-white/90"
+                  >
+                    Phone Number (Optional)
+                  </label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="Your Phone Number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="password"
+                    className="text-sm font-medium text-white/90"
+                  >
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Create a Password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="plan"
+                    className="text-sm font-medium text-white/90"
+                  >
+                    Select a Plan
+                  </label>
+                  <Select
+                    name="plan"
+                    onValueChange={(value) => handleSelectChange("plan", value)}
+                  >
+                    <SelectTrigger
+                      id="plan"
+                      className="w-full bg-black/70 border-white/10 text-white"
+                    >
+                      <SelectValue placeholder="Select a Plan" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black/90 border-white/10 text-white max-h-80">
+                      <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
+                      {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
+                        <SelectItem key={plan.id} value={plan.id}>
+                          {plan.name} - ₹{plan.price}/month
+                        </SelectItem>
+                      ))}
+                      
+                      <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
+                      {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
+                        <SelectItem key={plan.id} value={plan.id}>
+                          {plan.name} - ₹{plan.price}/month
+                        </SelectItem>
+                      ))}
+                      
+                      <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
+                      {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
+                        <SelectItem key={plan.id} value={plan.id}>
+                          {plan.name} - ₹{plan.price}/month
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedPlan && (
+                  <>
+                    <div className="space-y-3 bg-black/70 border border-white/10 rounded-md p-4 mt-4 backdrop-blur-sm">
+                      <h3 className="font-medium text-white flex items-center gap-2">
+                        <span>{selectedPlan.name}</span>
+                        <span className="text-xs px-2 py-0.5 bg-white/10 rounded-full text-white/70">
+                          {selectedPlan.players}
+                        </span>
+                      </h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.ram)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.ram}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.cpu)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.cpu}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.storage)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.storage}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getSpecIcon(selectedPlan.specs.bandwidth)}
+                          <span className="text-sm text-white/80">{selectedPlan.specs.bandwidth}</span>
+                        </div>
+                        {selectedPlan.specs.backups && (
+                          <div className="flex items-center gap-2">
+                            {getSpecIcon(selectedPlan.specs.backups)}
+                            <span className="text-sm text-white/80">{selectedPlan.specs.backups}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-black/70 border border-white/10 rounded-md p-4 space-y-4">
+                      <h3 className="font-medium text-white">Additional Options</h3>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/90">
+                          Additional Cloud Backups (₹19 each)
+                        </label>
+                        <Select
+                          name="additionalBackups"
+                          value={formData.additionalBackups}
+                          onValueChange={(value) => handleSelectChange("additionalBackups", value)}
+                        >
+                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
+                            <SelectValue placeholder="Select number of additional backups" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-black/90 border-white/10 text-white">
+                            <SelectItem value="0">No additional backups</SelectItem>
+                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
+                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
+                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
+                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
+                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/90">
+                          Additional Ports (₹9 each)
+                        </label>
+                        <Select
+                          name="additionalPorts"
+                          value={formData.additionalPorts}
+                          onValueChange={(value) => handleSelectChange("additionalPorts", value)}
+                        >
+                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
+                            <SelectValue placeholder="Select number of additional ports" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-black/90 border-white/10 text-white">
+                            <SelectItem value="0">No additional ports</SelectItem>
+                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
+                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
+                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
+                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
+                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {(parseInt(formData.additionalBackups) > 0 || parseInt(formData.additionalPorts) > 0) && (
+                        <div className="mt-4 p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
+                          <div className="flex justify-between text-white">
+                            <span>Base plan price:</span>
+                            <span>₹{selectedPlan.price}</span>
+                          </div>
+                          {parseInt(formData.additionalBackups) > 0 && (
+                            <div className="flex justify-between text-white">
+                              <span>Additional backups ({formData.additionalBackups}):</span>
+                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
+                            </div>
+                          )}
+                          {parseInt(formData.additionalPorts) > 0 && (
+                            <div className="flex justify-between text-white">
+                              <span>Additional ports ({formData.additionalPorts}):</span>
+                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
+                            <span>Total price:</span>
+                            <span>₹{calculateTotalPrice()}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full py-6 mt-6 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(94,66,227,0.3)] button-texture"
+                  disabled={isSubmitting}
+                >
+                  <span>Proceed to Payment</span>
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </form>
+            </div>
+
+            <div className="mt-8 text-center text-gray-500 text-sm">
+              <p>
+                By proceeding, you agree to our{" "}
+                <Link
+                  to="/terms-of-service"
+                  className="text-minecraft-secondary hover:underline"
+                >
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/refund-policy"
+                  className="text-minecraft-secondary hover:underline"
+                >
+                  Refund Policy
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
+
+      <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm relative z-10">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-gray-400 text-sm">
+              Copyright © {new Date().getFullYear()} EnderHOST<sup className="text-xs">®</sup>. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
-}
+};
 
-function getPlanName(planId: string): string {
-  const planNames: Record<string, string> = {
-    "basic": "Getting Woods (2GB)",
-    "standard": "Getting an Upgrade (4GB)",
-    "premium": "Stone Age (6GB)",
-    "pro": "Acquire Hardware (8GB)",
-    "enterprise": "We Need to Go Deeper (20GB)"
-  };
-  
-  return planNames[planId] || "Unknown Plan";
-}
+export default PurchaseForm;

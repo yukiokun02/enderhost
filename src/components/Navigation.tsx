@@ -30,7 +30,7 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-16">
             <a href="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
               <img 
-                src="/Image-elements/enderhost-logo.png" 
+                src="/lovable-uploads/e1341b42-612c-4eb3-b5f9-d6ac7e41acf3.png" 
                 alt="EnderHOST Logo" 
                 className="w-8 h-8"
               />
@@ -101,7 +101,7 @@ export default function Navigation() {
                       rel="noopener noreferrer"
                     >
                       <img 
-                        src="/Image-elements/discord-small.png" 
+                        src="/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png" 
                         alt="Discord" 
                         className="w-4 h-4" 
                       />
@@ -181,7 +181,7 @@ export default function Navigation() {
             rel="noopener noreferrer"
           >
             <img 
-              src="/Image-elements/discord-small.png" 
+              src="/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png" 
               alt="Discord" 
               className="w-4 h-4" 
             />

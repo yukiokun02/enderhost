@@ -1,243 +1,364 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-interface OrderData {
-  fullName: string;
-  email: string;
-  discordTag: string;
-  plan: string;
-  paymentMethod: string;
-  additionalNotes?: string;
-  amount: number;
-  planName: string;
-  transactionId: string;
-  timestamp: string;
-}
+// Static QR code path from config
+const PAYMENT_QR_CODE = "/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png";
 
-interface PaymentState {
-  success: boolean;
-  processing: boolean;
-  error: boolean;
-}
+// UPI ID
+const UPI_ID = "mail.enderhost@okhdfcbank";
 
-const LoadingIndicator = ({ message }: { message: string }) => (
-  <div className="flex items-center justify-center h-48">
-    <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-    </svg>
-    <span className="text-white">{message}</span>
-  </div>
-);
+// Plan display names
+const planNames: Record<string, string> = {
+  "getting-woods": "Getting Woods",
+  "getting-an-upgrade": "Getting an Upgrade",
+  "stone-age": "Stone Age",
+  "acquire-hardware": "Acquire Hardware",
+  "isnt-it-iron-pick": "Isn't It Iron Pick?",
+  "diamonds": "Diamonds",
+  "ice-bucket-challenge": "Ice Bucket Challenge",
+  "we-need-to-go-deeper": "We Need to Go Deeper",
+  "hidden-in-the-depths": "Hidden in the Depths",
+  "the-end": "The End",
+  "sky-is-the-limit": "Sky is the Limit"
+};
 
-export default function QRCodePayment() {
-  const [formData, setFormData] = useState<OrderData | null>(null);
-  const [countdown, setCountdown] = useState(900); // 15 minutes in seconds
-  const [payment, setPayment] = useState<PaymentState>({
-    success: false,
-    processing: false,
-    error: false
-  });
+// Base plan prices
+const planPrices: Record<string, number> = {
+  "getting-woods": 149,
+  "getting-an-upgrade": 339,
+  "stone-age": 529,
+  "acquire-hardware": 699,
+  "isnt-it-iron-pick": 859,
+  "diamonds": 1029,
+  "ice-bucket-challenge": 1399,
+  "we-need-to-go-deeper": 1699,
+  "hidden-in-the-depths": 2119,
+  "the-end": 2899,
+  "sky-is-the-limit": 3399
+};
+
+const QRCodePayment = () => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
-  // Load form data from session storage
-  useEffect(() => {
+  const [planId, setPlanId] = useState<string>("");
+  const [customerDetails, setCustomerDetails] = useState<any>(null);
+  const [emailSent, setEmailSent] = useState(false);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [additionalBackups, setAdditionalBackups] = useState<number>(0);
+  const [additionalPorts, setAdditionalPorts] = useState<number>(0);
+  
+  // Email sending function - Updated to include all necessary details
+  const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     try {
-      const storedData = sessionStorage.getItem('purchaseFormData');
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        setFormData(parsedData);
-        console.log("Loaded form data:", parsedData);
+      const response = await fetch('/api/send-order-email.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerName: details.name,
+          customerEmail: details.email,
+          customerPhone: details.phone || 'Not provided',
+          discordUsername: details.discordUsername || 'Not provided',
+          serverName: details.serverName,
+          plan: planNames[plan] || plan,
+          basePlanPrice: planPrices[plan] || 0,
+          additionalBackups: details.additionalBackups || 0,
+          additionalPorts: details.additionalPorts || 0,
+          totalPrice: totalPrice,
+          orderDate: new Date().toISOString(),
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('Order notification email sent successfully', data);
+        // Store order ID if returned from API
+        if (data.order_id) {
+          sessionStorage.setItem('enderhost_order_id', data.order_id);
+        }
+        return true;
       } else {
-        console.error("No form data found in session storage");
-        navigate('/purchase');
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Please complete the order form first."
-        });
+        console.error('Failed to send order notification email', data.message);
+        return false;
       }
     } catch (error) {
-      console.error("Error loading form data:", error);
-      navigate('/purchase');
+      console.error('Error sending email notification:', error);
+      return false;
     }
-  }, [navigate, toast]);
-
-  // Countdown timer
+  };
+  
   useEffect(() => {
-    if (countdown > 0 && !payment.success) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (countdown === 0 && !payment.success) {
-      toast({
-        variant: "destructive",
-        title: "Payment Expired",
-        description: "The payment session has expired. Please try again."
-      });
-      navigate('/purchase');
-    }
-  }, [countdown, payment.success, navigate, toast]);
-
-  // Format time from seconds to MM:SS
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handlePaymentSuccess = () => {
-    setPayment({ success: true, processing: false, error: false });
-    
-    // Show success toast
-    toast({
-      title: "Payment Successful!",
-      description: "Your server is being set up. You'll receive details soon.",
-      variant: "default",
-    });
-    
-    // Simulate sending email
-    setTimeout(() => {
-      toast({
-        title: "Email Sent",
-        description: "Server details have been sent to your email address.",
-        variant: "default",
-      });
-    }, 2000);
-  };
-
-  if (!formData) {
-    return <LoadingIndicator message="Loading payment details..." />;
-  }
-
-  return (
-    <div className="min-h-screen bg-black flex flex-col">
-      <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: 'url("/Image-elements/hero-background.png")',
-          backgroundPosition: '50% 20%',
-          opacity: 0.1,
-          filter: 'blur(3px)'
-        }}
-      />
+    // Get state passed from purchase form
+    if (location.state) {
+      const { plan, additionalBackups, additionalPorts, totalPrice, ...details } = location.state;
       
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/95 to-black/90" />
-
-      <div 
-        className="fixed inset-0 opacity-10 mix-blend-soft-light"
-        style={{ 
-          backgroundImage: `linear-gradient(#8E9196 1px, transparent 1px), linear-gradient(to right, #8E9196 1px, transparent 1px)`,
-          backgroundSize: '30px 30px'
-        }}
-      />
-
-      <div className="container mx-auto px-4 py-12 flex-1 relative z-10">
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <Link to="/" className="inline-block">
-              <img 
-                src="/Image-elements/enderhost-logo.png" 
-                alt="EnderHOST" 
-                className="h-10 mx-auto mb-4"
-              />
-            </Link>
-            <h1 className="text-xl md:text-2xl font-bold text-white mb-1">Complete Your Payment</h1>
-            <p className="text-gray-400 text-sm">Scan the QR code below to pay via UPI</p>
-          </div>
-
-          <Card className="border-white/10 bg-black/80 backdrop-blur-sm shadow-lg">
-            {payment.success ? (
-              <div className="p-6 text-center">
-                <div className="w-20 h-20 rounded-full bg-green-900/30 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="h-10 w-10 text-green-500" />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-2">Payment Successful!</h2>
-                <p className="text-gray-300 mb-4">
-                  Your Minecraft server is being set up and will be ready shortly.
-                </p>
-                <p className="text-sm text-gray-400 mb-6">
-                  Transaction ID: <span className="font-mono">{formData.transactionId}</span>
-                </p>
-                <div className="space-y-3">
-                  <Link to="/">
-                    <Button className="w-full bg-minecraft-secondary hover:bg-minecraft-secondary/80">
-                      Return to Homepage
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <>
-                <CardHeader className="bg-gradient-to-r from-minecraft-dark/80 to-black border-b border-white/10 pb-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle className="text-white text-lg">Amount to Pay</CardTitle>
-                      <CardDescription>Plan: {formData.planName}</CardDescription>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-white">₹{formData.amount}</p>
-                      <p className="text-xs text-gray-400">Monthly subscription</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="p-6">
-                  <div className="bg-white rounded-lg p-4 flex items-center justify-center mb-4">
-                    <img 
-                      src="/Image-elements/qr-payment.png" 
-                      alt="UPI QR Code" 
-                      className="w-56 h-56 object-contain"
-                    />
-                  </div>
-                  
-                  <div className="text-center mb-4">
-                    <div className="text-sm text-gray-400 mb-1">Time remaining to complete payment</div>
-                    <div className="text-xl font-mono font-bold text-white">{formatTime(countdown)}</div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="bg-minecraft-dark/30 border border-white/10 rounded-lg p-4">
-                      <h3 className="font-medium text-white mb-2">Payment Details</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Name:</span>
-                          <span className="text-white">{formData.fullName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Email:</span>
-                          <span className="text-white">{formData.email}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Order ID:</span>
-                          <span className="text-white font-mono">{formData.transactionId}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-center">
-                      <Button 
-                        onClick={handlePaymentSuccess} 
-                        className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white w-full"
-                      >
-                        I've Completed Payment
-                      </Button>
-                    </div>
-                    
-                    <div className="text-center text-sm text-gray-400">
-                      Having trouble? Contact our <a href="https://discord.gg/bsGPB9VpUY" target="_blank" rel="noopener noreferrer" className="text-minecraft-secondary hover:underline">Discord support</a>
-                    </div>
-                  </div>
-                </CardContent>
-              </>
-            )}
-          </Card>
+      setPlanId(plan);
+      setCustomerDetails(details);
+      setAdditionalBackups(parseInt(additionalBackups) || 0);
+      setAdditionalPorts(parseInt(additionalPorts) || 0);
+      
+      // Calculate total price if not provided directly
+      if (totalPrice) {
+        setTotalPrice(totalPrice);
+      } else {
+        // Calculate from components
+        const basePrice = planPrices[plan] || 0;
+        const backupCost = (parseInt(additionalBackups) || 0) * 19;
+        const portCost = (parseInt(additionalPorts) || 0) * 9;
+        setTotalPrice(basePrice + backupCost + portCost);
+      }
+      
+      // Send email with customer details
+      if (!emailSent && details) {
+        const finalTotalPrice = totalPrice || (planPrices[plan] + (parseInt(additionalBackups) || 0) * 19 + (parseInt(additionalPorts) || 0) * 9);
+        
+        sendOrderNotification(
+          { ...details, additionalBackups, additionalPorts }, 
+          plan, 
+          finalTotalPrice
+        ).then(success => {
+          if (success) {
+            setEmailSent(true);
+            toast.success("Your order details have been sent to our team!", {
+              duration: 5000,
+            });
+          } else {
+            toast.error("We received your order, but there was an issue sending the confirmation email. Please contact support if needed.", {
+              duration: 7000,
+            });
+          }
+        });
+      }
+    } else {
+      // If no state is passed, redirect to purchase form
+      navigate("/purchase");
+    }
+  }, [location, navigate, emailSent]);
+  
+  const copyUpiId = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    toast.success("UPI ID copied to clipboard!");
+  };
+  
+  if (!planId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-center">
+          <p className="text-white mb-4">Invalid plan selected or QR code not found.</p>
+          <Button onClick={() => navigate("/purchase")}>
+            Return to Purchase Form
+          </Button>
         </div>
       </div>
+    );
+  }
+  
+  // Calculate price breakdowns
+  const basePlanPrice = planPrices[planId] || 0;
+  const backupsCost = additionalBackups * 19;
+  const portsCost = additionalPorts * 9;
+  const hasAddons = additionalBackups > 0 || additionalPorts > 0;
+  
+  return (
+    <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
+      {/* Logo Header - Updated with EnderHOST logo */}
+      <header className="w-full bg-black/80 backdrop-blur-sm py-6 text-center shadow-md border-b border-gray-800">
+        <div className="container mx-auto flex items-center justify-center">
+          <img
+            src="/lovable-uploads/e1341b42-612c-4eb3-b5f9-d6ac7e41acf3.png"
+            alt="Ender Host Logo"
+            className="h-16"
+          />
+          <h1 className="text-3xl ml-4 font-bold text-gray-100">Ender<span className="text-minecraft-secondary">HOST</span></h1>
+        </div>
+      </header>
+      
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute top-8 left-8 text-gray-200 hover:text-white hover:bg-gray-800/60"
+        onClick={() => navigate("/purchase")}
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Form
+      </Button>
+
+      <main className="flex-grow py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl shadow-lg overflow-hidden">
+            {/* QR Code Section */}
+            <div className="p-8 text-center">
+              <h2 className="text-2xl font-bold mb-2 text-white">
+                {planNames[planId]} Plan
+              </h2>
+              <p className="text-sm text-gray-400 mb-6">
+                Scan the QR code below to make your payment
+              </p>
+              
+              {/* Centered QR code display - Updated with new QR code */}
+              <div className="mb-6 bg-white mx-auto p-4 rounded-lg w-64 h-64 flex items-center justify-center">
+                <img
+                  src={PAYMENT_QR_CODE}
+                  alt="Payment QR Code"
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+              
+              <div className="mb-6 space-y-4">
+                <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                  <p className="text-sm font-medium text-gray-400">UPI ID</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="font-mono text-gray-100">{UPI_ID}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={copyUpiId}
+                      className="ml-2 h-8 border-gray-700 hover:bg-gray-800 text-gray-200"
+                    >
+                      <Copy className="h-4 w-4 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                  {hasAddons ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
+                      <div className="space-y-1 text-sm mb-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Base Plan:</span>
+                          <span className="text-gray-300">₹{basePlanPrice.toLocaleString()}</span>
+                        </div>
+                        
+                        {additionalBackups > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Additional Backups ({additionalBackups}):</span>
+                            <span className="text-gray-300">₹{backupsCost.toLocaleString()}</span>
+                          </div>
+                        )}
+                        
+                        {additionalPorts > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
+                            <span className="text-gray-300">₹{portsCost.toLocaleString()}</span>
+                          </div>
+                        )}
+                        
+                        <div className="border-t border-gray-700 mt-2 pt-2 flex justify-between font-medium">
+                          <span className="text-white">Total:</span>
+                          <span className="text-white">₹{totalPrice.toLocaleString()}.00</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-gray-400">Amount</p>
+                      <p className="font-mono text-gray-100 text-xl font-bold">
+                        ₹{totalPrice.toLocaleString()}.00
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-center text-gray-400 mb-4">
+                Scan to pay with any UPI app
+              </p>
+            </div>
+            
+            {/* Instructions - Enhanced visibility */}
+            <div className="bg-minecraft-accent/10 p-6 border-t border-gray-800">
+              <h3 className="font-bold text-white mb-4 text-lg">After Payment:</h3>
+              
+              {/* Highlighted instructions box with better styling */}
+              <div className="bg-gradient-to-r from-minecraft-secondary/20 to-minecraft-secondary/10 p-5 rounded-lg border-2 border-minecraft-secondary/50 mb-6 shadow-[0_0_15px_rgba(0,200,83,0.15)]">
+                <ol className="list-decimal list-inside space-y-3 text-gray-200">
+                  <li>Take a screenshot of your payment confirmation</li>
+                  <li className="font-semibold text-white">
+                    Join our Discord server and create a ticket
+                  </li>
+                  <li>Share the screenshot with your order details</li>
+                  <li>Our team will set up your server and provide access details</li>
+                </ol>
+                
+                {/* Call-to-action button for Discord - Centered and enhanced */}
+                <Button
+                  className="w-full mt-6 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white font-medium shadow-lg shadow-minecraft-secondary/20 py-6 button-texture"
+                  size="lg"
+                >
+                  <Link 
+                    to="https://discord.gg/bsGPB9VpUY"
+                    target="_blank"
+                    rel="noopener noreferrer" 
+                    className="flex items-center justify-center w-full"
+                  >
+                    <img 
+                      src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
+                      alt="Discord" 
+                      className="w-5 h-5 mr-2" 
+                    />
+                    Join Our Discord Server
+                    <ExternalLink className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-md">
+                <p className="text-sm text-blue-300 flex items-start">
+                  <span className="font-bold mr-2">Note:</span>
+                  Your server will be set up within 24 hours after payment verification. 
+                  For immediate assistance, please contact us on Discord.
+                </p>
+              </div>
+              
+              {/* Refund Policy Dialog */}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="mt-4 text-gray-400 hover:text-minecraft-secondary">
+                    View Refund Policy
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-gray-900 border-gray-800 text-white">
+                  <DialogHeader>
+                    <DialogTitle>Refund Policy</DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription className="text-gray-300">
+                    <p className="mb-2">- All payments are non-refundable unless the service cannot be provided.</p>
+                    <p className="mb-2">- Refund requests for server issues must be made within 24 hours of payment.</p>
+                    <p>- For any refund inquiries, please create a ticket on our Discord server.</p>
+                  </DialogDescription>
+                  <DialogFooter>
+                    <Button 
+                      className="bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white button-texture"
+                      onClick={() => window.open("/refund-policy", "_blank")}
+                    >
+                      View Full Policy
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </div>
+      </main>
+      
+      {/* Simplified footer - copyright only */}
+      <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm py-6">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-400 text-sm">
+            Copyright © {new Date().getFullYear()} EnderHOST. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
-}
+};
+
+export default QRCodePayment;

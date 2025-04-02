@@ -16,7 +16,7 @@ export default function Hero() {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: 'url("/Image-elements/hero-background.png")',
+          backgroundImage: 'url("/lovable-uploads/9de719a9-cca7-4faa-bc79-f87f3245bd99.png")',
           backgroundPosition: '50% 20%'
         }}
       />
@@ -70,7 +70,7 @@ export default function Hero() {
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8 px-8 py-7 text-lg rounded-lg border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:border-minecraft-secondary/70 hover:scale-105 shadow-lg flex items-center gap-3 font-semibold min-w-[220px]"
             >
               <img 
-                src="/Image-elements/discord-icon.png" 
+                src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
                 alt="Discord" 
                 className="w-5 h-5" 
               />

@@ -5,84 +5,86 @@ const serverTypes = [
   {
     name: "Vanilla",
     description: "Original Minecraft experience",
-    imageSrc: "/Image-elements/server-vanilla.png",
+    imageSrc: "/lovable-uploads/dd9e7569-2fd6-4024-98ce-f6e15de312a5.png",
     color: "from-green-500 to-green-700",
     url: "https://www.minecraft.net/en-us/download/server"
   },
+  // Bukkit removed
   {
     name: "Spigot",
     description: "Optimized Bukkit fork",
-    imageSrc: "/Image-elements/server-spigot.png",
+    imageSrc: "/lovable-uploads/d0061f99-fbb0-48a4-917d-ea5a0d94dbda.png",
     color: "from-yellow-500 to-yellow-700",
     url: "https://www.spigotmc.org/"
   },
   {
     name: "Paper",
     description: "High performance Spigot fork",
-    imageSrc: "/Image-elements/server-paper.png",
+    imageSrc: "/lovable-uploads/b5a2e2ef-52e6-4868-9001-4aa6232b1f09.png",
     color: "from-red-500 to-red-700",
     url: "https://papermc.io/"
   },
   {
     name: "Purpur",
     description: "Paper fork with more features",
-    imageSrc: "/Image-elements/server-purpur.png",
+    imageSrc: "/lovable-uploads/67f71f89-8184-4a6f-8e97-47eaa5c7e909.png",
     color: "from-purple-500 to-purple-700",
     url: "https://purpurmc.org/"
   },
   {
     name: "Forge",
     description: "Mod support for Minecraft",
-    imageSrc: "/Image-elements/server-forge.png",
+    imageSrc: "/lovable-uploads/c518c79f-b1b5-4b6a-8b36-6f1eb687bf7b.png",
     color: "from-orange-500 to-orange-700",
     url: "https://files.minecraftforge.net/"
   },
   {
     name: "NeoForge",
     description: "Modern Forge continuation",
-    imageSrc: "/Image-elements/server-neoforge.png",
+    imageSrc: "/lovable-uploads/aa9f85f2-daf8-485d-a9f4-7e47a71d257e.png",
     color: "from-amber-500 to-amber-700",
     url: "https://neoforged.net/"
   },
   {
     name: "Fabric",
     description: "Lightweight modern modding",
-    imageSrc: "/Image-elements/server-fabric.png",
+    imageSrc: "/lovable-uploads/32ae7d2d-65eb-4b47-9c06-c61d76c82313.png",
     color: "from-indigo-500 to-indigo-700",
     url: "https://fabricmc.net/"
   },
   {
     name: "Quilt",
     description: "Community-driven modding API",
-    imageSrc: "/Image-elements/server-quilt.png",
+    imageSrc: "/lovable-uploads/1812089d-9509-46f3-bc3c-6ad3cc7823d6.png",
     color: "from-pink-500 to-pink-700",
     url: "https://quiltmc.org/"
   },
+  // New server types
   {
     name: "Velocity",
     description: "Modern, high-performance proxy",
-    imageSrc: "/Image-elements/server-velocity.png",
+    imageSrc: "/lovable-uploads/084aacb0-25b6-4ae9-bdcb-4747cae6efcd.png",
     color: "from-cyan-400 to-cyan-600",
     url: "https://papermc.io/software/velocity"
   },
   {
     name: "BungeeCord",
     description: "Original proxy server solution",
-    imageSrc: "/Image-elements/server-bungeecord.png",
+    imageSrc: "/lovable-uploads/49ac0a25-d9a1-4f05-9c08-124068bf78f5.png",
     color: "from-amber-400 to-amber-600",
     url: "https://www.spigotmc.org/wiki/bungeecord/"
   },
   {
     name: "GeyserMC",
     description: "Bedrock to Java connectivity",
-    imageSrc: "/Image-elements/server-geysermc.png",
+    imageSrc: "/lovable-uploads/b37194dc-12f5-4b46-980a-e6cd44332d52.png",
     color: "from-blue-400 to-orange-500",
     url: "https://geysermc.org/"
   },
   {
     name: "Sponge",
     description: "Advanced plugin framework",
-    imageSrc: "/Image-elements/server-sponge.png",
+    imageSrc: "/lovable-uploads/45e4aa45-228f-48e6-b19e-e0369749999e.png",
     color: "from-yellow-400 to-yellow-500",
     url: "https://spongepowered.org/"
   },
