@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -12,7 +11,6 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Toggle } from "@/components/ui/toggle";
 
 const allPlans = [
   // Vanilla plans
@@ -26,7 +24,7 @@ const allPlans = [
       cpu: "100% CPU",
       storage: "10GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "No Cloud Backup",
+      backups: "",
     },
     players: "3+ Players"
   },
@@ -40,7 +38,7 @@ const allPlans = [
       cpu: "200% CPU",
       storage: "15GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "No Cloud Backup",
+      backups: "",
     },
     players: "5+ Players"
   },
@@ -54,7 +52,7 @@ const allPlans = [
       cpu: "250% CPU",
       storage: "20GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "No Cloud Backup",
+      backups: "",
     },
     players: "8+ Players"
   },
@@ -68,7 +66,7 @@ const allPlans = [
       cpu: "300% CPU",
       storage: "25GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "No Cloud Backup",
+      backups: "",
     },
     players: "15+ Players"
   },
@@ -84,7 +82,7 @@ const allPlans = [
       cpu: "350% CPU",
       storage: "30GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "No Cloud Backup",
+      backups: "",
     },
     players: "20+ Players"
   },
@@ -98,7 +96,7 @@ const allPlans = [
       cpu: "400% CPU",
       storage: "35GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "No Cloud Backup",
+      backups: "",
     },
     players: "25+ Players"
   },
@@ -112,7 +110,7 @@ const allPlans = [
       cpu: "450% CPU",
       storage: "40GB SSD",
       bandwidth: "1Gbps Bandwidth",
-      backups: "No Cloud Backup",
+      backups: "",
     },
     players: "30+ Players"
   },
@@ -191,7 +189,6 @@ const PurchaseForm = () => {
   const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Calculate total price based on plan and add-ons
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
@@ -210,7 +207,6 @@ const PurchaseForm = () => {
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     
-    // Find the selected plan
     if (name === "plan") {
       const plan = allPlans.find(p => p.id === value);
       setSelectedPlan(plan || null);
@@ -229,7 +225,6 @@ const PurchaseForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
       alert("Please fill in all required fields");
       return;
@@ -237,10 +232,8 @@ const PurchaseForm = () => {
     
     setIsSubmitting(true);
     
-    // Calculate total price
     const totalPrice = calculateTotalPrice();
     
-    // Navigate to QR code payment page with form data and total price
     navigate("/payment", { 
       state: {
         ...formData,
@@ -454,18 +447,18 @@ const PurchaseForm = () => {
                           {getSpecIcon(selectedPlan.specs.bandwidth)}
                           <span className="text-sm text-white/80">{selectedPlan.specs.bandwidth}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {getSpecIcon(selectedPlan.specs.backups)}
-                          <span className="text-sm text-white/80">{selectedPlan.specs.backups}</span>
-                        </div>
+                        {selectedPlan.specs.backups && (
+                          <div className="flex items-center gap-2">
+                            {getSpecIcon(selectedPlan.specs.backups)}
+                            <span className="text-sm text-white/80">{selectedPlan.specs.backups}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
-                    {/* Additional options section */}
                     <div className="bg-black/70 border border-white/10 rounded-md p-4 space-y-4">
                       <h3 className="font-medium text-white">Additional Options</h3>
                       
-                      {/* Additional backups */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
                           Additional Cloud Backups (₹19 each)
@@ -489,7 +482,6 @@ const PurchaseForm = () => {
                         </Select>
                       </div>
                       
-                      {/* Additional ports */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
                           Additional Ports (₹9 each)
@@ -513,7 +505,6 @@ const PurchaseForm = () => {
                         </Select>
                       </div>
                       
-                      {/* Total price */}
                       {(parseInt(formData.additionalBackups) > 0 || parseInt(formData.additionalPorts) > 0) && (
                         <div className="mt-4 p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
                           <div className="flex justify-between text-white">

@@ -35,7 +35,6 @@ const planCategories = [
           "100% CPU",
           "10GB SSD",
           "1Gbps Bandwidth",
-          "No Cloud Backup",
         ],
         icon: "Oak Log",
         players: "3+ Players",
@@ -49,7 +48,6 @@ const planCategories = [
           "200% CPU",
           "15GB SSD",
           "1Gbps Bandwidth",
-          "No Cloud Backup",
         ],
         icon: "Stone Pickaxe",
         players: "5+ Players",
@@ -63,7 +61,6 @@ const planCategories = [
           "250% CPU",
           "20GB SSD",
           "1Gbps Bandwidth",
-          "No Cloud Backup",
         ],
         icon: "Cobblestone",
         players: "8+ Players",
@@ -78,7 +75,6 @@ const planCategories = [
           "300% CPU",
           "25GB SSD",
           "1Gbps Bandwidth",
-          "No Cloud Backup",
         ],
         icon: "Iron Pickaxe",
         players: "15+ Players",
@@ -86,9 +82,9 @@ const planCategories = [
       },
     ],
     included: [
-      "Custom Domain Support",
+      "24/7 Support",
       "DDoS Protection",
-      "Dedicated IP Address"
+      "Free Subdomain"
     ]
   },
   {
@@ -108,7 +104,6 @@ const planCategories = [
           "350% CPU",
           "30GB SSD",
           "1Gbps Bandwidth",
-          "No Cloud Backup",
         ],
         icon: "Iron Ore",
         players: "20+ Players",
@@ -122,7 +117,6 @@ const planCategories = [
           "400% CPU",
           "35GB SSD",
           "1Gbps Bandwidth",
-          "No Cloud Backup",
         ],
         icon: "Diamond",
         players: "25+ Players",
@@ -137,7 +131,6 @@ const planCategories = [
           "450% CPU",
           "40GB SSD",
           "1Gbps Bandwidth",
-          "No Cloud Backup",
         ],
         icon: "Ice Block",
         players: "30+ Players",
@@ -145,9 +138,9 @@ const planCategories = [
       },
     ],
     included: [
-      "Server Performance Monitor",
-      "Custom Server Branding",
-      "Premium Support"
+      "Premium Support",
+      "DDoS Protection",
+      "Server Performance Monitor"
     ]
   },
   {
@@ -218,10 +211,10 @@ const planCategories = [
       },
     ],
     included: [
-      "Advanced Analytics Dashboard",
-      "Enterprise Support SLA",
-      "Custom Plugin Development",
-      "Dedicated Technical Manager"
+      "Priority Support",
+      "Advanced DDoS Protection",
+      "Free World Transfers",
+      "Community Management Tools"
     ]
   }
 ];

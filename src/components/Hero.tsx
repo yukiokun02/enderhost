@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Server, Zap, Clock, Zap as ZapIcon, Globe } from "lucide-react";
 
@@ -94,7 +95,7 @@ export default function Hero() {
               <div className="text-xs md:text-sm text-gray-300">Round-the-clock expert assistance</div>
             </div>
             
-            {/* Deployment Time Card */}
+            {/* Hardware Performance Card - Replacing Deployment Time */}
             <div 
               className="rounded-lg p-4 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-secondary/15 to-minecraft-primary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:800ms] w-[90%] sm:w-full mx-auto"
               style={{ boxShadow: '0 0 10px rgba(94, 66, 227, 0.1)' }}
@@ -104,9 +105,9 @@ export default function Hero() {
                   <ZapIcon className="w-5 h-5 text-minecraft-primary" />
                 </div>
               </div>
-              <div className="text-xs uppercase tracking-wider text-gray-400 mb-1">Deployment Time</div>
-              <div className="text-2xl md:text-3xl font-bold mb-1 bg-gradient-to-r from-minecraft-secondary to-minecraft-primary bg-clip-text text-transparent">5s</div>
-              <div className="text-xs md:text-sm text-gray-300">Lightning-fast server setup</div>
+              <div className="text-xs uppercase tracking-wider text-gray-400 mb-1">Hardware</div>
+              <div className="text-2xl md:text-3xl font-bold mb-1 bg-gradient-to-r from-minecraft-secondary to-minecraft-primary bg-clip-text text-transparent">Enterprise</div>
+              <div className="text-xs md:text-sm text-gray-300">Premium server hardware</div>
             </div>
             
             {/* Server Location Card */}
