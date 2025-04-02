@@ -42,7 +42,7 @@ unset($_SESSION['payment_request_id']);
     <div class="max-w-md w-full bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div class="p-6">
             <div class="flex items-center justify-center mb-6">
-                <img src="/lovable-uploads/e1341b42-612c-4eb3-b5f9-d6ac7e41acf3.png" alt="EnderHOST Logo" class="w-10 h-10 mr-3">
+                <img src="/Image-elements/enderhost-logo.png" alt="EnderHOST Logo" class="w-10 h-10 mr-3">
                 <span class="text-2xl font-bold">
                     <span class="text-white">Ender</span>
                     <span class="text-green-500">HOST</span>
@@ -77,7 +77,7 @@ unset($_SESSION['payment_request_id']);
                 
                 <div class="flex flex-col space-y-4">
                     <a href="https://discord.gg/bsGPB9VpUY" target="_blank" class="bg-green-700 hover:bg-green-600 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center">
-                        <img src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" alt="Discord" class="w-5 h-5 mr-2">
+                        <img src="/Image-elements/discord-icon.png" alt="Discord" class="w-5 h-5 mr-2">
                         Join Our Discord Server
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

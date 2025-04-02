@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // Static QR code path from config
-const PAYMENT_QR_CODE = "/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png";
+const PAYMENT_QR_CODE = "/Image-elements/qr-payment.png";
 
 // UPI ID
 const UPI_ID = "mail.enderhost@okhdfcbank";
@@ -171,7 +171,7 @@ const QRCodePayment = () => {
       <header className="w-full bg-black/80 backdrop-blur-sm py-6 text-center shadow-md border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <img
-            src="/lovable-uploads/e1341b42-612c-4eb3-b5f9-d6ac7e41acf3.png"
+            src="/Image-elements/enderhost-logo.png"
             alt="Ender Host Logo"
             className="h-16"
           />
@@ -300,7 +300,7 @@ const QRCodePayment = () => {
                     className="flex items-center justify-center w-full"
                   >
                     <img 
-                      src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
+                      src="/Image-elements/discord-icon.png" 
                       alt="Discord" 
                       className="w-5 h-5 mr-2" 
                     />

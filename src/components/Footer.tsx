@@ -1,3 +1,4 @@
+
 import { GamepadIcon, CreditCard, Mail, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -27,7 +28,7 @@ export default function Footer({ simplified = false, copyrightOnly = false }: Fo
           <div className="mb-6 md:mb-0">
             <div className="flex items-center space-x-3 mb-6">
               <img 
-                src="/lovable-uploads/e1341b42-612c-4eb3-b5f9-d6ac7e41acf3.png" 
+                src="/Image-elements/enderhost-logo.png" 
                 alt="EnderHOST Logo" 
                 className="w-10 h-10"
               />
@@ -78,7 +79,7 @@ export default function Footer({ simplified = false, copyrightOnly = false }: Fo
                   <li>
                     <a href="https://discord.gg/bsGPB9VpUY" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base" target="_blank" rel="noopener noreferrer">
                       <img 
-                        src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
+                        src="/Image-elements/discord-icon.png" 
                         alt="Discord" 
                         className="w-5 h-5" 
                       />

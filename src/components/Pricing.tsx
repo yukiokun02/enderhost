@@ -4,17 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 const minecraftItems = {
-  "Oak Log": "/lovable-uploads/9b5fa930-abf6-434b-b424-efa2c7da4843.png",
-  "Stone Pickaxe": "/lovable-uploads/709d4d94-57cc-473b-ba6b-ddde49e58729.png", 
-  "Cobblestone": "/lovable-uploads/97fc8ca9-a0f0-42c1-b355-8f5edd9c8e90.png",
-  "Iron Pickaxe": "/lovable-uploads/573f8adb-bb56-458c-b9bd-eb7db91fb9ee.png",
-  "Iron Ore": "/lovable-uploads/f70619f2-e8e9-459f-b10a-1f81111f0133.png",
-  "Diamond": "/lovable-uploads/536cdfad-ca51-4101-9b13-5df237b1bfac.png",
-  "Ice Block": "/lovable-uploads/dbb67a3c-36d2-43f5-a6c8-46b89c9775ce.png",
-  "Obsidian": "/lovable-uploads/f8e42c18-4a5d-44a1-89bb-017d93a845d0.png",
-  "Ancient Debris": "/lovable-uploads/59bf24a7-8b32-4615-bb79-48e1427f928e.png",
-  "End Portal Frame": "/lovable-uploads/5f380a30-bc96-4223-a9bb-9fc744036d09.png",
-  "Elytra": "/lovable-uploads/42f68d43-0471-44a4-a49f-19b186484ba1.png"
+  "Oak Log": "/Image-elements/item-oak-log.png",
+  "Stone Pickaxe": "/Image-elements/item-stone-pickaxe.png", 
+  "Cobblestone": "/Image-elements/item-cobblestone.png",
+  "Iron Pickaxe": "/Image-elements/item-iron-pickaxe.png",
+  "Iron Ore": "/Image-elements/item-iron-ore.png",
+  "Diamond": "/Image-elements/item-diamond.png",
+  "Ice Block": "/Image-elements/item-ice-block.png",
+  "Obsidian": "/Image-elements/item-obsidian.png",
+  "Ancient Debris": "/Image-elements/item-ancient-debris.png",
+  "End Portal Frame": "/Image-elements/item-end-portal-frame.png",
+  "Elytra": "/Image-elements/item-elytra.png"
 };
 
 const planCategories = [

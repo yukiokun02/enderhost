@@ -31,5 +31,5 @@ define('DISCORD_WEBHOOK_URL', ''); // Add your Discord webhook URL if you want t
 
 // QR Payment Configuration
 define('QR_UPI_ID', 'mail.enderhost@okhdfcbank');
-define('QR_IMAGE_PATH', '/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png');
+define('QR_IMAGE_PATH', '/Image-elements/qr-payment.png');
 ?>
