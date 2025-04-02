@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -11,13 +10,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Radio, RadioGroup, RadioIndicator, RadioItem } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertTriangle, CheckCircle, CreditCard, ShoppingCart } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-// Define the form schema with Zod
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -25,7 +23,6 @@ const formSchema = z.object({
   plan: z.string().min(1, { message: "Please select a hosting plan." }),
   paymentMethod: z.string().min(1, { message: "Please select a payment method." }),
   additionalNotes: z.string().optional(),
-  // Additional fields for UPI payment
   upiId: z.string().optional(),
 });
 
@@ -36,7 +33,6 @@ const PurchaseForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Create form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,11 +46,9 @@ const PurchaseForm = () => {
     },
   });
 
-  // Watch for payment method changes to conditionally render fields
   const paymentMethod = form.watch("paymentMethod");
   const selectedPlan = form.watch("plan");
 
-  // Calculate pricing based on selected plan
   const calculatePrice = (plan: string) => {
     const planPrices = {
       "basic": 149,
@@ -66,11 +60,9 @@ const PurchaseForm = () => {
     return planPrices[plan as keyof typeof planPrices] || 0;
   };
 
-  // Calculate price with 25% discount
   const basePrice = calculatePrice(selectedPlan);
-  const discountPrice = basePrice * 0.75; // 25% off
+  const discountPrice = basePrice * 0.75;
 
-  // Apply smooth scrolling behavior to the html element
   useEffect(() => {
     document.documentElement.style.scrollBehavior = "smooth";
     
@@ -83,10 +75,8 @@ const PurchaseForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API request with timeout
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Assuming success, store form data in sessionStorage for next page
       sessionStorage.setItem('purchaseFormData', JSON.stringify({
         ...data,
         amount: discountPrice,
@@ -95,7 +85,6 @@ const PurchaseForm = () => {
         timestamp: new Date().toISOString(),
       }));
       
-      // Redirect to payment page
       navigate('/payment');
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -111,7 +100,6 @@ const PurchaseForm = () => {
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
-      {/* Background Image with Overlay */}
       <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
@@ -249,9 +237,7 @@ const PurchaseForm = () => {
                           className="flex flex-col space-y-1"
                         >
                           <div className="flex items-center space-x-2">
-                            <RadioItem value="upi" id="upi">
-                              <RadioIndicator />
-                            </RadioItem>
+                            <RadioGroupItem value="upi" id="upi" />
                             <label htmlFor="upi" className="flex items-center gap-2 text-sm cursor-pointer font-medium">
                               <img src="/Image-elements/upi-icon.png" alt="UPI" className="w-5 h-5" />
                               UPI Payment
