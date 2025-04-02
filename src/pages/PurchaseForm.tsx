@@ -1,249 +1,117 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Radio, RadioGroup, RadioIndicator, RadioItem } from "@/components/ui/radio-group";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { AlertTriangle, CheckCircle, CreditCard, ShoppingCart } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
-const allPlans = [
-  // Vanilla plans
-  {
-    id: "getting-woods",
-    name: "Getting Woods",
-    price: 149,
-    category: "PLAY VANILLA",
-    specs: {
-      ram: "2GB RAM",
-      cpu: "100% CPU",
-      storage: "10GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "",
-    },
-    players: "3+ Players"
-  },
-  {
-    id: "getting-an-upgrade",
-    name: "Getting an Upgrade",
-    price: 339,
-    category: "PLAY VANILLA",
-    specs: {
-      ram: "4GB RAM",
-      cpu: "200% CPU",
-      storage: "15GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "",
-    },
-    players: "5+ Players"
-  },
-  {
-    id: "stone-age",
-    name: "Stone Age",
-    price: 529,
-    category: "PLAY VANILLA",
-    specs: {
-      ram: "6GB RAM",
-      cpu: "250% CPU",
-      storage: "20GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "",
-    },
-    players: "8+ Players"
-  },
-  {
-    id: "acquire-hardware",
-    name: "Acquire Hardware",
-    price: 699,
-    category: "PLAY VANILLA",
-    specs: {
-      ram: "8GB RAM",
-      cpu: "300% CPU",
-      storage: "25GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "",
-    },
-    players: "15+ Players"
-  },
-  
-  // Modpack plans
-  {
-    id: "isnt-it-iron-pick",
-    name: "Isn't It Iron Pick?",
-    price: 859,
-    category: "PLAY WITH MODPACKS",
-    specs: {
-      ram: "10GB RAM",
-      cpu: "350% CPU",
-      storage: "30GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "",
-    },
-    players: "20+ Players"
-  },
-  {
-    id: "diamonds",
-    name: "Diamonds",
-    price: 1029,
-    category: "PLAY WITH MODPACKS",
-    specs: {
-      ram: "12GB RAM",
-      cpu: "400% CPU",
-      storage: "35GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "",
-    },
-    players: "25+ Players"
-  },
-  {
-    id: "ice-bucket-challenge",
-    name: "Ice Bucket Challenge",
-    price: 1399,
-    category: "PLAY WITH MODPACKS",
-    specs: {
-      ram: "16GB RAM",
-      cpu: "450% CPU",
-      storage: "40GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "",
-    },
-    players: "30+ Players"
-  },
-  
-  // Community server plans
-  {
-    id: "we-need-to-go-deeper",
-    name: "We Need to Go Deeper",
-    price: 1699,
-    category: "START A COMMUNITY SERVER",
-    specs: {
-      ram: "20GB RAM",
-      cpu: "450% CPU",
-      storage: "45GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
-    },
-    players: "40+ Players"
-  },
-  {
-    id: "hidden-in-the-depths",
-    name: "Hidden in the Depths",
-    price: 2119,
-    category: "START A COMMUNITY SERVER",
-    specs: {
-      ram: "24GB RAM",
-      cpu: "500% CPU",
-      storage: "50GB SSD",
-      bandwidth: "1Gbps Bandwidth",
-      backups: "1 Cloud Backup",
-    },
-    players: "50+ Players"
-  },
-  {
-    id: "the-end",
-    name: "The End",
-    price: 2899,
-    category: "START A COMMUNITY SERVER",
-    specs: {
-      ram: "32GB RAM",
-      cpu: "600% CPU",
-      storage: "80GB SSD",
-      bandwidth: "Unmetered Bandwidth",
-      backups: "2 Cloud Backups",
-    },
-    players: "60+ Players"
-  },
-  {
-    id: "sky-is-the-limit",
-    name: "Sky is the Limit",
-    price: 3399,
-    category: "START A COMMUNITY SERVER",
-    specs: {
-      ram: "64GB RAM",
-      cpu: "800% CPU",
-      storage: "100GB SSD",
-      bandwidth: "Unmetered Bandwidth",
-      backups: "2 Cloud Backups",
-    },
-    players: "100+ Players"
-  },
-];
+// Define the form schema with Zod
+const formSchema = z.object({
+  fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  discordUsername: z.string().min(2, { message: "Discord username must be at least 2 characters." }),
+  plan: z.string().min(1, { message: "Please select a hosting plan." }),
+  paymentMethod: z.string().min(1, { message: "Please select a payment method." }),
+  additionalNotes: z.string().optional(),
+  // Additional fields for UPI payment
+  upiId: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const PurchaseForm = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    serverName: "",
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    plan: "",
-    additionalBackups: "0",
-    additionalPorts: "0"
-  });
-  const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const calculateTotalPrice = () => {
-    if (!selectedPlan) return 0;
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Create form
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      discordUsername: "",
+      plan: "",
+      paymentMethod: "upi",
+      additionalNotes: "",
+      upiId: "",
+    },
+  });
+
+  // Watch for payment method changes to conditionally render fields
+  const paymentMethod = form.watch("paymentMethod");
+  const selectedPlan = form.watch("plan");
+
+  // Calculate pricing based on selected plan
+  const calculatePrice = (plan: string) => {
+    const planPrices = {
+      "basic": 149,
+      "standard": 249,
+      "premium": 449,
+      "ultimate": 649,
+    };
     
-    const basePrice = selectedPlan.price;
-    const backupPrice = parseInt(formData.additionalBackups) * 19;
-    const portPrice = parseInt(formData.additionalPorts) * 9;
-    
-    return basePrice + backupPrice + portPrice;
+    return planPrices[plan as keyof typeof planPrices] || 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // Calculate price with 25% discount
+  const basePrice = calculatePrice(selectedPlan);
+  const discountPrice = basePrice * 0.75; // 25% off
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  // Apply smooth scrolling behavior to the html element
+  useEffect(() => {
+    document.documentElement.style.scrollBehavior = "smooth";
     
-    if (name === "plan") {
-      const plan = allPlans.find(p => p.id === value);
-      setSelectedPlan(plan || null);
-    }
-  };
+    return () => {
+      document.documentElement.style.scrollBehavior = "";
+    };
+  }, []);
 
-  const getSpecIcon = (spec: string) => {
-    if (spec.includes("RAM")) return <Gauge className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
-    if (spec.includes("CPU")) return <Cpu className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
-    if (spec.includes("SSD") || spec.includes("storage")) return <HardDrive className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
-    if (spec.includes("Bandwidth")) return <Signal className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
-    if (spec.includes("Backup")) return <Cloud className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
-    return null;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
-      alert("Please fill in all required fields");
-      return;
-    }
-    
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     
-    const totalPrice = calculateTotalPrice();
-    
-    navigate("/payment", { 
-      state: {
-        ...formData,
-        totalPrice 
-      }
-    });
+    try {
+      // Simulate API request with timeout
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Assuming success, store form data in sessionStorage for next page
+      sessionStorage.setItem('purchaseFormData', JSON.stringify({
+        ...data,
+        amount: discountPrice,
+        planName: selectedPlan,
+        orderId: `ORDER-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        timestamp: new Date().toISOString(),
+      }));
+      
+      // Redirect to payment page
+      navigate('/payment');
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: "There was a problem with your purchase. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-black">
+    <div className="min-h-screen bg-black flex flex-col relative">
+      {/* Background Image with Overlay */}
       <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
@@ -253,329 +121,204 @@ const PurchaseForm = () => {
         }}
       />
       
-      <div className="fixed inset-0 bg-gradient-to-t from-minecraft-dark via-black/85 to-black/40 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-t from-minecraft-dark/95 via-black/90 to-black/70" style={{ zIndex: 0 }} />
       
-      <div
-        className="fixed inset-0 grid-background z-0"
-        style={{
-          opacity: 0.06,
-          backgroundSize: "35px 35px",
-        }}
-      />
-
-      <Button
-        variant="ghost"
-        size="sm"
-        className="absolute top-8 left-8 text-white z-20 md:top-8 md:left-8"
-        onClick={() => navigate("/")}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Home
-      </Button>
-
-      <main className="flex-grow relative z-10">
-        <div className="container mx-auto px-4 py-12 md:py-24">
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-10">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-                Purchase Your Minecraft Server
-              </h1>
-              <p className="text-gray-400">
-                Fill in the details below to get started.
-              </p>
+      <Navigation />
+      
+      <main className="flex-grow container mx-auto px-4 py-16 mt-16 relative z-10">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Complete Your Purchase</h1>
+            <p className="text-gray-400">Fill out this form to purchase your EnderHOST Minecraft server</p>
+          </div>
+          
+          <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4 bg-yellow-500/10 text-yellow-400 p-3 rounded-lg">
+              <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+              <p className="text-sm">Opening Offer: Get 25% OFF on all plans for a limited time!</p>
             </div>
-
-            <div className="bg-black/50 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-sm shadow-xl">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="serverName"
-                    className="text-sm font-medium text-white/90"
-                  >
-                    Server Name
-                  </label>
-                  <Input
-                    id="serverName"
-                    name="serverName"
-                    placeholder="Enter your preferred server name"
-                    value={formData.serverName}
-                    onChange={handleChange}
-                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
-                    required
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="text-sm font-medium text-white/90"
-                  >
-                    Your Full Name
-                  </label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Your Full Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-white/90"
-                  >
-                    Email Address
-                  </label>
-                  <Input
-                    id="email"
+                  
+                  <FormField
+                    control={form.control}
                     name="email"
-                    type="email"
-                    placeholder="Your Email Address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
-                    required
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="Enter your email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="phone"
-                    className="text-sm font-medium text-white/90"
-                  >
-                    Phone Number (Optional)
-                  </label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="Your Phone Number"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="password"
-                    className="text-sm font-medium text-white/90"
-                  >
-                    Password
-                  </label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Create a Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="plan"
-                    className="text-sm font-medium text-white/90"
-                  >
-                    Select a Plan
-                  </label>
-                  <Select
-                    name="plan"
-                    onValueChange={(value) => handleSelectChange("plan", value)}
-                  >
-                    <SelectTrigger
-                      id="plan"
-                      className="w-full bg-black/70 border-white/10 text-white"
-                    >
-                      <SelectValue placeholder="Select a Plan" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-black/90 border-white/10 text-white max-h-80">
-                      <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
-                      {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
-                        <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{plan.price}/month
-                        </SelectItem>
-                      ))}
-                      
-                      <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
-                      {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
-                        <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{plan.price}/month
-                        </SelectItem>
-                      ))}
-                      
-                      <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
-                      {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
-                        <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{plan.price}/month
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
+                
+                <FormField
+                  control={form.control}
+                  name="discordUsername"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Discord Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your Discord username" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="plan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select Hosting Plan</FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a hosting plan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="basic">Basic Plan - ₹149/month</SelectItem>
+                            <SelectItem value="standard">Standard Plan - ₹249/month</SelectItem>
+                            <SelectItem value="premium">Premium Plan - ₹449/month</SelectItem>
+                            <SelectItem value="ultimate">Ultimate Plan - ₹649/month</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
                 {selectedPlan && (
-                  <>
-                    <div className="space-y-3 bg-black/70 border border-white/10 rounded-md p-4 mt-4 backdrop-blur-sm">
-                      <h3 className="font-medium text-white flex items-center gap-2">
-                        <span>{selectedPlan.name}</span>
-                        <span className="text-xs px-2 py-0.5 bg-white/10 rounded-full text-white/70">
-                          {selectedPlan.players}
-                        </span>
-                      </h3>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex items-center gap-2">
-                          {getSpecIcon(selectedPlan.specs.ram)}
-                          <span className="text-sm text-white/80">{selectedPlan.specs.ram}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getSpecIcon(selectedPlan.specs.cpu)}
-                          <span className="text-sm text-white/80">{selectedPlan.specs.cpu}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getSpecIcon(selectedPlan.specs.storage)}
-                          <span className="text-sm text-white/80">{selectedPlan.specs.storage}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getSpecIcon(selectedPlan.specs.bandwidth)}
-                          <span className="text-sm text-white/80">{selectedPlan.specs.bandwidth}</span>
-                        </div>
-                        {selectedPlan.specs.backups && (
-                          <div className="flex items-center gap-2">
-                            {getSpecIcon(selectedPlan.specs.backups)}
-                            <span className="text-sm text-white/80">{selectedPlan.specs.backups}</span>
-                          </div>
-                        )}
+                  <Card className="border border-white/10 bg-black/40">
+                    <CardHeader>
+                      <CardTitle className="text-white">Order Summary</CardTitle>
+                      <CardDescription>Details of your selected plan</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Selected Plan:</span>
+                        <span className="text-white font-medium capitalize">{selectedPlan} Plan</span>
                       </div>
-                    </div>
-                    
-                    <div className="bg-black/70 border border-white/10 rounded-md p-4 space-y-4">
-                      <h3 className="font-medium text-white">Additional Options</h3>
-                      
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/90">
-                          Additional Cloud Backups (₹19 each)
-                        </label>
-                        <Select
-                          name="additionalBackups"
-                          value={formData.additionalBackups}
-                          onValueChange={(value) => handleSelectChange("additionalBackups", value)}
-                        >
-                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
-                            <SelectValue placeholder="Select number of additional backups" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">No additional backups</SelectItem>
-                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
-                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
-                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
-                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
-                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Original Price:</span>
+                        <span className="text-gray-400 line-through">₹{basePrice}/month</span>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/90">
-                          Additional Ports (₹9 each)
-                        </label>
-                        <Select
-                          name="additionalPorts"
-                          value={formData.additionalPorts}
-                          onValueChange={(value) => handleSelectChange("additionalPorts", value)}
-                        >
-                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
-                            <SelectValue placeholder="Select number of additional ports" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">No additional ports</SelectItem>
-                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
-                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
-                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
-                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
-                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Discounted Price (25% OFF):</span>
+                        <span className="text-minecraft-secondary font-bold">₹{discountPrice}/month</span>
                       </div>
-                      
-                      {(parseInt(formData.additionalBackups) > 0 || parseInt(formData.additionalPorts) > 0) && (
-                        <div className="mt-4 p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
-                          <div className="flex justify-between text-white">
-                            <span>Base plan price:</span>
-                            <span>₹{selectedPlan.price}</span>
-                          </div>
-                          {parseInt(formData.additionalBackups) > 0 && (
-                            <div className="flex justify-between text-white">
-                              <span>Additional backups ({formData.additionalBackups}):</span>
-                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
-                            </div>
-                          )}
-                          {parseInt(formData.additionalPorts) > 0 && (
-                            <div className="flex justify-between text-white">
-                              <span>Additional ports ({formData.additionalPorts}):</span>
-                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
-                            <span>Total price:</span>
-                            <span>₹{calculateTotalPrice()}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </>
+                      <Separator className="my-2" />
+                      <div className="flex justify-between">
+                        <span className="text-white">Total Amount:</span>
+                        <span className="text-white font-bold">₹{discountPrice}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
-
-                <Button
-                  type="submit"
-                  className="w-full py-6 mt-6 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(94,66,227,0.3)] button-texture"
-                  disabled={isSubmitting}
-                >
-                  <span>Proceed to Payment</span>
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                
+                <FormField
+                  control={form.control}
+                  name="paymentMethod"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Payment Method</FormLabel>
+                      <FormControl>
+                        <RadioGroup 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-1"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioItem value="upi" id="upi">
+                              <RadioIndicator />
+                            </RadioItem>
+                            <label htmlFor="upi" className="flex items-center gap-2 text-sm cursor-pointer font-medium">
+                              <img src="/Image-elements/upi-icon.png" alt="UPI" className="w-5 h-5" />
+                              UPI Payment
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="additionalNotes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Notes (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Any special requests or information we should know?"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="pt-2">
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <ShoppingCart className="w-4 h-4" />
+                        Complete Purchase
+                      </span>
+                    )}
+                  </Button>
+                </div>
               </form>
-            </div>
-
-            <div className="mt-8 text-center text-gray-500 text-sm">
-              <p>
-                By proceeding, you agree to our{" "}
-                <Link
-                  to="/terms-of-service"
-                  className="text-minecraft-secondary hover:underline"
-                >
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  to="/refund-policy"
-                  className="text-minecraft-secondary hover:underline"
-                >
-                  Refund Policy
-                </Link>
-                .
-              </p>
+            </Form>
+          </div>
+          
+          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-white font-medium">Secure Payment</h3>
+              <p className="text-gray-400 text-sm">Your payment information is processed securely. We do not store credit card details.</p>
             </div>
           </div>
         </div>
       </main>
-
-      <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm relative z-10">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <p className="text-gray-400 text-sm">
-              Copyright © {new Date().getFullYear()} EnderHOST<sup className="text-xs">®</sup>. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      
+      <Footer simplified={true} />
     </div>
   );
 };

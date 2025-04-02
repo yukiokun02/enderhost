@@ -18,6 +18,9 @@ const Index = () => {
     // Ensure smooth scrolling is applied
     document.documentElement.style.scrollBehavior = "smooth";
     
+    // Log to help debug image loading issues
+    console.log("Index component mounted - checking for images...");
+    
     return () => {
       // Clean up when component unmounts
       document.documentElement.style.scrollBehavior = "";

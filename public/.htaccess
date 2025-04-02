@@ -2,7 +2,7 @@
 # Rename directory mapping
 # This maps any requests to /lovable-uploads/ to be served from /Image-elements/
 RewriteEngine On
-RewriteRule ^lovable-uploads/(.*)$ /Image-elements/$1 [L,R=301]
+RewriteRule ^lovable-uploads/(.*)$ /Image-elements/$1 [L]
 
 # Ensure all other paths work with our React Router setup
 RewriteBase /
