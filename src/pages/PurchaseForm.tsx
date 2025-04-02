@@ -247,7 +247,7 @@ const PurchaseForm = () => {
       <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: 'url("/lovable-uploads/9de719a9-cca7-4faa-bc79-f87f3245bd99.png")',
+          backgroundImage: 'url("/Image-elements/9de719a9-cca7-4faa-bc79-f87f3245bd99.png")',
           backgroundPosition: '50% 20%',
           zIndex: 0
         }}
