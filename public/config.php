@@ -26,10 +26,10 @@ define('SMTP_PASS', 'your_password');
 define('SMTP_FROM_EMAIL', 'noreply@enderhost.in');
 define('SMTP_FROM_NAME', 'EnderHOST');
 
-// Payment Gateway Configuration
-define('INSTAMOJO_API_KEY', '15532137afaebf-b938bf237d6279e818');
-define('INSTAMOJO_AUTH_TOKEN', '25f57d21e4306fdbd30f4a6b-cac962ba');
-define('INSTAMOJO_SALT', 'bf10d739a2a340f49a25c-c5e323d8626');
-define('INSTAMOJO_ENDPOINT', 'https://www.instamojo.com/api/1.1/payment-requests/');
+// Discord Configuration
+define('DISCORD_WEBHOOK_URL', ''); // Add your Discord webhook URL if you want to receive notifications
 
+// QR Payment Configuration
+define('QR_UPI_ID', 'mail.enderhost@okhdfcbank');
+define('QR_IMAGE_PATH', '/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png');
 ?>

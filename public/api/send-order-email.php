@@ -49,14 +49,25 @@ if (!$data) {
 $customer_name = isset($data['customerName']) ? sanitize_input($data['customerName']) : 'Unknown';
 $customer_email = isset($data['customerEmail']) ? sanitize_input($data['customerEmail']) : 'Unknown';
 $customer_phone = isset($data['customerPhone']) ? sanitize_input($data['customerPhone']) : 'Not provided';
+$discord_username = isset($data['discordUsername']) ? sanitize_input($data['discordUsername']) : 'Not provided';
 $server_name = isset($data['serverName']) ? sanitize_input($data['serverName']) : 'Unknown';
 $plan = isset($data['plan']) ? sanitize_input($data['plan']) : 'Unknown';
-$plan_price = isset($data['planPrice']) ? sanitize_input($data['planPrice']) : 'Unknown';
+$plan_price = isset($data['basePlanPrice']) ? sanitize_input($data['basePlanPrice']) : 'Unknown';
+$additional_backups = isset($data['additionalBackups']) ? (int)$data['additionalBackups'] : 0;
+$additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPorts'] : 0;
+$total_price = isset($data['totalPrice']) ? sanitize_input($data['totalPrice']) : $plan_price;
 $order_date = isset($data['orderDate']) ? date('Y-m-d H:i:s', strtotime($data['orderDate'])) : date('Y-m-d H:i:s');
+
+// Generate order ID
+$order_id = "EH-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)) . "-" . date("Ymd");
 
 // Prepare email content
 $admin_email = ADMIN_EMAIL; // From config.php
 $subject = "New Minecraft Server Order - " . $server_name;
+
+// Calculate add-on prices
+$backup_cost = $additional_backups * 19;
+$port_cost = $additional_ports * 9;
 
 // HTML email body
 $html_message = "
@@ -90,6 +101,10 @@ $html_message = "
                 <h3>Order Details:</h3>
                 <table>
                     <tr>
+                        <th>Order ID:</th>
+                        <td>{$order_id}</td>
+                    </tr>
+                    <tr>
                         <th>Server Name:</th>
                         <td>{$server_name}</td>
                     </tr>
@@ -98,8 +113,31 @@ $html_message = "
                         <td>{$plan}</td>
                     </tr>
                     <tr>
-                        <th>Price:</th>
+                        <th>Base Price:</th>
                         <td>₹{$plan_price}</td>
+                    </tr>";
+
+// Add add-ons only if they exist
+if ($additional_backups > 0) {
+    $html_message .= "
+                    <tr>
+                        <th>Additional Backups ({$additional_backups}):</th>
+                        <td>₹{$backup_cost}</td>
+                    </tr>";
+}
+
+if ($additional_ports > 0) {
+    $html_message .= "
+                    <tr>
+                        <th>Additional Ports ({$additional_ports}):</th>
+                        <td>₹{$port_cost}</td>
+                    </tr>";
+}
+
+$html_message .= "
+                    <tr>
+                        <th>Total Price:</th>
+                        <td>₹{$total_price}</td>
                     </tr>
                     <tr>
                         <th>Order Date:</th>
@@ -122,11 +160,15 @@ $html_message = "
                     <th>Phone:</th>
                     <td>{$customer_phone}</td>
                 </tr>
+                <tr>
+                    <th>Discord Username:</th>
+                    <td>{$discord_username}</td>
+                </tr>
             </table>
             
             <p style='margin-top: 30px;'>
                 <b>Note:</b> This is just a notification that the customer has reached the payment page. 
-                Await payment confirmation before setting up the server.
+                Await payment confirmation from Discord before setting up the server.
             </p>
         </div>
         <div class='footer'>
@@ -142,18 +184,31 @@ $html_message = "
 $text_message = "
 NEW MINECRAFT SERVER ORDER
 
+Order ID: {$order_id}
 Server Name: {$server_name}
 Plan: {$plan}
-Price: ₹{$plan_price}
+Base Price: ₹{$plan_price}";
+
+if ($additional_backups > 0) {
+    $text_message .= "\nAdditional Backups ({$additional_backups}): ₹{$backup_cost}";
+}
+
+if ($additional_ports > 0) {
+    $text_message .= "\nAdditional Ports ({$additional_ports}): ₹{$port_cost}";
+}
+
+$text_message .= "
+Total Price: ₹{$total_price}
 Order Date: {$order_date}
 
 CUSTOMER INFORMATION:
 Name: {$customer_name}
 Email: {$customer_email}
 Phone: {$customer_phone}
+Discord Username: {$discord_username}
 
 Note: This is just a notification that the customer has reached the payment page. 
-Await payment confirmation before setting up the server.
+Await payment confirmation from Discord before setting up the server.
 
 © " . date('Y') . " EnderHOST. All rights reserved.
 ";
@@ -169,20 +224,15 @@ $success = false;
 
 if (USE_SMTP) {
     // Use SMTP if configured in config.php
-    require_once 'lib/PHPMailer/src/Exception.php';
-    require_once 'lib/PHPMailer/src/PHPMailer.php';
-    require_once 'lib/PHPMailer/src/SMTP.php';
-    
-    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-    
     try {
         // Server settings
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
         $mail->Host = SMTP_HOST;
         $mail->SMTPAuth = true;
         $mail->Username = SMTP_USER;
         $mail->Password = SMTP_PASS;
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->SMTPSecure = 'tls';
         $mail->Port = SMTP_PORT;
         
         // Recipients
@@ -198,19 +248,63 @@ if (USE_SMTP) {
         
         $mail->send();
         $success = true;
+        
+        // Log success
+        error_log("Order notification email sent to {$admin_email} for order {$order_id}");
     } catch (Exception $e) {
-        error_log('Error sending email: ' . $mail->ErrorInfo);
+        error_log('Error sending email: ' . $e->getMessage());
         $success = false;
     }
 } else {
     // Use PHP mail() function
     $success = mail($admin_email, $subject, $html_message, $headers);
+    
+    // Log the attempt
+    if ($success) {
+        error_log("Order notification email sent to {$admin_email} for order {$order_id} using mail()");
+    } else {
+        error_log("Failed to send order notification email to {$admin_email} for order {$order_id} using mail()");
+    }
+}
+
+// Optional: Send notification to Discord webhook if configured
+if (!empty(DISCORD_WEBHOOK_URL)) {
+    $discord_message = [
+        'content' => "New Server Order: {$server_name}",
+        'embeds' => [
+            [
+                'title' => "New Minecraft Server Order - {$plan}",
+                'description' => "Customer: {$customer_name}\nServer: {$server_name}\nTotal Price: ₹{$total_price}",
+                'color' => 3066993, // Green color
+                'fields' => [
+                    ['name' => 'Order ID', 'value' => $order_id, 'inline' => true],
+                    ['name' => 'Discord', 'value' => $discord_username, 'inline' => true],
+                    ['name' => 'Email', 'value' => $customer_email, 'inline' => true]
+                ],
+                'footer' => ['text' => 'EnderHOST Order System']
+            ]
+        ]
+    ];
+    
+    $discord_payload = json_encode($discord_message);
+    
+    $discord_ch = curl_init(DISCORD_WEBHOOK_URL);
+    curl_setopt($discord_ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    curl_setopt($discord_ch, CURLOPT_POST, 1);
+    curl_setopt($discord_ch, CURLOPT_POSTFIELDS, $discord_payload);
+    curl_setopt($discord_ch, CURLOPT_RETURNTRANSFER, true);
+    curl_exec($discord_ch);
+    curl_close($discord_ch);
 }
 
 // Send response
 if ($success) {
     http_response_code(200);
-    echo json_encode(['success' => true, 'message' => 'Order notification email sent successfully']);
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Order notification email sent successfully',
+        'order_id' => $order_id
+    ]);
 } else {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Failed to send order notification email']);

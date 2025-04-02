@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-// Single static QR code - Updated with the new QR code
+// Static QR code path from config
 const PAYMENT_QR_CODE = "/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png";
 
 // UPI ID
@@ -51,7 +51,7 @@ const QRCodePayment = () => {
   const [additionalBackups, setAdditionalBackups] = useState<number>(0);
   const [additionalPorts, setAdditionalPorts] = useState<number>(0);
   
-  // Email sending function
+  // Email sending function - Updated to include all necessary details
   const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     try {
       const response = await fetch('/api/send-order-email.php', {
@@ -63,9 +63,10 @@ const QRCodePayment = () => {
           customerName: details.name,
           customerEmail: details.email,
           customerPhone: details.phone || 'Not provided',
+          discordUsername: details.discordUsername || 'Not provided',
           serverName: details.serverName,
           plan: planNames[plan] || plan,
-          basePlanPrice: planPrices[plan] || 'Unknown',
+          basePlanPrice: planPrices[plan] || 0,
           additionalBackups: details.additionalBackups || 0,
           additionalPorts: details.additionalPorts || 0,
           totalPrice: totalPrice,
@@ -73,11 +74,17 @@ const QRCodePayment = () => {
         }),
       });
       
+      const data = await response.json();
+      
       if (response.ok) {
-        console.log('Order notification email sent successfully');
+        console.log('Order notification email sent successfully', data);
+        // Store order ID if returned from API
+        if (data.order_id) {
+          sessionStorage.setItem('enderhost_order_id', data.order_id);
+        }
         return true;
       } else {
-        console.error('Failed to send order notification email');
+        console.error('Failed to send order notification email', data.message);
         return false;
       }
     } catch (error) {
