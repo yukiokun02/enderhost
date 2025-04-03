@@ -53,6 +53,12 @@ const QRCodePayment = () => {
   const [additionalPorts, setAdditionalPorts] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Generate a unique order identifier based on form data
+  const generateOrderIdentifier = (details: any, plan: string): string => {
+    // Create a string that uniquely identifies this order
+    return `${details.email}-${plan}-${details.serverName}-${new Date().toDateString()}`;
+  };
+  
   // Email sending function - Updated with better error handling
   const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     if (isSubmitting) return false;
@@ -127,6 +133,11 @@ const QRCodePayment = () => {
         if (success) {
           setEmailSent(true);
           setEmailError(false);
+          // Mark this order as having sent an email
+          if (customerDetails) {
+            const orderIdentifier = generateOrderIdentifier(customerDetails, planId);
+            sessionStorage.setItem(`email_sent_${orderIdentifier}`, 'true');
+          }
           toast.success("Your order details have been sent successfully!", {
             duration: 5000,
           });
@@ -160,8 +171,12 @@ const QRCodePayment = () => {
         setTotalPrice(basePrice + backupCost + portCost);
       }
       
-      // Send email with customer details
-      if (!emailSent && details) {
+      // Check if we've already sent an email for this order using sessionStorage
+      const orderIdentifier = generateOrderIdentifier(details, plan);
+      const alreadySentEmail = sessionStorage.getItem(`email_sent_${orderIdentifier}`);
+      
+      // Only send email if we haven't sent one already for this order
+      if (!alreadySentEmail && details) {
         const finalTotalPrice = totalPrice || (planPrices[plan] + (parseInt(additionalBackups) || 0) * 19 + (parseInt(additionalPorts) || 0) * 9);
         
         sendOrderNotification(
@@ -171,6 +186,8 @@ const QRCodePayment = () => {
         ).then(success => {
           if (success) {
             setEmailSent(true);
+            // Mark this order as having sent an email
+            sessionStorage.setItem(`email_sent_${orderIdentifier}`, 'true');
             toast.success("Your order details have been sent to our team!", {
               duration: 5000,
             });
@@ -181,12 +198,16 @@ const QRCodePayment = () => {
             });
           }
         });
+      } else if (alreadySentEmail) {
+        // If we've already sent an email, update the state to reflect that
+        setEmailSent(true);
+        console.log("Email already sent for this order, not sending duplicate");
       }
     } else {
       // If no state is passed, redirect to purchase form
       navigate("/purchase");
     }
-  }, [location, navigate, emailSent]);
+  }, [location, navigate]);
   
   const copyUpiId = () => {
     navigator.clipboard.writeText(UPI_ID);
