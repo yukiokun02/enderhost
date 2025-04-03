@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
@@ -47,12 +48,19 @@ const QRCodePayment = () => {
   const [planId, setPlanId] = useState<string>("");
   const [customerDetails, setCustomerDetails] = useState<any>(null);
   const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [additionalBackups, setAdditionalBackups] = useState<number>(0);
   const [additionalPorts, setAdditionalPorts] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Email sending function - Updated to include all necessary details
+  // Email sending function - Updated with better error handling
   const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
+    if (isSubmitting) return false;
+    
+    setIsSubmitting(true);
+    setEmailError(false);
+    
     try {
       const response = await fetch('/api/send-order-email.php', {
         method: 'POST',
@@ -74,22 +82,60 @@ const QRCodePayment = () => {
         }),
       });
       
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Error parsing JSON response:', jsonError);
+        setEmailError(true);
+        setIsSubmitting(false);
+        return false;
+      }
       
-      if (response.ok) {
+      if (response.ok && data && data.success) {
         console.log('Order notification email sent successfully', data);
         // Store order ID if returned from API
         if (data.order_id) {
           sessionStorage.setItem('enderhost_order_id', data.order_id);
         }
+        setIsSubmitting(false);
         return true;
       } else {
-        console.error('Failed to send order notification email', data.message);
+        console.error('Failed to send order notification email', data?.message || 'No error message provided');
+        setEmailError(true);
+        setIsSubmitting(false);
         return false;
       }
     } catch (error) {
       console.error('Error sending email notification:', error);
+      setEmailError(true);
+      setIsSubmitting(false);
       return false;
+    }
+  };
+  
+  // Retry sending email if it failed
+  const retryEmailSending = () => {
+    if (customerDetails && planId) {
+      toast.info("Retrying to send notification email...");
+      
+      sendOrderNotification(
+        customerDetails, 
+        planId, 
+        totalPrice
+      ).then(success => {
+        if (success) {
+          setEmailSent(true);
+          setEmailError(false);
+          toast.success("Your order details have been sent successfully!", {
+            duration: 5000,
+          });
+        } else {
+          toast.error("Still unable to send confirmation email. Please contact us on Discord.", {
+            duration: 7000,
+          });
+        }
+      });
     }
   };
   
@@ -129,7 +175,8 @@ const QRCodePayment = () => {
               duration: 5000,
             });
           } else {
-            toast.error("We received your order, but there was an issue sending the confirmation email. Please contact support if needed.", {
+            setEmailError(true);
+            toast.error("We received your order, but there was an issue sending the confirmation email.", {
               duration: 7000,
             });
           }
@@ -191,6 +238,23 @@ const QRCodePayment = () => {
 
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
+          {/* Email notification error message */}
+          {emailError && (
+            <div className="max-w-md mx-auto mb-6 bg-red-900/50 text-white p-4 rounded-lg border border-red-800 flex flex-col items-center">
+              <p className="mb-3 text-center">
+                <span className="font-bold">Notice:</span> We received your order, but there was an issue sending the confirmation email. 
+              </p>
+              <Button 
+                variant="outline" 
+                className="bg-transparent border-white text-white hover:bg-white/20"
+                onClick={retryEmailSending}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Retrying..." : "Retry Sending Email"}
+              </Button>
+            </div>
+          )}
+          
           <div className="max-w-md mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl shadow-lg overflow-hidden">
             {/* QR Code Section */}
             <div className="p-8 text-center">

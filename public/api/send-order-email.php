@@ -33,6 +33,9 @@ function logError($message, $type = 'ERROR') {
         
         // Write to log file
         file_put_contents(ERROR_LOG_PATH, $logEntry, FILE_APPEND);
+        
+        // Debug: Output the log path for troubleshooting
+        error_log("Attempted to write to log: $logDir, success: " . (is_writable($logDir) ? 'Yes' : 'No'));
     }
 }
 
@@ -52,8 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
+// Debug log to check if script is being reached
+logError("Order email script called at " . date('Y-m-d H:i:s'), "DEBUG");
+
 // Get JSON data from the request body
 $json_data = file_get_contents('php://input');
+logError("Received data: " . $json_data, "DEBUG");
+
 $data = json_decode($json_data, true);
 
 // Check if data was provided and properly decoded
@@ -270,13 +278,16 @@ if (USE_SMTP) {
         // Server settings
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
-        $mail->SMTPDebug = 0; // Set to 2 for debugging
+        $mail->SMTPDebug = 2; // Enable verbose debug output
         $mail->Host = SMTP_HOST;
         $mail->SMTPAuth = true;
         $mail->Username = SMTP_USER;
         $mail->Password = SMTP_PASS;
         $mail->SMTPSecure = 'tls';
         $mail->Port = SMTP_PORT;
+        
+        // Log SMTP settings for debugging
+        logError("SMTP Settings - Host: " . SMTP_HOST . ", User: " . SMTP_USER . ", Port: " . SMTP_PORT, "DEBUG");
         
         // Recipients
         $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
@@ -289,7 +300,15 @@ if (USE_SMTP) {
         $mail->Body = $html_message;
         $mail->AltBody = $text_message;
         
-        $mail->send();
+        // Log before sending
+        logError("Attempting to send email to {$admin_email}...", "INFO");
+        
+        // Capture SMTP debug output
+        ob_start();
+        $send_result = $mail->send();
+        $smtp_debug = ob_get_clean();
+        logError("SMTP Debug Output: " . $smtp_debug, "DEBUG");
+        
         $success = true;
         
         // Log success
@@ -354,128 +373,9 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
     logError("Discord webhook URL not configured in config.php", "WARNING");
 }
 
-// Create a helper file to test SMTP configuration
-<lov-write file_path="public/api/test-smtp.php">
-<?php
-// This file is for testing SMTP configuration
-// Access it directly in your browser to test email sending
-
-// Load configuration
-require_once '../config.php';
-
-// Check if we're in a web environment
-$is_cli = (php_sapi_name() == 'cli');
-
-// Set headers for web environment
-if (!$is_cli) {
-    header('Content-Type: text/html; charset=UTF-8');
-}
-
-// Function to output messages appropriately
-function output($message, $is_error = false) {
-    global $is_cli;
-    
-    if ($is_cli) {
-        echo ($is_error ? "ERROR: " : "") . $message . PHP_EOL;
-    } else {
-        echo "<p" . ($is_error ? " style='color:red'" : "") . ">" . htmlspecialchars($message) . "</p>";
-    }
-}
-
-// Start output
-if (!$is_cli) {
-    echo "<!DOCTYPE html>
-    <html>
-    <head>
-        <title>EnderHOST SMTP Test</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-            .success { color: green; }
-            .error { color: red; }
-            .info { color: blue; }
-            pre { background: #f5f5f5; padding: 10px; overflow: auto; }
-        </style>
-    </head>
-    <body>
-        <h1>EnderHOST SMTP Configuration Test</h1>";
-}
-
-output("Testing SMTP Configuration...", false);
-output("SMTP Host: " . SMTP_HOST, false);
-output("SMTP Port: " . SMTP_PORT, false);
-output("SMTP User: " . SMTP_USER, false);
-output("SMTP From: " . SMTP_FROM_EMAIL, false);
-
-// Check if PHPMailer is properly installed
-$phpmailer_files = [
-    __DIR__ . '/lib/PHPMailer/src/Exception.php',
-    __DIR__ . '/lib/PHPMailer/src/PHPMailer.php',
-    __DIR__ . '/lib/PHPMailer/src/SMTP.php'
-];
-
-$phpmailer_missing = false;
-foreach ($phpmailer_files as $file) {
-    if (!file_exists($file)) {
-        $phpmailer_missing = true;
-        output("PHPMailer file missing: $file", true);
-    }
-}
-
-if ($phpmailer_missing) {
-    output("PHPMailer is not properly installed. Please check the README.md file for installation instructions.", true);
-} else {
-    output("PHPMailer files found.", false);
-    
-    // Include PHPMailer
-    require_once __DIR__ . '/lib/PHPMailer/src/Exception.php';
-    require_once __DIR__ . '/lib/PHPMailer/src/PHPMailer.php';
-    require_once __DIR__ . '/lib/PHPMailer/src/SMTP.php';
-    
-    // Send test email
-    try {
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
-        // Server settings
-        $mail->SMTPDebug = 3; // Enable verbose debug output
-        $mail->isSMTP();
-        $mail->Host = SMTP_HOST;
-        $mail->SMTPAuth = true;
-        $mail->Username = SMTP_USER;
-        $mail->Password = SMTP_PASS;
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = SMTP_PORT;
-        
-        // Recipients
-        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
-        $mail->addAddress(ADMIN_EMAIL);
-        
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'EnderHOST SMTP Test';
-        $mail->Body = 'This is a test email to verify SMTP configuration is working correctly.';
-        $mail->AltBody = 'This is a test email to verify SMTP configuration is working correctly.';
-        
-        ob_start();
-        $mail->send();
-        $debug_output = ob_get_clean();
-        
-        output("Test email sent successfully!", false);
-        output("Debug Output:", false);
-        
-        if (!$is_cli) {
-            echo "<pre>";
-        }
-        echo htmlspecialchars($debug_output);
-        if (!$is_cli) {
-            echo "</pre>";
-        }
-        
-    } catch (Exception $e) {
-        output("Error sending test email: " . $mail->ErrorInfo, true);
-    }
-}
-
-if (!$is_cli) {
-    echo "</body></html>";
-}
-?>
+// Return result as JSON
+echo json_encode([
+    'success' => $success,
+    'message' => $success ? 'Order notification sent successfully.' : 'Failed to send order notification. Please contact support.',
+    'order_id' => $order_id
+]);

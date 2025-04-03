@@ -20,13 +20,14 @@
 EnderHOST uses PHPMailer for sending emails. To set up:
 
 1. Download PHPMailer from https://github.com/PHPMailer/PHPMailer/releases
-2. Extract files to `public/api/lib/PHPMailer` directory
-3. The directory structure should be:
+2. Create the directory structure: `public/api/lib/PHPMailer`
+3. Extract files to the `public/api/lib/PHPMailer` directory
+4. The directory structure should be:
    - `public/api/lib/PHPMailer/src/Exception.php`
    - `public/api/lib/PHPMailer/src/PHPMailer.php`
    - `public/api/lib/PHPMailer/src/SMTP.php`
 
-4. Configure SMTP settings in `public/config.php`:
+5. Configure SMTP settings in `public/config.php`:
    ```php
    // Email Configuration
    define('ADMIN_EMAIL', 'your-admin-email@example.com');
@@ -41,7 +42,13 @@ EnderHOST uses PHPMailer for sending emails. To set up:
    define('SMTP_FROM_NAME', 'EnderHOST');
    ```
 
-5. To test the email system, visit `http://your-domain.com/api/test-smtp.php`
+6. Create the logs directory and ensure it's writable:
+   ```bash
+   mkdir -p public/logs
+   chmod 755 public/logs
+   ```
+
+7. To test the email system, visit `http://your-domain.com/api/test-smtp.php`
 
 ### 3. Discord Webhook Setup (Optional)
 
@@ -71,25 +78,57 @@ To receive notifications on Discord when new orders are placed:
 EnderHOST has a built-in error logging system that helps troubleshoot issues:
 
 1. Logs are stored in `public/logs/enderhost_errors.log`
-2. Make sure the logs directory is writable by the web server
+2. Make sure the logs directory is writable by the web server:
+   ```bash
+   chown www-data:www-data public/logs  # For Apache on Ubuntu/Debian
+   chmod 755 public/logs
+   touch public/logs/enderhost_errors.log
+   chmod 644 public/logs/enderhost_errors.log
+   chown www-data:www-data public/logs/enderhost_errors.log
+   ```
 3. To disable error logging, set `ENABLE_ERROR_LOGGING` to false in `public/config.php`
+4. Check logs regularly to identify and fix issues
 
 ## Troubleshooting Email Issues
 
 If you're experiencing issues with the email system:
 
-1. Check the error logs at `public/logs/enderhost_errors.log`
-2. Verify SMTP credentials in `public/config.php`
-3. Run the SMTP test utility: `http://your-domain.com/api/test-smtp.php`
-4. Check if your SMTP provider (e.g., Brevo) has connection limits or restrictions
-5. Ensure your server's IP is not blacklisted
-6. Verify that PHP's cURL extension is enabled
+1. **Check if PHPMailer is installed correctly:**
+   - Verify that the PHPMailer files are in the correct location: `public/api/lib/PHPMailer/src/`
+   - Make sure all required files are present: `Exception.php`, `PHPMailer.php`, and `SMTP.php`
+
+2. **Run the SMTP test utility:**
+   - Access `http://your-domain.com/api/test-smtp.php` in your browser
+   - This will provide detailed diagnostic information about your SMTP configuration
+
+3. **Check the error logs:**
+   - Review logs at `public/logs/enderhost_errors.log`
+   - Look for specific error messages related to email sending
+
+4. **Verify SMTP credentials and settings:**
+   - Ensure your SMTP host, port, username, and password are correct
+   - Try a different port if necessary (common ports are 25, 465, 587)
+   - Check if your SMTP provider (e.g., Brevo) requires any special configuration
+
+5. **Verify PHP extensions:**
+   - Make sure PHP has the required extensions enabled: `openssl`, `curl`, `mbstring`
+   - These can be enabled in your `php.ini` file
+
+6. **Check for IP or firewall restrictions:**
+   - Some SMTP providers restrict which IP addresses can send emails
+   - Verify your server's IP is not blacklisted
+   - Check if your hosting provider blocks outgoing SMTP connections
+
+7. **Test with PHP's built-in mail function:**
+   - If SMTP isn't working, try setting `USE_SMTP` to `false` in `config.php`
+   - This will use PHP's `mail()` function instead
 
 ## Security Notes
 
 1. The `public/logs` directory is protected with .htaccess to prevent direct access
 2. Regularly update the PHPMailer library to the latest version
 3. Never expose your database or SMTP credentials
+4. Consider using HTTPS for your entire site to protect sensitive data
 
 ## Folder Structure
 
