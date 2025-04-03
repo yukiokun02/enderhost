@@ -19,12 +19,21 @@ function sanitize_input($data) {
     return $data;
 }
 
+// Log access to this page
+if (defined('ENABLE_ERROR_LOGGING') && ENABLE_ERROR_LOGGING) {
+    $log_message = date('Y-m-d H:i:s') . " [INFO] User accessed payment success page. IP: " . $_SERVER['REMOTE_ADDR'];
+    file_put_contents(ERROR_LOG_PATH, $log_message . PHP_EOL, FILE_APPEND);
+}
+
 // Initialize variables
 $payment_verified = true; // In QR system, we assume payment is verified through Discord
 $error_message = '';
 
 // Get purchase data from session
 $purchase_data = isset($_SESSION['server_purchase']) ? $_SESSION['server_purchase'] : [];
+
+// Get order ID from session if available
+$order_id = isset($_SESSION['enderhost_order_id']) ? $_SESSION['enderhost_order_id'] : 'Not Available';
 
 // Clear sensitive session data
 unset($_SESSION['payment_request_id']);
@@ -62,6 +71,14 @@ unset($_SESSION['payment_request_id']);
                     <p class="text-gray-300 mb-6">
                         Thank you for choosing <span class="font-semibold"><?php echo htmlspecialchars($_SESSION['server_purchase']['plan']); ?></span> plan.
                     </p>
+                <?php endif; ?>
+
+                <?php if (!empty($order_id) && $order_id !== 'Not Available'): ?>
+                    <div class="bg-gray-700 p-3 rounded-md mb-4">
+                        <p class="text-sm text-gray-300">Your order ID:</p>
+                        <p class="font-mono text-white"><?php echo htmlspecialchars($order_id); ?></p>
+                        <p class="text-xs text-gray-400 mt-1">Please save this for reference</p>
+                    </div>
                 <?php endif; ?>
                 
                 <div class="bg-gray-700 rounded-lg p-4 mb-6 text-left">

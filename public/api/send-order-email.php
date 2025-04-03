@@ -19,6 +19,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Load configuration
 require_once '../config.php';
 
+// Set up error logging
+function logError($message, $type = 'ERROR') {
+    if (defined('ENABLE_ERROR_LOGGING') && ENABLE_ERROR_LOGGING) {
+        $timestamp = date('Y-m-d H:i:s');
+        $logEntry = "[$timestamp] [$type] $message" . PHP_EOL;
+        
+        // Make sure logs directory exists and is writable
+        $logDir = dirname(ERROR_LOG_PATH);
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        // Write to log file
+        file_put_contents(ERROR_LOG_PATH, $logEntry, FILE_APPEND);
+    }
+}
+
 // Function to sanitize input
 function sanitize_input($data) {
     $data = trim($data);
@@ -30,6 +47,7 @@ function sanitize_input($data) {
 // Check if this is a POST request
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
+    logError("Method not allowed: " . $_SERVER['REQUEST_METHOD']);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit();
 }
@@ -41,6 +59,7 @@ $data = json_decode($json_data, true);
 // Check if data was provided and properly decoded
 if (!$data) {
     http_response_code(400);
+    logError("Invalid JSON data: " . $json_data);
     echo json_encode(['success' => false, 'message' => 'Invalid JSON data']);
     exit();
 }
@@ -60,6 +79,9 @@ $order_date = isset($data['orderDate']) ? date('Y-m-d H:i:s', strtotime($data['o
 
 // Generate order ID
 $order_id = "EH-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)) . "-" . date("Ymd");
+
+// Log order details
+logError("New order received - ID: $order_id, Plan: $plan, Total: ₹$total_price", "INFO");
 
 // Prepare email content
 $admin_email = ADMIN_EMAIL; // From config.php
@@ -213,21 +235,42 @@ Await payment confirmation from Discord before setting up the server.
 © " . date('Y') . " EnderHOST. All rights reserved.
 ";
 
-// Set up email headers
-$headers = "MIME-Version: 1.0\r\n";
-$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-$headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
-$headers .= "Reply-To: {$customer_email}\r\n";
-
 // Send email
 $success = false;
 
 if (USE_SMTP) {
-    // Use SMTP if configured in config.php
+    // Check if PHPMailer is installed
+    $phpmailer_files = [
+        __DIR__ . '/lib/PHPMailer/src/Exception.php',
+        __DIR__ . '/lib/PHPMailer/src/PHPMailer.php',
+        __DIR__ . '/lib/PHPMailer/src/SMTP.php'
+    ];
+    
+    $phpmailer_missing = false;
+    foreach ($phpmailer_files as $file) {
+        if (!file_exists($file)) {
+            $phpmailer_missing = true;
+            logError("PHPMailer file missing: $file");
+        }
+    }
+    
+    if ($phpmailer_missing) {
+        logError("PHPMailer not properly installed. Please check the README.md file for installation instructions.");
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Email system not properly configured. Please contact the administrator.']);
+        exit();
+    }
+    
+    // Use PHPMailer
+    require_once __DIR__ . '/lib/PHPMailer/src/Exception.php';
+    require_once __DIR__ . '/lib/PHPMailer/src/PHPMailer.php';
+    require_once __DIR__ . '/lib/PHPMailer/src/SMTP.php';
+    
     try {
         // Server settings
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
+        $mail->SMTPDebug = 0; // Set to 2 for debugging
         $mail->Host = SMTP_HOST;
         $mail->SMTPAuth = true;
         $mail->Username = SMTP_USER;
@@ -250,24 +293,29 @@ if (USE_SMTP) {
         $success = true;
         
         // Log success
-        error_log("Order notification email sent to {$admin_email} for order {$order_id}");
+        logError("Order notification email sent to {$admin_email} for order {$order_id}", "SUCCESS");
     } catch (Exception $e) {
-        error_log('Error sending email: ' . $e->getMessage());
+        logError('Error sending email: ' . $mail->ErrorInfo);
         $success = false;
     }
 } else {
     // Use PHP mail() function
+    $headers = "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
+    $headers .= "Reply-To: {$customer_email}\r\n";
+    
     $success = mail($admin_email, $subject, $html_message, $headers);
     
     // Log the attempt
     if ($success) {
-        error_log("Order notification email sent to {$admin_email} for order {$order_id} using mail()");
+        logError("Order notification email sent to {$admin_email} for order {$order_id} using mail()", "SUCCESS");
     } else {
-        error_log("Failed to send order notification email to {$admin_email} for order {$order_id} using mail()");
+        logError("Failed to send order notification email to {$admin_email} for order {$order_id} using mail()");
     }
 }
 
-// Optional: Send notification to Discord webhook if configured
+// Send notification to Discord webhook if configured
 if (!empty(DISCORD_WEBHOOK_URL)) {
     $discord_message = [
         'content' => "New Server Order: {$server_name}",
@@ -293,20 +341,141 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
     curl_setopt($discord_ch, CURLOPT_POST, 1);
     curl_setopt($discord_ch, CURLOPT_POSTFIELDS, $discord_payload);
     curl_setopt($discord_ch, CURLOPT_RETURNTRANSFER, true);
-    curl_exec($discord_ch);
+    $discord_response = curl_exec($discord_ch);
+    $discord_status = curl_getinfo($discord_ch, CURLINFO_HTTP_CODE);
     curl_close($discord_ch);
+    
+    if ($discord_status >= 200 && $discord_status < 300) {
+        logError("Discord webhook notification sent for order {$order_id}", "SUCCESS");
+    } else {
+        logError("Failed to send Discord webhook notification for order {$order_id}. Status: {$discord_status}, Response: {$discord_response}");
+    }
+} else {
+    logError("Discord webhook URL not configured in config.php", "WARNING");
 }
 
-// Send response
-if ($success) {
-    http_response_code(200);
-    echo json_encode([
-        'success' => true, 
-        'message' => 'Order notification email sent successfully',
-        'order_id' => $order_id
-    ]);
+// Create a helper file to test SMTP configuration
+<lov-write file_path="public/api/test-smtp.php">
+<?php
+// This file is for testing SMTP configuration
+// Access it directly in your browser to test email sending
+
+// Load configuration
+require_once '../config.php';
+
+// Check if we're in a web environment
+$is_cli = (php_sapi_name() == 'cli');
+
+// Set headers for web environment
+if (!$is_cli) {
+    header('Content-Type: text/html; charset=UTF-8');
+}
+
+// Function to output messages appropriately
+function output($message, $is_error = false) {
+    global $is_cli;
+    
+    if ($is_cli) {
+        echo ($is_error ? "ERROR: " : "") . $message . PHP_EOL;
+    } else {
+        echo "<p" . ($is_error ? " style='color:red'" : "") . ">" . htmlspecialchars($message) . "</p>";
+    }
+}
+
+// Start output
+if (!$is_cli) {
+    echo "<!DOCTYPE html>
+    <html>
+    <head>
+        <title>EnderHOST SMTP Test</title>
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+            .success { color: green; }
+            .error { color: red; }
+            .info { color: blue; }
+            pre { background: #f5f5f5; padding: 10px; overflow: auto; }
+        </style>
+    </head>
+    <body>
+        <h1>EnderHOST SMTP Configuration Test</h1>";
+}
+
+output("Testing SMTP Configuration...", false);
+output("SMTP Host: " . SMTP_HOST, false);
+output("SMTP Port: " . SMTP_PORT, false);
+output("SMTP User: " . SMTP_USER, false);
+output("SMTP From: " . SMTP_FROM_EMAIL, false);
+
+// Check if PHPMailer is properly installed
+$phpmailer_files = [
+    __DIR__ . '/lib/PHPMailer/src/Exception.php',
+    __DIR__ . '/lib/PHPMailer/src/PHPMailer.php',
+    __DIR__ . '/lib/PHPMailer/src/SMTP.php'
+];
+
+$phpmailer_missing = false;
+foreach ($phpmailer_files as $file) {
+    if (!file_exists($file)) {
+        $phpmailer_missing = true;
+        output("PHPMailer file missing: $file", true);
+    }
+}
+
+if ($phpmailer_missing) {
+    output("PHPMailer is not properly installed. Please check the README.md file for installation instructions.", true);
 } else {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to send order notification email']);
+    output("PHPMailer files found.", false);
+    
+    // Include PHPMailer
+    require_once __DIR__ . '/lib/PHPMailer/src/Exception.php';
+    require_once __DIR__ . '/lib/PHPMailer/src/PHPMailer.php';
+    require_once __DIR__ . '/lib/PHPMailer/src/SMTP.php';
+    
+    // Send test email
+    try {
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        
+        // Server settings
+        $mail->SMTPDebug = 3; // Enable verbose debug output
+        $mail->isSMTP();
+        $mail->Host = SMTP_HOST;
+        $mail->SMTPAuth = true;
+        $mail->Username = SMTP_USER;
+        $mail->Password = SMTP_PASS;
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = SMTP_PORT;
+        
+        // Recipients
+        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        $mail->addAddress(ADMIN_EMAIL);
+        
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'EnderHOST SMTP Test';
+        $mail->Body = 'This is a test email to verify SMTP configuration is working correctly.';
+        $mail->AltBody = 'This is a test email to verify SMTP configuration is working correctly.';
+        
+        ob_start();
+        $mail->send();
+        $debug_output = ob_get_clean();
+        
+        output("Test email sent successfully!", false);
+        output("Debug Output:", false);
+        
+        if (!$is_cli) {
+            echo "<pre>";
+        }
+        echo htmlspecialchars($debug_output);
+        if (!$is_cli) {
+            echo "</pre>";
+        }
+        
+    } catch (Exception $e) {
+        output("Error sending test email: " . $mail->ErrorInfo, true);
+    }
+}
+
+if (!$is_cli) {
+    echo "</body></html>";
 }
 ?>

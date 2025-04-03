@@ -1,69 +1,109 @@
-# Welcome to your Lovable project
 
-## Project info
+# EnderHOST - Minecraft Server Hosting Platform
 
-**URL**: https://lovable.dev/projects/e517cdb5-499e-4e45-8f2a-07c9e27839a8
+## System Requirements
 
-## How can I edit this code?
+- PHP 7.4+ with cURL and mail functions enabled
+- MySQL or MariaDB database
+- Web server (Apache or Nginx)
 
-There are several ways of editing your application.
+## Installation and Setup
 
-**Use Lovable**
+### 1. Database Setup
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e517cdb5-499e-4e45-8f2a-07c9e27839a8) and start prompting.
+1. Create a MySQL database for EnderHOST
+2. Import the SQL schema from `public/sql/database_setup.sql`
+3. Update database credentials in `public/config.php`
 
-Changes made via Lovable will be committed automatically to this repo.
+### 2. Email System Setup
 
-**Use your preferred IDE**
+EnderHOST uses PHPMailer for sending emails. To set up:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. Download PHPMailer from https://github.com/PHPMailer/PHPMailer/releases
+2. Extract files to `public/api/lib/PHPMailer` directory
+3. The directory structure should be:
+   - `public/api/lib/PHPMailer/src/Exception.php`
+   - `public/api/lib/PHPMailer/src/PHPMailer.php`
+   - `public/api/lib/PHPMailer/src/SMTP.php`
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. Configure SMTP settings in `public/config.php`:
+   ```php
+   // Email Configuration
+   define('ADMIN_EMAIL', 'your-admin-email@example.com');
+   define('USE_SMTP', true); // Set to true to use SMTP
 
-Follow these steps:
+   // SMTP Configuration
+   define('SMTP_HOST', 'smtp-relay.brevo.com'); // Or your SMTP server
+   define('SMTP_PORT', 587);
+   define('SMTP_USER', 'your-smtp-username');
+   define('SMTP_PASS', 'your-smtp-password');
+   define('SMTP_FROM_EMAIL', 'noreply@enderhost.in');
+   define('SMTP_FROM_NAME', 'EnderHOST');
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+5. To test the email system, visit `http://your-domain.com/api/test-smtp.php`
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 3. Discord Webhook Setup (Optional)
 
-# Step 3: Install the necessary dependencies.
-npm i
+To receive notifications on Discord when new orders are placed:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+1. In your Discord server, go to Server Settings > Integrations > Webhooks
+2. Create a new webhook, copy the URL
+3. Update `public/config.php` with your webhook URL:
+   ```php
+   define('DISCORD_WEBHOOK_URL', 'your-discord-webhook-url');
+   ```
 
-**Edit a file directly in GitHub**
+### 4. QR Payment Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Update the UPI ID in `public/config.php`:
+   ```php
+   define('QR_UPI_ID', 'your-upi-id');
+   ```
 
-**Use GitHub Codespaces**
+2. Make sure the QR code image is properly set:
+   ```php
+   define('QR_IMAGE_PATH', '/lovable-uploads/your-qr-code-image.png');
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 5. Error Logging
 
-## What technologies are used for this project?
+EnderHOST has a built-in error logging system that helps troubleshoot issues:
 
-This project is built with .
+1. Logs are stored in `public/logs/enderhost_errors.log`
+2. Make sure the logs directory is writable by the web server
+3. To disable error logging, set `ENABLE_ERROR_LOGGING` to false in `public/config.php`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Troubleshooting Email Issues
 
-## How can I deploy this project?
+If you're experiencing issues with the email system:
 
-Simply open [Lovable](https://lovable.dev/projects/e517cdb5-499e-4e45-8f2a-07c9e27839a8) and click on Share -> Publish.
+1. Check the error logs at `public/logs/enderhost_errors.log`
+2. Verify SMTP credentials in `public/config.php`
+3. Run the SMTP test utility: `http://your-domain.com/api/test-smtp.php`
+4. Check if your SMTP provider (e.g., Brevo) has connection limits or restrictions
+5. Ensure your server's IP is not blacklisted
+6. Verify that PHP's cURL extension is enabled
 
-## I want to use a custom domain - is that possible?
+## Security Notes
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+1. The `public/logs` directory is protected with .htaccess to prevent direct access
+2. Regularly update the PHPMailer library to the latest version
+3. Never expose your database or SMTP credentials
+
+## Folder Structure
+
+- `public/` - Root web directory
+  - `api/` - API endpoints for the application
+    - `lib/` - Libraries including PHPMailer
+    - `send-order-email.php` - Email notification system
+    - `test-smtp.php` - SMTP testing utility
+  - `logs/` - Error and access logs
+  - `config.php` - Central configuration file
+  - `payment-success.php` - Payment success page
+
+## Support
+
+For support or customization inquiries, contact:
+- Discord: [EnderHOST Discord Server](https://discord.gg/bsGPB9VpUY)
+- Email: mail.enderhost@gmail.com
