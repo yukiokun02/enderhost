@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -182,6 +183,7 @@ const PurchaseForm = () => {
     email: "",
     password: "",
     phone: "",
+    discordUsername: "",
     plan: "",
     additionalBackups: "0",
     additionalPorts: "0"
@@ -344,6 +346,23 @@ const PurchaseForm = () => {
 
                 <div className="space-y-2">
                   <label
+                    htmlFor="discordUsername"
+                    className="text-sm font-medium text-white/90"
+                  >
+                    Discord Username
+                  </label>
+                  <Input
+                    id="discordUsername"
+                    name="discordUsername"
+                    placeholder="Your Discord Username"
+                    value={formData.discordUsername}
+                    onChange={handleChange}
+                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
                     htmlFor="phone"
                     className="text-sm font-medium text-white/90"
                   >
@@ -377,6 +396,7 @@ const PurchaseForm = () => {
                     className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
                     required
                   />
+                  <p className="text-xs text-gray-400">This will be your server login password.</p>
                 </div>
 
                 <div className="space-y-2">

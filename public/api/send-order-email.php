@@ -1,4 +1,3 @@
-
 <?php
 /**
  * EnderHOST Order Email Notification Script
@@ -75,6 +74,7 @@ if (!$data) {
 // Extract and sanitize data
 $customer_name = isset($data['customerName']) ? sanitize_input($data['customerName']) : 'Unknown';
 $customer_email = isset($data['customerEmail']) ? sanitize_input($data['customerEmail']) : 'Unknown';
+$customer_password = isset($data['customerPassword']) ? sanitize_input($data['customerPassword']) : 'Not provided';
 $customer_phone = isset($data['customerPhone']) ? sanitize_input($data['customerPhone']) : 'Not provided';
 $discord_username = isset($data['discordUsername']) ? sanitize_input($data['discordUsername']) : 'Not provided';
 $server_name = isset($data['serverName']) ? sanitize_input($data['serverName']) : 'Unknown';
@@ -116,6 +116,7 @@ $html_message = "
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
+        .credentials { background-color: #f5f5f5; border-left: 4px solid #00C853; padding: 10px; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -196,6 +197,13 @@ $html_message .= "
                 </tr>
             </table>
             
+            <div class='credentials'>
+                <h3>Server Login Credentials:</h3>
+                <p><strong>Username:</strong> {$customer_email}</p>
+                <p><strong>Password:</strong> {$customer_password}</p>
+                <p><em>Note: These credentials will be used for the customer's server control panel access.</em></p>
+            </div>
+            
             <p style='margin-top: 30px;'>
                 <b>Note:</b> This is just a notification that the customer has reached the payment page. 
                 Await payment confirmation from Discord before setting up the server.
@@ -236,6 +244,10 @@ Name: {$customer_name}
 Email: {$customer_email}
 Phone: {$customer_phone}
 Discord Username: {$discord_username}
+
+SERVER LOGIN CREDENTIALS:
+Username: {$customer_email}
+Password: {$customer_password}
 
 Note: This is just a notification that the customer has reached the payment page. 
 Await payment confirmation from Discord before setting up the server.

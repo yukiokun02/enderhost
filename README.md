@@ -89,6 +89,30 @@ EnderHOST has a built-in error logging system that helps troubleshoot issues:
 3. To disable error logging, set `ENABLE_ERROR_LOGGING` to false in `public/config.php`
 4. Check logs regularly to identify and fix issues
 
+## Order System Features
+
+The EnderHOST ordering system includes:
+
+1. **Purchase Form** with fields for:
+   - Server name
+   - Customer full name
+   - Email address
+   - Discord username (for communication)
+   - Phone number (optional)
+   - Password (used for server control panel login)
+   - Plan selection
+   - Add-ons (additional backups and ports)
+
+2. **Payment Processing**:
+   - UPI QR code payment system
+   - Order confirmation via email and Discord
+   - Customer notified about login credentials
+
+3. **Admin Notifications**:
+   - Email notifications with order details and server login credentials
+   - Discord webhook integration for instant notifications
+   - Error logging for troubleshooting
+
 ## Troubleshooting Email Issues
 
 If you're experiencing issues with the email system:

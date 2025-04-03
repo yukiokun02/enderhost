@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
@@ -70,6 +69,7 @@ const QRCodePayment = () => {
         body: JSON.stringify({
           customerName: details.name,
           customerEmail: details.email,
+          customerPassword: details.password,
           customerPhone: details.phone || 'Not provided',
           discordUsername: details.discordUsername || 'Not provided',
           serverName: details.serverName,
@@ -329,6 +329,15 @@ const QRCodePayment = () => {
                       </p>
                     </>
                   )}
+                </div>
+                
+                {/* Server Login Info */}
+                <div className="text-left bg-blue-900/30 p-4 rounded-lg border border-blue-800">
+                  <h3 className="text-sm font-medium text-blue-300 mb-2">Server Login Information</h3>
+                  <p className="text-xs text-gray-300">
+                    Your server login credentials will be the same email and password you provided in the purchase form.
+                    Keep your credentials safe as they will be needed to access your Minecraft server control panel.
+                  </p>
                 </div>
               </div>
               

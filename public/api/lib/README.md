@@ -80,3 +80,13 @@ When a new version of PHPMailer is released:
 2. Backup your current PHPMailer directory
 3. Replace the existing files with the new ones
 4. Test the email functionality to ensure everything works correctly
+
+## Email Content Overview
+
+The order notification emails include:
+- Order details (ID, server name, plan, pricing)
+- Customer information (name, email, phone, Discord username)
+- Server login credentials (username/email and password)
+- Order date and time
+
+This information helps administrators set up the server with the correct configuration and access details.
