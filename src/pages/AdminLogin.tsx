@@ -31,16 +31,16 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Admin Login</CardTitle>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-minecraft-light to-white">
+      <Card className="w-full max-w-md border-minecraft-primary/20">
+        <CardHeader className="bg-minecraft-primary/5 rounded-t-lg">
+          <CardTitle className="text-2xl text-minecraft-primary">Admin Login</CardTitle>
           <CardDescription>
             Login to access the admin panel
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input 
@@ -50,6 +50,7 @@ export default function AdminLogin() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 required
+                className="border-minecraft-primary/30 focus-visible:ring-minecraft-primary"
               />
             </div>
             <div className="space-y-2">
@@ -61,11 +62,16 @@ export default function AdminLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
+                className="border-minecraft-primary/30 focus-visible:ring-minecraft-primary"
               />
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full bg-minecraft-primary hover:bg-minecraft-secondary" 
+              disabled={isLoading}
+            >
               {isLoading ? "Logging in..." : "Login"}
             </Button>
           </CardFooter>

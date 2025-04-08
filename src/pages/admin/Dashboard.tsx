@@ -26,11 +26,11 @@ interface AdminMenuItemProps {
 const AdminMenuItem = ({ title, icon, description, onClick }: AdminMenuItemProps) => {
   return (
     <Card 
-      className="cursor-pointer hover:bg-gray-50 transition-colors"
+      className="cursor-pointer hover:bg-minecraft-light transition-colors"
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center gap-4">
-        <div className="bg-primary/10 p-2 rounded-md">
+        <div className="bg-minecraft-primary/10 p-2 rounded-md">
           {icon}
         </div>
         <div>
@@ -54,57 +54,57 @@ export default function AdminDashboard() {
   const menuItems = [
     {
       title: "Content Management",
-      icon: <FileText className="h-6 w-6" />,
+      icon: <FileText className="h-6 w-6 text-minecraft-primary" />,
       description: "Edit website text content and sections",
       onClick: () => navigate("/admin/content")
     },
     {
       title: "Image Management",
-      icon: <Image className="h-6 w-6" />,
+      icon: <Image className="h-6 w-6 text-minecraft-primary" />,
       description: "Upload and manage website images",
       onClick: () => navigate("/admin/images")
     },
     {
       title: "Pricing Management",
-      icon: <Tag className="h-6 w-6" />,
+      icon: <Tag className="h-6 w-6 text-minecraft-primary" />,
       description: "Update pricing plans and features",
       onClick: () => navigate("/admin/pricing")
     },
     {
       title: "Server Types",
-      icon: <Server className="h-6 w-6" />,
+      icon: <Server className="h-6 w-6 text-minecraft-primary" />,
       description: "Edit server types and specifications",
       onClick: () => navigate("/admin/server-types")
     },
     {
       title: "Statistics",
-      icon: <BarChart2 className="h-6 w-6" />,
+      icon: <BarChart2 className="h-6 w-6 text-minecraft-primary" />,
       description: "Update website statistics",
       onClick: () => navigate("/admin/stats")
     },
     {
       title: "User Management",
-      icon: <Users className="h-6 w-6" />,
+      icon: <Users className="h-6 w-6 text-minecraft-primary" />,
       description: "Change admin credentials",
       onClick: () => navigate("/admin/users")
     },
     {
       title: "Settings",
-      icon: <Settings className="h-6 w-6" />,
+      icon: <Settings className="h-6 w-6 text-minecraft-primary" />,
       description: "General website settings",
       onClick: () => navigate("/admin/settings")
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-minecraft-light to-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-            <p className="text-gray-500">Manage your website content and settings</p>
+            <h1 className="text-3xl font-bold tracking-tight text-minecraft-dark">Admin Dashboard</h1>
+            <p className="text-minecraft-dark/80">Manage your website content and settings</p>
           </div>
-          <Button variant="outline" onClick={handleLogout} className="gap-2">
+          <Button variant="outline" onClick={handleLogout} className="gap-2 border-minecraft-primary text-minecraft-primary hover:bg-minecraft-primary hover:text-white">
             <LogOut className="h-4 w-4" />
             Logout
           </Button>

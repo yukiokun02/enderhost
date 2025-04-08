@@ -14,5 +14,9 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     return <Navigate to="/admin" replace />;
   }
 
-  return <PageTransition>{children}</PageTransition>;
+  return (
+    <PageTransition>
+      {children}
+    </PageTransition>
+  );
 }
