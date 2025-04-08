@@ -14,16 +14,6 @@ import PurchaseForm from "@/pages/PurchaseForm";
 import Troubleshooting from "@/pages/Troubleshooting";
 import QRCodePayment from "@/pages/QRCodePayment";
 import PageTransition from "./components/PageTransition";
-import AdminLogin from "./pages/AdminLogin";
-import AdminRoute from "./components/AdminRoute";
-import AdminDashboard from "./pages/admin/Dashboard";
-import ContentManagement from "./pages/admin/ContentManagement";
-import ImageManagement from "./pages/admin/ImageManagement";
-import PricingManagement from "./pages/admin/PricingManagement";
-import ServerTypesManagement from "./pages/admin/ServerTypesManagement";
-import StatisticsManagement from "./pages/admin/StatisticsManagement";
-import UserManagement from "./pages/admin/UserManagement";
-import SettingsManagement from "./pages/admin/SettingsManagement";
 
 const queryClient = new QueryClient();
 
@@ -88,74 +78,6 @@ const AnimatedRoutes = () => {
             <Troubleshooting />
           } 
         />
-        
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLogin />} />
-        <Route 
-          path="/admin/dashboard" 
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/content" 
-          element={
-            <AdminRoute>
-              <ContentManagement />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/images" 
-          element={
-            <AdminRoute>
-              <ImageManagement />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/pricing" 
-          element={
-            <AdminRoute>
-              <PricingManagement />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/server-types" 
-          element={
-            <AdminRoute>
-              <ServerTypesManagement />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/stats" 
-          element={
-            <AdminRoute>
-              <StatisticsManagement />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/users" 
-          element={
-            <AdminRoute>
-              <UserManagement />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/settings" 
-          element={
-            <AdminRoute>
-              <SettingsManagement />
-            </AdminRoute>
-          } 
-        />
-        
         <Route 
           path="*" 
           element={
