@@ -14,6 +14,10 @@ import PurchaseForm from "@/pages/PurchaseForm";
 import Troubleshooting from "@/pages/Troubleshooting";
 import QRCodePayment from "@/pages/QRCodePayment";
 import PageTransition from "./components/PageTransition";
+import AdminLogin from "./pages/AdminLogin";
+import AdminRoute from "./components/AdminRoute";
+import AdminDashboard from "./pages/admin/Dashboard";
+import ContentManagement from "./pages/admin/ContentManagement";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +82,26 @@ const AnimatedRoutes = () => {
             <Troubleshooting />
           } 
         />
+        
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLogin />} />
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/content" 
+          element={
+            <AdminRoute>
+              <ContentManagement />
+            </AdminRoute>
+          } 
+        />
+        
         <Route 
           path="*" 
           element={
