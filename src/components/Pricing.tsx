@@ -287,18 +287,34 @@ export default function Pricing() {
                       backgroundColor: plan.mostPopular ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)'
                     }}
                   >
-                    {/* Much larger background icon with higher opacity */}
+                    {/* Much larger background icon with higher opacity and glow effect */}
                     {minecraftItems[plan.icon] && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-end overflow-hidden">
-                        <img 
-                          src={minecraftItems[plan.icon]} 
-                          alt="" 
-                          className="w-[90%] h-[90%] object-contain opacity-[0.3]"
+                        <div 
+                          className="w-[90%] h-[90%] relative" 
                           style={{
                             transform: "rotate(10deg) translate(15%, -5%)",
                           }}
-                          aria-hidden="true"
-                        />
+                        >
+                          {/* Glow effect behind the icon */}
+                          <div 
+                            className="absolute inset-0 blur-xl rounded-full" 
+                            style={{
+                              background: category.textColor.includes('blue') ? 'radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0) 70%)' : 
+                                        category.textColor.includes('red') ? 'radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0) 70%)' : 
+                                        'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0) 70%)',
+                              opacity: 0.8,
+                              mixBlendMode: 'screen'
+                            }}
+                            aria-hidden="true"
+                          />
+                          <img 
+                            src={minecraftItems[plan.icon]} 
+                            alt="" 
+                            className="w-full h-full object-contain opacity-[0.3]"
+                            aria-hidden="true"
+                          />
+                        </div>
                       </div>
                     )}
                     
