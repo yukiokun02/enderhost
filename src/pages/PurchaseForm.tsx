@@ -216,16 +216,19 @@ const PurchaseForm = () => {
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
-    // For 3-month billing, use original price
+    // For 3-month billing, use original price × 3
     // For monthly billing, apply 25% increase
     const basePrice = isMonthlyBilling 
       ? Math.round(selectedPlan.price * 1.25) 
-      : selectedPlan.price;
+      : selectedPlan.price * 3;
       
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
     
-    return basePrice + backupPrice + portPrice;
+    // Apply multiplier for additional items if using 3-month billing
+    const addonsMultiplier = isMonthlyBilling ? 1 : 3;
+    
+    return basePrice + (backupPrice * addonsMultiplier) + (portPrice * addonsMultiplier);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -274,11 +277,19 @@ const PurchaseForm = () => {
   };
 
   const getPlanPrice = (originalPrice: number) => {
-    // For 3-month billing, use original price
-    // For monthly billing, apply 25% increase
+    // For 3-month billing, show total price for the entire period
+    // For monthly billing, apply 25% increase to monthly price
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
-      : originalPrice;
+      : originalPrice * 3;
+  };
+
+  const formatPriceDisplay = (price: number) => {
+    if (isMonthlyBilling) {
+      return `₹${price}/month`;
+    } else {
+      return `₹${price} total`;
+    }
   };
 
   return (
@@ -512,21 +523,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
+                          {plan.name} - {formatPriceDisplay(getPlanPrice(plan.price))}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
+                          {plan.name} - {formatPriceDisplay(getPlanPrice(plan.price))}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
+                          {plan.name} - {formatPriceDisplay(getPlanPrice(plan.price))}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -571,7 +582,9 @@ const PurchaseForm = () => {
                         <span className="text-sm font-medium text-white">Price:</span>
                         <div className="flex items-center">
                           <span className="text-lg font-bold text-white">₹{getPlanPrice(selectedPlan.price)}</span>
-                          <span className="text-sm text-white/70 ml-1">/{isMonthlyBilling ? 'month' : 'month × 3'}</span>
+                          <span className="text-sm text-white/70 ml-1">
+                            {isMonthlyBilling ? '/month' : ' total'}
+                          </span>
                         </div>
                       </div>
                       
@@ -587,7 +600,7 @@ const PurchaseForm = () => {
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Cloud Backups (₹19 each)
+                          Additional Cloud Backups (₹19 each{isMonthlyBilling ? '' : ' × 3 months'})
                         </label>
                         <Select
                           name="additionalBackups"
@@ -599,18 +612,18 @@ const PurchaseForm = () => {
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
                             <SelectItem value="0">No additional backups</SelectItem>
-                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
-                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
-                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
-                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
-                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
+                            <SelectItem value="1">1 additional backup (+₹{isMonthlyBilling ? '19' : '57'})</SelectItem>
+                            <SelectItem value="2">2 additional backups (+₹{isMonthlyBilling ? '38' : '114'})</SelectItem>
+                            <SelectItem value="3">3 additional backups (+₹{isMonthlyBilling ? '57' : '171'})</SelectItem>
+                            <SelectItem value="4">4 additional backups (+₹{isMonthlyBilling ? '76' : '228'})</SelectItem>
+                            <SelectItem value="5">5 additional backups (+₹{isMonthlyBilling ? '95' : '285'})</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Ports (₹9 each)
+                          Additional Ports (₹9 each{isMonthlyBilling ? '' : ' × 3 months'})
                         </label>
                         <Select
                           name="additionalPorts"
@@ -622,11 +635,11 @@ const PurchaseForm = () => {
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
                             <SelectItem value="0">No additional ports</SelectItem>
-                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
-                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
-                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
-                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
-                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
+                            <SelectItem value="1">1 additional port (+₹{isMonthlyBilling ? '9' : '27'})</SelectItem>
+                            <SelectItem value="2">2 additional ports (+₹{isMonthlyBilling ? '18' : '54'})</SelectItem>
+                            <SelectItem value="3">3 additional ports (+₹{isMonthlyBilling ? '27' : '81'})</SelectItem>
+                            <SelectItem value="4">4 additional ports (+₹{isMonthlyBilling ? '36' : '108'})</SelectItem>
+                            <SelectItem value="5">5 additional ports (+₹{isMonthlyBilling ? '45' : '135'})</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -640,13 +653,13 @@ const PurchaseForm = () => {
                           {parseInt(formData.additionalBackups) > 0 && (
                             <div className="flex justify-between text-white">
                               <span>Additional backups ({formData.additionalBackups}):</span>
-                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
+                              <span>+₹{parseInt(formData.additionalBackups) * 19 * (isMonthlyBilling ? 1 : 3)}</span>
                             </div>
                           )}
                           {parseInt(formData.additionalPorts) > 0 && (
                             <div className="flex justify-between text-white">
                               <span>Additional ports ({formData.additionalPorts}):</span>
-                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
+                              <span>+₹{parseInt(formData.additionalPorts) * 9 * (isMonthlyBilling ? 1 : 3)}</span>
                             </div>
                           )}
                           <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">

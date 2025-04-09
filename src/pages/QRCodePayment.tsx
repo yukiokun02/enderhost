@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
@@ -52,6 +53,7 @@ const QRCodePayment = () => {
   const [additionalBackups, setAdditionalBackups] = useState<number>(0);
   const [additionalPorts, setAdditionalPorts] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<number>(3); // Default to 3 months
   
   // Generate a unique order identifier based on form data
   const generateOrderIdentifier = (details: any, plan: string): string => {
@@ -153,21 +155,26 @@ const QRCodePayment = () => {
   useEffect(() => {
     // Get state passed from purchase form
     if (location.state) {
-      const { plan, additionalBackups, additionalPorts, totalPrice, ...details } = location.state;
+      const { plan, additionalBackups, additionalPorts, totalPrice, billingCycle, ...details } = location.state;
       
       setPlanId(plan);
       setCustomerDetails(details);
       setAdditionalBackups(parseInt(additionalBackups) || 0);
       setAdditionalPorts(parseInt(additionalPorts) || 0);
+      setBillingCycle(billingCycle || 3);
       
-      // Calculate total price if not provided directly
+      // Use the total price calculated from the purchase form
       if (totalPrice) {
         setTotalPrice(totalPrice);
       } else {
-        // Calculate from components
-        const basePrice = planPrices[plan] || 0;
-        const backupCost = (parseInt(additionalBackups) || 0) * 19;
-        const portCost = (parseInt(additionalPorts) || 0) * 9;
+        // Calculate from components if not provided
+        const isMonthlyBilling = billingCycle === 1;
+        const basePrice = isMonthlyBilling 
+          ? Math.round(planPrices[plan] * 1.25)
+          : planPrices[plan] * 3;
+        
+        const backupCost = (parseInt(additionalBackups) || 0) * 19 * (isMonthlyBilling ? 1 : 3);
+        const portCost = (parseInt(additionalPorts) || 0) * 9 * (isMonthlyBilling ? 1 : 3);
         setTotalPrice(basePrice + backupCost + portCost);
       }
       
@@ -177,7 +184,11 @@ const QRCodePayment = () => {
       
       // Only send email if we haven't sent one already for this order
       if (!alreadySentEmail && details) {
-        const finalTotalPrice = totalPrice || (planPrices[plan] + (parseInt(additionalBackups) || 0) * 19 + (parseInt(additionalPorts) || 0) * 9);
+        const finalTotalPrice = totalPrice || (
+          (billingCycle === 1 ? Math.round(planPrices[plan] * 1.25) : planPrices[plan] * 3) + 
+          (parseInt(additionalBackups) || 0) * 19 * (billingCycle === 1 ? 1 : 3) + 
+          (parseInt(additionalPorts) || 0) * 9 * (billingCycle === 1 ? 1 : 3)
+        );
         
         sendOrderNotification(
           { ...details, additionalBackups, additionalPorts }, 
@@ -227,11 +238,18 @@ const QRCodePayment = () => {
     );
   }
   
-  // Calculate price breakdowns
-  const basePlanPrice = planPrices[planId] || 0;
-  const backupsCost = additionalBackups * 19;
-  const portsCost = additionalPorts * 9;
+  // Calculate the base plan price based on billing cycle
+  const basePlanPrice = billingCycle === 1 
+    ? Math.round(planPrices[planId] * 1.25) 
+    : planPrices[planId] * 3;
+  
+  // Calculate addon costs with proper multiplier
+  const backupsCost = additionalBackups * 19 * (billingCycle === 1 ? 1 : 3);
+  const portsCost = additionalPorts * 9 * (billingCycle === 1 ? 1 : 3);
   const hasAddons = additionalBackups > 0 || additionalPorts > 0;
+
+  // Format billing period for display
+  const billingPeriodText = billingCycle === 1 ? '1 month' : '3 months';
   
   return (
     <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
@@ -315,7 +333,7 @@ const QRCodePayment = () => {
                 <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
                   {hasAddons ? (
                     <>
-                      <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
+                      <p className="text-sm font-medium text-gray-400 mb-2">Order Summary ({billingPeriodText})</p>
                       <div className="space-y-1 text-sm mb-3">
                         <div className="flex justify-between">
                           <span className="text-gray-300">Base Plan:</span>
@@ -324,14 +342,20 @@ const QRCodePayment = () => {
                         
                         {additionalBackups > 0 && (
                           <div className="flex justify-between">
-                            <span className="text-gray-300">Additional Backups ({additionalBackups}):</span>
+                            <span className="text-gray-300">
+                              Additional Backups ({additionalBackups})
+                              {billingCycle === 3 && " × 3 months"}:
+                            </span>
                             <span className="text-gray-300">₹{backupsCost.toLocaleString()}</span>
                           </div>
                         )}
                         
                         {additionalPorts > 0 && (
                           <div className="flex justify-between">
-                            <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
+                            <span className="text-gray-300">
+                              Additional Ports ({additionalPorts})
+                              {billingCycle === 3 && " × 3 months"}:
+                            </span>
                             <span className="text-gray-300">₹{portsCost.toLocaleString()}</span>
                           </div>
                         )}
@@ -344,7 +368,7 @@ const QRCodePayment = () => {
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-medium text-gray-400">Amount</p>
+                      <p className="text-sm font-medium text-gray-400">Amount ({billingPeriodText})</p>
                       <p className="font-mono text-gray-100 text-xl font-bold">
                         ₹{totalPrice.toLocaleString()}.00
                       </p>

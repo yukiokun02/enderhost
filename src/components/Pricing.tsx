@@ -1,3 +1,4 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -263,7 +264,15 @@ export default function Pricing() {
   const getPlanPrice = (originalPrice: number) => {
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
-      : originalPrice;
+      : originalPrice * 3;
+  };
+
+  const formatPriceDisplay = (price: number) => {
+    if (isMonthlyBilling) {
+      return `₹${price}/month`;
+    } else {
+      return `₹${price} total`;
+    }
   };
 
   return (
@@ -415,7 +424,7 @@ export default function Pricing() {
                       <span className="text-white/70 ml-1">
                         {isMonthlyBilling 
                           ? '/month' 
-                          : '/month × 3'}
+                          : ' total'} 
                       </span>
                     </div>
                     
