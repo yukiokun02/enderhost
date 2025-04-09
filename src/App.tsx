@@ -75,7 +75,9 @@ const AnimatedRoutes = () => {
         <Route 
           path="/troubleshooting" 
           element={
-            <Troubleshooting />
+            <PageTransition>
+              <Troubleshooting />
+            </PageTransition>
           } 
         />
         <Route 

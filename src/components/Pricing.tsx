@@ -1,5 +1,5 @@
 
-import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, Flag, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -241,13 +241,23 @@ export default function Pricing() {
       />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Choose Your Perfect Minecraft Server
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-6 text-white">
+            Choose Your Plan
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            From beginner to expert, we have the perfect hosting solution for your Minecraft server
-          </p>
+          
+          {/* New badges for Indian flag and ping information */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
+              <Flag className="w-4 h-4 text-minecraft-secondary" />
+              <span className="text-sm font-medium text-white">India Based Servers</span>
+            </div>
+            
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
+              <Signal className="w-4 h-4 text-minecraft-secondary" />
+              <span className="text-sm font-medium text-white">20-60ms Ping</span>
+            </div>
+          </div>
         </div>
         
         <div className="max-w-6xl mx-auto space-y-24">
@@ -305,7 +315,8 @@ export default function Pricing() {
                     <h3 className="text-xl font-bold mb-2 text-white">{plan.name}</h3>
                     
                     <div className="flex items-baseline mb-4">
-                      <span className="text-3xl font-bold text-white">₹{plan.price}</span>
+                      <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
+                      <span className="text-3xl font-bold text-white">{plan.price}</span>
                       <span className="text-white/70 ml-1">/month</span>
                     </div>
                     
