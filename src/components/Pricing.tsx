@@ -21,8 +21,8 @@ const itemButtonColors = {
   "Oak Log": "bg-green-500 hover:bg-green-600 text-white",
   "Stone Pickaxe": "bg-green-800 hover:bg-green-900 text-white",
   "Cobblestone": "bg-gray-800 hover:bg-gray-900 text-white",
-  "Iron Pickaxe": "bg-gray-300 hover:bg-gray-400 text-white",
-  "Iron Ore": "bg-gray-300 hover:bg-gray-400 text-white",
+  "Iron Pickaxe": "bg-gray-500 hover:bg-gray-600 text-white", // Updated to deeper silver
+  "Iron Ore": "bg-gray-500 hover:bg-gray-600 text-white", // Updated to deeper silver
   "Diamond": "bg-cyan-400 hover:bg-cyan-500 text-white",
   "Ice Block": "bg-orange-400 hover:bg-orange-500 text-white",
   "Obsidian": "bg-red-900 hover:bg-red-950 text-white",
