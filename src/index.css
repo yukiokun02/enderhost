@@ -97,12 +97,4 @@
     mix-blend-mode: soft-light;
     pointer-events: none;
   }
-
-  .text-shadow-sm {
-    text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.8), 
-                 0px 1px 1px rgba(0, 0, 0, 0.8),
-                 1px 0px 1px rgba(0, 0, 0, 0.8),
-                 -1px 0px 1px rgba(0, 0, 0, 0.8),
-                 0px -1px 1px rgba(0, 0, 0, 0.8);
-  }
 }

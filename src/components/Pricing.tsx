@@ -1,4 +1,3 @@
-
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, Flag, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -17,22 +16,20 @@ const minecraftItems = {
   "Elytra": "/lovable-uploads/42f68d43-0471-44a4-a49f-19b186484ba1.png"
 };
 
-// Define button colors that match each item
 const itemButtonColors = {
-  "Oak Log": "bg-green-500 hover:bg-green-600", // Light green for wood
-  "Stone Pickaxe": "bg-green-800 hover:bg-green-900", // Deep green for stone pickaxe with white text
-  "Cobblestone": "bg-gray-800 hover:bg-gray-900", // Deep gray for cobblestone with white text
-  "Iron Pickaxe": "bg-gray-300 hover:bg-gray-400", // Silver white for iron pickaxe with black text
-  "Iron Ore": "bg-gray-300 hover:bg-gray-400", // Silver white for iron ore with black text
-  "Diamond": "bg-cyan-400 hover:bg-cyan-500", // Aqua for diamond
-  "Ice Block": "bg-orange-400 hover:bg-orange-500", // Orange for ice block
-  "Obsidian": "bg-red-900 hover:bg-red-950", // Reddish brown for obsidian
-  "Ancient Debris": "bg-amber-800 hover:bg-amber-900", // Deep brown for ancient debris
-  "End Portal Frame": "bg-yellow-700 hover:bg-yellow-800", // Sand color for end portal
-  "Elytra": "bg-purple-700 hover:bg-purple-800" // Purple for elytra
+  "Oak Log": "bg-green-500 hover:bg-green-600 text-white",
+  "Stone Pickaxe": "bg-green-800 hover:bg-green-900 text-white",
+  "Cobblestone": "bg-gray-800 hover:bg-gray-900 text-white",
+  "Iron Pickaxe": "bg-gray-300 hover:bg-gray-400 text-white",
+  "Iron Ore": "bg-gray-300 hover:bg-gray-400 text-white",
+  "Diamond": "bg-cyan-400 hover:bg-cyan-500 text-white",
+  "Ice Block": "bg-orange-400 hover:bg-orange-500 text-white",
+  "Obsidian": "bg-red-900 hover:bg-red-950 text-white",
+  "Ancient Debris": "bg-amber-800 hover:bg-amber-900 text-white",
+  "End Portal Frame": "bg-yellow-700 hover:bg-yellow-800 text-white",
+  "Elytra": "bg-purple-700 hover:bg-purple-800 text-white"
 };
 
-// Map plan names to their IDs for the purchase form
 const planIdMap = {
   "Getting Woods": "getting-woods",
   "Getting an Upgrade": "getting-an-upgrade",
@@ -378,7 +375,7 @@ export default function Pricing() {
                     <Link to={`/purchase?plan=${planIdMap[plan.name]}`} className="relative z-10 block">
                       <Button
                         className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
-                          ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105 text-white text-shadow-sm`}
+                          ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105`}
                       >
                         Buy Now
                       </Button>
