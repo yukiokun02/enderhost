@@ -19,16 +19,16 @@ const minecraftItems = {
 // Define button colors that match each item
 const itemButtonColors = {
   "Oak Log": "bg-green-500 hover:bg-green-600", // Light green for wood
-  "Stone Pickaxe": "bg-green-800 hover:bg-green-900", // Deep green for stone pickaxe
-  "Cobblestone": "bg-gray-800 hover:bg-gray-900", // Deep gray for cobblestone
-  "Iron Pickaxe": "bg-gray-300 hover:bg-gray-400", // Silver white for iron pickaxe
-  "Iron Ore": "bg-gray-300 hover:bg-gray-400", // Silver white for iron ore
-  "Diamond": "bg-cyan-400 hover:bg-cyan-500", // Aqua for diamond
-  "Ice Block": "bg-orange-400 hover:bg-orange-500", // Orange for ice block
-  "Obsidian": "bg-red-900 hover:bg-red-950", // Reddish brown for obsidian
-  "Ancient Debris": "bg-amber-800 hover:bg-amber-900", // Deep brown for ancient debris
-  "End Portal Frame": "bg-yellow-700 hover:bg-yellow-800", // Sand color for end portal
-  "Elytra": "bg-purple-700 hover:bg-purple-800" // Purple for elytra
+  "Stone Pickaxe": "bg-green-800 hover:bg-green-900 text-white", // Deep green for stone pickaxe with white text
+  "Cobblestone": "bg-gray-800 hover:bg-gray-900 text-white", // Deep gray for cobblestone with white text
+  "Iron Pickaxe": "bg-gray-300 hover:bg-gray-400 text-black", // Silver white for iron pickaxe with black text
+  "Iron Ore": "bg-gray-300 hover:bg-gray-400 text-black", // Silver white for iron ore with black text
+  "Diamond": "bg-cyan-400 hover:bg-cyan-500 text-white", // Aqua for diamond
+  "Ice Block": "bg-orange-400 hover:bg-orange-500 text-white", // Orange for ice block
+  "Obsidian": "bg-red-900 hover:bg-red-950 text-white", // Reddish brown for obsidian
+  "Ancient Debris": "bg-amber-800 hover:bg-amber-900 text-white", // Deep brown for ancient debris
+  "End Portal Frame": "bg-yellow-700 hover:bg-yellow-800 text-white", // Sand color for end portal
+  "Elytra": "bg-purple-700 hover:bg-purple-800 text-white" // Purple for elytra
 };
 
 const planCategories = [
