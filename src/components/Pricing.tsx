@@ -250,7 +250,7 @@ const planCategories = [
 ];
 
 export default function Pricing() {
-  const [isMonthlyBilling, setIsMonthlyBilling] = useState(true);
+  const [isMonthlyBilling, setIsMonthlyBilling] = useState(false);
   
   const getFeatureIcon = (feature: string) => {
     if (feature.includes("RAM")) return <Gauge className="w-5 h-5 flex-shrink-0" />;
@@ -262,11 +262,11 @@ export default function Pricing() {
   };
   
   const getPlanPrice = (originalPrice: number) => {
-    // For monthly billing, use original price
-    // For 3-month billing, apply 25% discount (multiply by 0.75)
+    // For 3-month billing, use original price
+    // For monthly billing, apply 25% increase (multiply by 1.25)
     return isMonthlyBilling 
-      ? originalPrice 
-      : Math.round(originalPrice * 0.75);
+      ? Math.round(originalPrice * 1.25) 
+      : originalPrice;
   };
 
   return (
@@ -317,7 +317,7 @@ export default function Pricing() {
                 )}
                 <span className="relative block text-sm">1 Month</span>
                 <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  Standard Price
+                  Pay 25% extra
                 </span>
               </button>
               
@@ -334,7 +334,7 @@ export default function Pricing() {
                 )}
                 <span className="relative block text-sm">3 Months</span>
                 <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  Save 25%
+                  Standard Price
                 </span>
               </button>
             </div>

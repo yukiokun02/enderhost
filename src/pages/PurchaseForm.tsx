@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -194,7 +193,7 @@ const PurchaseForm = () => {
   });
   const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMonthlyBilling, setIsMonthlyBilling] = useState(true);
+  const [isMonthlyBilling, setIsMonthlyBilling] = useState(false);
   
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -216,11 +215,11 @@ const PurchaseForm = () => {
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
-    // For monthly billing, use original price
-    // For 3-month billing, apply 25% discount
+    // For 3-month billing, use original price
+    // For monthly billing, apply 25% increase
     const basePrice = isMonthlyBilling 
-      ? selectedPlan.price 
-      : Math.round(selectedPlan.price * 0.75);
+      ? Math.round(selectedPlan.price * 1.25) 
+      : selectedPlan.price;
       
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
@@ -274,11 +273,11 @@ const PurchaseForm = () => {
   };
 
   const getPlanPrice = (originalPrice: number) => {
-    // For monthly billing, use original price
-    // For 3-month billing, apply 25% discount
+    // For 3-month billing, use original price
+    // For monthly billing, apply 25% increase
     return isMonthlyBilling 
-      ? originalPrice 
-      : Math.round(originalPrice * 0.75);
+      ? Math.round(originalPrice * 1.25) 
+      : originalPrice;
   };
 
   return (
@@ -356,7 +355,7 @@ const PurchaseForm = () => {
                     )}
                     <span className="relative block text-sm">1 Month</span>
                     <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                      Standard Price
+                      Pay 25% extra
                     </span>
                   </button>
                   
@@ -373,7 +372,7 @@ const PurchaseForm = () => {
                     )}
                     <span className="relative block text-sm">3 Months</span>
                     <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                      Save 25%
+                      Standard Price
                     </span>
                   </button>
                 </div>
