@@ -311,6 +311,22 @@ const PurchaseForm = () => {
               <p className="text-gray-400">
                 Fill in the details below to get started.
               </p>
+              
+              <div className="flex items-center justify-center gap-4 mt-6">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-28 justify-center">
+                  <img 
+                    src="/lovable-uploads/54053dab-497e-4eee-9a19-ba23d9b0be19.png" 
+                    alt="Indian Flag" 
+                    className="w-4 h-4 rounded-sm object-cover"
+                  />
+                  <span className="text-xs font-medium text-white">India Based</span>
+                </div>
+                
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-28 justify-center">
+                  <Signal className="w-3.5 h-3.5 text-minecraft-secondary" />
+                  <span className="text-xs font-medium text-white">20-60ms</span>
+                </div>
+              </div>
             </div>
 
             <div className="bg-black/50 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-sm shadow-xl">
