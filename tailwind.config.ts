@@ -19,10 +19,6 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ["Minecraft", "sans-serif"],
-        minecraft: ["Minecraft", "sans-serif"],
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
