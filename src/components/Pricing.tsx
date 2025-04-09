@@ -287,15 +287,15 @@ export default function Pricing() {
                       backgroundColor: plan.mostPopular ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)'
                     }}
                   >
-                    {/* Large background icon (watermark style) */}
+                    {/* Large background icon (watermark style) - Now positioned on the right */}
                     {minecraftItems[plan.icon] && (
-                      <div className="absolute top-0 left-0 w-32 h-32 opacity-[0.08] pointer-events-none">
+                      <div className="absolute top-0 right-0 w-48 h-48 opacity-[0.15] pointer-events-none">
                         <img 
                           src={minecraftItems[plan.icon]} 
                           alt="" 
                           className="w-full h-full object-contain"
                           style={{
-                            transform: "rotate(-5deg) translateY(-15%)",
+                            transform: "rotate(10deg) translate(25%, -15%)",
                           }}
                           aria-hidden="true"
                         />
