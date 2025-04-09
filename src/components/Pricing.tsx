@@ -1,6 +1,9 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 
 const minecraftItems = {
   "Oak Log": "/lovable-uploads/9b5fa930-abf6-434b-b424-efa2c7da4843.png",
@@ -247,6 +250,8 @@ const planCategories = [
 ];
 
 export default function Pricing() {
+  const [isMonthlyBilling, setIsMonthlyBilling] = useState(true);
+  
   const getFeatureIcon = (feature: string) => {
     if (feature.includes("RAM")) return <Gauge className="w-5 h-5 flex-shrink-0" />;
     if (feature.includes("CPU")) return <Cpu className="w-5 h-5 flex-shrink-0" />;
@@ -254,6 +259,13 @@ export default function Pricing() {
     if (feature.includes("Bandwidth")) return <Signal className="w-5 h-5 flex-shrink-0" />;
     if (feature.includes("Backup")) return <Cloud className="w-5 h-5 flex-shrink-0" />;
     return <Check className="w-5 h-5 flex-shrink-0" />;
+  };
+  
+  // Get price with correct billing cycle
+  const getPlanPrice = (originalPrice: number) => {
+    return isMonthlyBilling 
+      ? Math.round(originalPrice * 1.25) 
+      : originalPrice;
   };
 
   return (
@@ -286,6 +298,35 @@ export default function Pricing() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
               <Signal className="w-3.5 h-3.5 text-minecraft-secondary" />
               <span className="text-xs font-medium text-white">20-60ms</span>
+            </div>
+          </div>
+          
+          {/* Billing cycle toggle */}
+          <div className="flex items-center justify-center space-x-6 mb-6 px-6 py-3 bg-black/40 rounded-xl border border-white/10 max-w-sm mx-auto">
+            <div className="flex flex-col items-center">
+              <span className={`text-sm font-medium ${isMonthlyBilling ? 'text-white' : 'text-gray-400'}`}>
+                1 Month
+              </span>
+              <span className={`text-xs ${isMonthlyBilling ? 'text-minecraft-secondary' : 'text-gray-500'}`}>
+                Standard Price
+              </span>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch 
+                checked={!isMonthlyBilling}
+                onCheckedChange={(checked) => setIsMonthlyBilling(!checked)}
+                className="data-[state=checked]:bg-minecraft-secondary"
+              />
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <span className={`text-sm font-medium ${!isMonthlyBilling ? 'text-white' : 'text-gray-400'}`}>
+                3 Months
+              </span>
+              <span className={`text-xs ${!isMonthlyBilling ? 'text-minecraft-secondary' : 'text-gray-500'}`}>
+                Save 25%
+              </span>
             </div>
           </div>
         </div>
@@ -363,8 +404,8 @@ export default function Pricing() {
                     
                     <div className="flex items-baseline mb-4 relative z-10">
                       <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
-                      <span className="text-3xl font-bold text-white">{plan.price}</span>
-                      <span className="text-white/70 ml-1">/month</span>
+                      <span className="text-3xl font-bold text-white">{getPlanPrice(plan.price)}</span>
+                      <span className="text-white/70 ml-1">/{isMonthlyBilling ? 'month' : '3 months'}</span>
                     </div>
                     
                     <ul className="space-y-3 mb-6 relative z-10">
@@ -376,7 +417,11 @@ export default function Pricing() {
                       ))}
                     </ul>
                     
-                    <Link to={`/purchase?plan=${planIdMap[plan.name]}`} className="relative z-10 block">
+                    <Link 
+                      to={`/purchase?plan=${planIdMap[plan.name]}`}
+                      state={{ isMonthlyBilling }}
+                      className="relative z-10 block"
+                    >
                       <Button
                         className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
                           ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105`}
