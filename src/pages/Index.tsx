@@ -60,14 +60,14 @@ const Index = () => {
       
       <SelfHostingSection />
       
-      {/* FAQ Button (smaller version) */}
+      {/* FAQ Button - Made slightly larger */}
       <div className="fixed bottom-6 right-6 z-40">
         <Link 
           to="/troubleshooting"
-          className="inline-flex items-center gap-1.5 bg-minecraft-secondary hover:bg-minecraft-primary text-white text-xs px-3 py-2 rounded-full transition-colors shadow-lg"
+          className="inline-flex items-center gap-2 bg-minecraft-secondary hover:bg-minecraft-primary text-white px-4 py-2.5 rounded-full transition-colors shadow-lg"
         >
-          <HelpCircle className="w-3.5 h-3.5" />
-          <span className="font-medium">FAQ's</span>
+          <HelpCircle className="w-4 h-4" />
+          <span className="font-medium text-sm">FAQ's</span>
         </Link>
       </div>
       
