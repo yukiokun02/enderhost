@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Server, Zap, Clock, Zap as ZapIcon, Globe } from "lucide-react";
 
@@ -48,7 +47,7 @@ export default function Hero() {
             <span className="bg-gradient-to-r from-minecraft-light to-minecraft-secondary bg-clip-text text-transparent md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Fast, Reliable, Unstoppable</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-white mb-10 max-w-2xl mx-auto animate-fade-up [animation-delay:400ms] md:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] font-medium">
+          <p className="text-xl md:text-2xl text-white mb-10 max-w-2xl mx-auto animate-fade-up [animation-delay:400ms] md:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
             Deploy your Minecraft server in seconds with enterprise-grade hardware
             and 24/7 support.
           </p>
@@ -56,7 +55,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-fade-up [animation-delay:600ms]">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white px-8 py-7 text-lg rounded-lg flex items-center gap-3 transform transition-all duration-300 hover:scale-105 backdrop-blur-sm shadow-xl font-semibold min-w-[220px]"
+              className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white px-8 py-7 text-lg rounded-lg flex items-center gap-3 transform transition-all duration-300 hover:scale-105 backdrop-blur-sm shadow-xl font-minecraft min-w-[220px]"
               onClick={scrollToPricing}
             >
               <Zap className="w-5 h-5" />
@@ -67,7 +66,7 @@ export default function Hero() {
               href="https://discord.gg/bsGPB9VpUY"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8 px-8 py-7 text-lg rounded-lg border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:border-minecraft-secondary/70 hover:scale-105 shadow-lg flex items-center gap-3 font-semibold min-w-[220px]"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8 px-8 py-7 text-lg rounded-lg border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:border-minecraft-secondary/70 hover:scale-105 shadow-lg flex items-center gap-3 font-minecraft min-w-[220px]"
             >
               <img 
                 src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
