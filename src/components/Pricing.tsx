@@ -1,3 +1,4 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, Flag, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -64,7 +65,7 @@ const planCategories = [
           "1Gbps Bandwidth",
         ],
         icon: "Oak Log",
-        players: "3+ Players",
+        players: "10+ Players",
         popular: false
       },
       {
@@ -77,7 +78,7 @@ const planCategories = [
           "1Gbps Bandwidth",
         ],
         icon: "Stone Pickaxe",
-        players: "5+ Players",
+        players: "20+ Players",
         popular: false,
       },
       {
@@ -90,7 +91,7 @@ const planCategories = [
           "1Gbps Bandwidth",
         ],
         icon: "Cobblestone",
-        players: "8+ Players",
+        players: "30+ Players",
         popular: true,
         mostPopular: true,
       },
@@ -104,7 +105,7 @@ const planCategories = [
           "1Gbps Bandwidth",
         ],
         icon: "Iron Pickaxe",
-        players: "15+ Players",
+        players: "45+ Players",
         popular: false,
       },
     ],
@@ -133,7 +134,7 @@ const planCategories = [
           "1Gbps Bandwidth",
         ],
         icon: "Iron Ore",
-        players: "20+ Players",
+        players: "60+ Players",
         popular: false,
       },
       {
@@ -146,7 +147,7 @@ const planCategories = [
           "1Gbps Bandwidth",
         ],
         icon: "Diamond",
-        players: "25+ Players",
+        players: "75+ Players",
         popular: true,
         mostPopular: true,
       },
@@ -160,7 +161,7 @@ const planCategories = [
           "1Gbps Bandwidth",
         ],
         icon: "Ice Block",
-        players: "30+ Players",
+        players: "90+ Players",
         popular: false,
       },
     ],
@@ -190,7 +191,7 @@ const planCategories = [
           "1 Cloud Backup",
         ],
         icon: "Obsidian",
-        players: "40+ Players",
+        players: "120+ Players",
         popular: false,
       },
       {
@@ -204,7 +205,7 @@ const planCategories = [
           "1 Cloud Backup",
         ],
         icon: "Ancient Debris",
-        players: "50+ Players",
+        players: "150+ Players",
         popular: false,
       },
       {
@@ -218,7 +219,7 @@ const planCategories = [
           "2 Cloud Backups",
         ],
         icon: "End Portal Frame",
-        players: "60+ Players",
+        players: "200+ Players",
         popular: true,
         mostPopular: true,
       },
@@ -233,7 +234,7 @@ const planCategories = [
           "2 Cloud Backups",
         ],
         icon: "Elytra",
-        players: "100+ Players",
+        players: "300+ Players",
         popular: false,
       },
     ],

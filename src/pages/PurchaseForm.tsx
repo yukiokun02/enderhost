@@ -27,7 +27,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "",
     },
-    players: "3+ Players"
+    players: "10+ Players"
   },
   {
     id: "getting-an-upgrade",
@@ -41,7 +41,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "",
     },
-    players: "5+ Players"
+    players: "20+ Players"
   },
   {
     id: "stone-age",
@@ -55,7 +55,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "",
     },
-    players: "8+ Players"
+    players: "30+ Players"
   },
   {
     id: "acquire-hardware",
@@ -69,7 +69,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "",
     },
-    players: "15+ Players"
+    players: "45+ Players"
   },
   
   // Modpack plans
@@ -85,7 +85,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "",
     },
-    players: "20+ Players"
+    players: "60+ Players"
   },
   {
     id: "diamonds",
@@ -99,7 +99,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "",
     },
-    players: "25+ Players"
+    players: "75+ Players"
   },
   {
     id: "ice-bucket-challenge",
@@ -113,7 +113,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "",
     },
-    players: "30+ Players"
+    players: "90+ Players"
   },
   
   // Community server plans
@@ -129,7 +129,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "1 Cloud Backup",
     },
-    players: "40+ Players"
+    players: "120+ Players"
   },
   {
     id: "hidden-in-the-depths",
@@ -143,7 +143,7 @@ const allPlans = [
       bandwidth: "1Gbps Bandwidth",
       backups: "1 Cloud Backup",
     },
-    players: "50+ Players"
+    players: "150+ Players"
   },
   {
     id: "the-end",
@@ -157,7 +157,7 @@ const allPlans = [
       bandwidth: "Unmetered Bandwidth",
       backups: "2 Cloud Backups",
     },
-    players: "60+ Players"
+    players: "200+ Players"
   },
   {
     id: "sky-is-the-limit",
@@ -171,7 +171,7 @@ const allPlans = [
       bandwidth: "Unmetered Bandwidth",
       backups: "2 Cloud Backups",
     },
-    players: "100+ Players"
+    players: "300+ Players"
   },
 ];
 
