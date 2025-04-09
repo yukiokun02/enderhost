@@ -1,4 +1,3 @@
-
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, Flag, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -19,17 +18,17 @@ const minecraftItems = {
 
 // Define button colors that match each item
 const itemButtonColors = {
-  "Oak Log": "bg-amber-700 hover:bg-amber-800", // Brown for wood
-  "Stone Pickaxe": "bg-gray-600 hover:bg-gray-700", // Gray for stone
-  "Cobblestone": "bg-gray-500 hover:bg-gray-600", // Light gray for cobblestone
-  "Iron Pickaxe": "bg-gray-400 hover:bg-gray-500", // Light gray with slight blue for iron
-  "Iron Ore": "bg-blue-500 hover:bg-blue-600", // Light blue-gray for iron ore
-  "Diamond": "bg-cyan-500 hover:bg-cyan-600", // Cyan for diamond
-  "Ice Block": "bg-sky-400 hover:bg-sky-500", // Light blue for ice
-  "Obsidian": "bg-purple-900 hover:bg-purple-950", // Deep purple for obsidian
-  "Ancient Debris": "bg-amber-900 hover:bg-amber-950", // Dark brown for ancient debris
-  "End Portal Frame": "bg-emerald-800 hover:bg-emerald-900", // Green for end portal frame
-  "Elytra": "bg-slate-800 hover:bg-slate-900" // Dark gray for elytra
+  "Oak Log": "bg-green-500 hover:bg-green-600", // Light green for wood
+  "Stone Pickaxe": "bg-green-800 hover:bg-green-900", // Deep green for stone pickaxe
+  "Cobblestone": "bg-gray-800 hover:bg-gray-900", // Deep gray for cobblestone
+  "Iron Pickaxe": "bg-gray-300 hover:bg-gray-400", // Silver white for iron pickaxe
+  "Iron Ore": "bg-gray-300 hover:bg-gray-400", // Silver white for iron ore
+  "Diamond": "bg-cyan-400 hover:bg-cyan-500", // Aqua for diamond
+  "Ice Block": "bg-orange-400 hover:bg-orange-500", // Orange for ice block
+  "Obsidian": "bg-red-900 hover:bg-red-950", // Reddish brown for obsidian
+  "Ancient Debris": "bg-amber-800 hover:bg-amber-900", // Deep brown for ancient debris
+  "End Portal Frame": "bg-yellow-700 hover:bg-yellow-800", // Sand color for end portal
+  "Elytra": "bg-purple-700 hover:bg-purple-800" // Purple for elytra
 };
 
 const planCategories = [
@@ -261,7 +260,6 @@ export default function Pricing() {
             Choose Your Plan
           </h2>
           
-          {/* New badges for Indian flag and ping information */}
           <div className="flex items-center justify-center gap-4 mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
               <Flag className="w-4 h-4 text-minecraft-secondary" />
@@ -302,7 +300,6 @@ export default function Pricing() {
                       backgroundColor: plan.mostPopular ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)'
                     }}
                   >
-                    {/* Much larger background icon with higher opacity and glow effect */}
                     {minecraftItems[plan.icon] && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-end overflow-hidden">
                         <div 
@@ -313,7 +310,6 @@ export default function Pricing() {
                           }}
                           aria-hidden="true"
                         >
-                          {/* Add a subtle radial gradient glow behind the icon */}
                           <div 
                             className="absolute inset-0"
                             style={{
