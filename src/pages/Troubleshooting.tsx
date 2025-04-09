@@ -21,6 +21,7 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FAQ {
   question: string;
@@ -36,6 +37,7 @@ interface FAQCategory {
 
 const Troubleshooting = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const isMobile = useIsMobile();
 
   const faqCategories: FAQCategory[] = [
     {
@@ -268,7 +270,7 @@ const Troubleshooting = () => {
           <AnimateOnScroll variant="fade-up">
             <div className="mb-20">
               <Tabs defaultValue="faq" className="max-w-4xl mx-auto">
-                <TabsList className="w-full bg-black/40 backdrop-blur-md border border-white/10 rounded-lg mb-6">
+                <TabsList className={`w-full bg-black/40 backdrop-blur-md border border-white/10 rounded-lg mb-6 ${isMobile ? 'h-auto py-1' : ''}`}>
                   <TabsTrigger 
                     value="faq" 
                     className="flex-1 data-[state=active]:bg-minecraft-secondary data-[state=active]:text-white"
