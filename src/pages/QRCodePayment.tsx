@@ -52,6 +52,7 @@ const QRCodePayment = () => {
   const [additionalBackups, setAdditionalBackups] = useState<number>(0);
   const [additionalPorts, setAdditionalPorts] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<number>(3);
   
   // Generate a unique order identifier based on form data
   const generateOrderIdentifier = (details: any, plan: string): string => {
@@ -153,22 +154,24 @@ const QRCodePayment = () => {
   useEffect(() => {
     // Get state passed from purchase form
     if (location.state) {
-      const { plan, additionalBackups, additionalPorts, totalPrice, ...details } = location.state;
+      const { plan, additionalBackups, additionalPorts, totalPrice, billingCycle: cycle, ...details } = location.state;
       
       setPlanId(plan);
       setCustomerDetails(details);
       setAdditionalBackups(parseInt(additionalBackups) || 0);
       setAdditionalPorts(parseInt(additionalPorts) || 0);
+      setBillingCycle(cycle || 3);
       
-      // Calculate total price if not provided directly
+      // Set total price directly from state if available
       if (totalPrice) {
         setTotalPrice(totalPrice);
       } else {
         // Calculate from components
         const basePrice = planPrices[plan] || 0;
+        const baseTotalPrice = (cycle === 1) ? basePrice * 1.25 : basePrice * 3;
         const backupCost = (parseInt(additionalBackups) || 0) * 19;
         const portCost = (parseInt(additionalPorts) || 0) * 9;
-        setTotalPrice(basePrice + backupCost + portCost);
+        setTotalPrice(Math.round(baseTotalPrice) + backupCost + portCost);
       }
       
       // Check if we've already sent an email for this order using sessionStorage
@@ -229,9 +232,9 @@ const QRCodePayment = () => {
   
   // Calculate price breakdowns
   const basePlanPrice = planPrices[planId] || 0;
+  const totalBasePlanPrice = billingCycle === 1 ? Math.round(basePlanPrice * 1.25) : basePlanPrice * 3;
   const backupsCost = additionalBackups * 19;
   const portsCost = additionalPorts * 9;
-  const hasAddons = additionalBackups > 0 || additionalPorts > 0;
   
   return (
     <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
@@ -313,43 +316,39 @@ const QRCodePayment = () => {
                 </div>
                 
                 <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
-                  {hasAddons ? (
-                    <>
-                      <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
-                      <div className="space-y-1 text-sm mb-3">
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Base Plan:</span>
-                          <span className="text-gray-300">₹{basePlanPrice.toLocaleString()}</span>
-                        </div>
-                        
-                        {additionalBackups > 0 && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-300">Additional Backups ({additionalBackups}):</span>
-                            <span className="text-gray-300">₹{backupsCost.toLocaleString()}</span>
-                          </div>
-                        )}
-                        
-                        {additionalPorts > 0 && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
-                            <span className="text-gray-300">₹{portsCost.toLocaleString()}</span>
-                          </div>
-                        )}
-                        
-                        <div className="border-t border-gray-700 mt-2 pt-2 flex justify-between font-medium">
-                          <span className="text-white">Total:</span>
-                          <span className="text-white">₹{totalPrice.toLocaleString()}.00</span>
-                        </div>
+                  <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
+                  <div className="space-y-1 text-sm mb-3">
+                    {billingCycle === 1 ? (
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Base Plan:</span>
+                        <span className="text-gray-300">₹{totalBasePlanPrice}/month</span>
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm font-medium text-gray-400">Amount</p>
-                      <p className="font-mono text-gray-100 text-xl font-bold">
-                        ₹{totalPrice.toLocaleString()}.00
-                      </p>
-                    </>
-                  )}
+                    ) : (
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Base Plan:</span>
+                        <span className="text-gray-300">₹{basePlanPrice} × 3 months</span>
+                      </div>
+                    )}
+                    
+                    {additionalBackups > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Additional Backups ({additionalBackups}):</span>
+                        <span className="text-gray-300">+₹{backupsCost}</span>
+                      </div>
+                    )}
+                    
+                    {additionalPorts > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
+                        <span className="text-gray-300">+₹{portsCost}</span>
+                      </div>
+                    )}
+                    
+                    <div className="border-t border-gray-700 mt-2 pt-2 flex justify-between font-medium">
+                      <span className="text-white">Total price:</span>
+                      <span className="text-white">₹{totalPrice.toLocaleString()}.00</span>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Server Login Info */}

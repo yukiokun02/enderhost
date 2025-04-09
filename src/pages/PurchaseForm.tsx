@@ -216,12 +216,14 @@ const PurchaseForm = () => {
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
-    // For 3-month billing, use original price
-    // For monthly billing, apply 25% increase
-    const basePrice = isMonthlyBilling 
-      ? Math.round(selectedPlan.price * 1.25) 
-      : selectedPlan.price;
-      
+    let basePrice = selectedPlan.price;
+    
+    // If 3-month billing, multiply base price by 3 to show total cost
+    if (!isMonthlyBilling) {
+      basePrice = basePrice * 3;
+    }
+    
+    // Add additional costs - these are always the same regardless of billing cycle
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
     
@@ -274,8 +276,15 @@ const PurchaseForm = () => {
   };
 
   const getPlanPrice = (originalPrice: number) => {
-    // For 3-month billing, use original price
-    // For monthly billing, apply 25% increase
+    // For monthly billing, return the plan's monthly price
+    // For 3-month billing, return the total cost for 3 months
+    return isMonthlyBilling 
+      ? Math.round(originalPrice * 1.25) 
+      : originalPrice * 3;
+  };
+
+  // Get the unit price (monthly price) for display purposes
+  const getUnitPrice = (originalPrice: number) => {
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
       : originalPrice;
@@ -512,21 +521,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}{isMonthlyBilling ? '/month' : ' for 3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}{isMonthlyBilling ? '/month' : ' for 3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}{isMonthlyBilling ? '/month' : ' for 3 months'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -566,12 +575,40 @@ const PurchaseForm = () => {
                           </div>
                         )}
                       </div>
-                      
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/10">
-                        <span className="text-sm font-medium text-white">Price:</span>
-                        <div className="flex items-center">
-                          <span className="text-lg font-bold text-white">₹{getPlanPrice(selectedPlan.price)}</span>
-                          <span className="text-sm text-white/70 ml-1">/{isMonthlyBilling ? 'month' : 'month × 3'}</span>
+
+                      {/* Price breakdown section - now always visible */}
+                      <div className="mt-4 pt-3 border-t border-white/10">
+                        <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
+                          {!isMonthlyBilling ? (
+                            <div className="flex justify-between text-white">
+                              <span>Base plan price:</span>
+                              <span>₹{getUnitPrice(selectedPlan.price)} × 3 months</span>
+                            </div>
+                          ) : (
+                            <div className="flex justify-between text-white">
+                              <span>Base plan price:</span>
+                              <span>₹{getUnitPrice(selectedPlan.price)}/month</span>
+                            </div>
+                          )}
+                          
+                          {parseInt(formData.additionalBackups) > 0 && (
+                            <div className="flex justify-between text-white">
+                              <span>Additional backups ({formData.additionalBackups}):</span>
+                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
+                            </div>
+                          )}
+                          
+                          {parseInt(formData.additionalPorts) > 0 && (
+                            <div className="flex justify-between text-white">
+                              <span>Additional ports ({formData.additionalPorts}):</span>
+                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
+                            </div>
+                          )}
+                          
+                          <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
+                            <span>Total price:</span>
+                            <span>₹{calculateTotalPrice()}{isMonthlyBilling ? '/month' : ' for 3 months'}</span>
+                          </div>
                         </div>
                       </div>
                       
@@ -630,31 +667,6 @@ const PurchaseForm = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      
-                      {(parseInt(formData.additionalBackups) > 0 || parseInt(formData.additionalPorts) > 0) && (
-                        <div className="mt-4 p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
-                          <div className="flex justify-between text-white">
-                            <span>Base plan price:</span>
-                            <span>₹{getPlanPrice(selectedPlan.price)}</span>
-                          </div>
-                          {parseInt(formData.additionalBackups) > 0 && (
-                            <div className="flex justify-between text-white">
-                              <span>Additional backups ({formData.additionalBackups}):</span>
-                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
-                            </div>
-                          )}
-                          {parseInt(formData.additionalPorts) > 0 && (
-                            <div className="flex justify-between text-white">
-                              <span>Additional ports ({formData.additionalPorts}):</span>
-                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
-                            <span>Total price:</span>
-                            <span>₹{calculateTotalPrice()}</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </>
                 )}
