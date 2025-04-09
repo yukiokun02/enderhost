@@ -27,11 +27,11 @@ export default function PromoOffer() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto text-center py-4">
           <h2 className="text-xl md:text-2xl font-bold mb-2 text-white tracking-tight leading-tight">
-            🔥 Grand Opening - 25% OFF! 🔥
+            🔥 25% OFF - Limited Time! 🔥
           </h2>
 
           <p className="text-base text-white/90">
-            25% off all plans - limited time offer!
+            All plans on sale now
           </p>
         </div>
       </div>

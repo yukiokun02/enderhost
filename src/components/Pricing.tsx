@@ -1,4 +1,3 @@
-
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, Flag, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -21,8 +20,8 @@ const itemButtonColors = {
   "Oak Log": "bg-green-500 hover:bg-green-600 text-white",
   "Stone Pickaxe": "bg-green-800 hover:bg-green-900 text-white",
   "Cobblestone": "bg-gray-800 hover:bg-gray-900 text-white",
-  "Iron Pickaxe": "bg-gray-500 hover:bg-gray-600 text-white", // Updated to deeper silver
-  "Iron Ore": "bg-gray-500 hover:bg-gray-600 text-white", // Updated to deeper silver
+  "Iron Pickaxe": "bg-gray-500 hover:bg-gray-600 text-white",
+  "Iron Ore": "bg-gray-500 hover:bg-gray-600 text-white",
   "Diamond": "bg-cyan-400 hover:bg-cyan-500 text-white",
   "Ice Block": "bg-orange-400 hover:bg-orange-500 text-white",
   "Obsidian": "bg-red-900 hover:bg-red-950 text-white",
@@ -173,8 +172,8 @@ const planCategories = [
   },
   {
     id: "community",
-    name: "START A COMMUNITY SERVER",
-    description: "Ideal for larger servers that will install many plugins and have many players at the same time.",
+    name: "COMMUNITY SERVERS",
+    description: "For large servers with many plugins.",
     color: "bg-green-900",
     textColor: "text-green-500",
     buttonColor: "bg-green-500 hover:bg-green-600",

@@ -40,7 +40,7 @@ export default function Features() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
-            Pro Server Features
+            Pro Features
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
             Top tools for the best hosting
