@@ -1,3 +1,4 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -261,9 +262,11 @@ export default function Pricing() {
   };
   
   const getPlanPrice = (originalPrice: number) => {
+    // For monthly billing, use original price
+    // For 3-month billing, apply 25% discount (multiply by 0.75)
     return isMonthlyBilling 
-      ? Math.round(originalPrice * 1.25) 
-      : originalPrice;
+      ? originalPrice 
+      : Math.round(originalPrice * 0.75);
   };
 
   return (

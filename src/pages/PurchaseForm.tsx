@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -198,20 +199,28 @@ const PurchaseForm = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const planFromUrl = queryParams.get('plan');
+    const billingFromState = location.state?.isMonthlyBilling;
+    
+    // Set billing cycle from state if available
+    if (billingFromState !== undefined) {
+      setIsMonthlyBilling(billingFromState);
+    }
     
     if (planFromUrl) {
       setFormData(prev => ({ ...prev, plan: planFromUrl }));
       const plan = allPlans.find(p => p.id === planFromUrl);
       setSelectedPlan(plan || null);
     }
-  }, [location.search]);
+  }, [location.search, location.state]);
   
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
+    // For monthly billing, use original price
+    // For 3-month billing, apply 25% discount
     const basePrice = isMonthlyBilling 
-      ? Math.round(selectedPlan.price * 1.25) 
-      : selectedPlan.price;
+      ? selectedPlan.price 
+      : Math.round(selectedPlan.price * 0.75);
       
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
@@ -265,9 +274,11 @@ const PurchaseForm = () => {
   };
 
   const getPlanPrice = (originalPrice: number) => {
+    // For monthly billing, use original price
+    // For 3-month billing, apply 25% discount
     return isMonthlyBilling 
-      ? Math.round(originalPrice * 1.25) 
-      : originalPrice;
+      ? originalPrice 
+      : Math.round(originalPrice * 0.75);
   };
 
   return (
@@ -489,6 +500,7 @@ const PurchaseForm = () => {
                   <Select
                     name="plan"
                     onValueChange={(value) => handleSelectChange("plan", value)}
+                    value={formData.plan}
                   >
                     <SelectTrigger
                       id="plan"
@@ -500,21 +512,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/month
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : '3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/month
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : '3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/month
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : '3 months'}
                         </SelectItem>
                       ))}
                     </SelectContent>
