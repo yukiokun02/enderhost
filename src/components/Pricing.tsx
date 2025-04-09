@@ -1,3 +1,4 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -431,6 +432,7 @@ export default function Pricing() {
                       <Button
                         className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
                           ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105`}
+                        variant="minecraft" // Using the new minecraft variant with thin outline
                       >
                         Buy Now
                       </Button>

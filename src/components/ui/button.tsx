@@ -19,6 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        minecraft: "border border-white/15 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]", // Added new variant with thin outline
       },
       size: {
         default: "h-10 px-4 py-2",
