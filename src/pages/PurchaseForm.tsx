@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -225,10 +224,8 @@ const PurchaseForm = () => {
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
     
-    // Apply multiplier for additional items if using 3-month billing
-    const addonsMultiplier = isMonthlyBilling ? 1 : 3;
-    
-    return basePrice + (backupPrice * addonsMultiplier) + (portPrice * addonsMultiplier);
+    // Apply multiplier for billing cycle only to base price, not to addons
+    return basePrice + backupPrice + portPrice;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -600,7 +597,7 @@ const PurchaseForm = () => {
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Cloud Backups (₹19 each{isMonthlyBilling ? '' : ' × 3 months'})
+                          Additional Cloud Backups (₹19 each)
                         </label>
                         <Select
                           name="additionalBackups"
@@ -612,18 +609,18 @@ const PurchaseForm = () => {
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
                             <SelectItem value="0">No additional backups</SelectItem>
-                            <SelectItem value="1">1 additional backup (+₹{isMonthlyBilling ? '19' : '57'})</SelectItem>
-                            <SelectItem value="2">2 additional backups (+₹{isMonthlyBilling ? '38' : '114'})</SelectItem>
-                            <SelectItem value="3">3 additional backups (+₹{isMonthlyBilling ? '57' : '171'})</SelectItem>
-                            <SelectItem value="4">4 additional backups (+₹{isMonthlyBilling ? '76' : '228'})</SelectItem>
-                            <SelectItem value="5">5 additional backups (+₹{isMonthlyBilling ? '95' : '285'})</SelectItem>
+                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
+                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
+                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
+                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
+                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Ports (₹9 each{isMonthlyBilling ? '' : ' × 3 months'})
+                          Additional Ports (₹9 each)
                         </label>
                         <Select
                           name="additionalPorts"
@@ -635,11 +632,11 @@ const PurchaseForm = () => {
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
                             <SelectItem value="0">No additional ports</SelectItem>
-                            <SelectItem value="1">1 additional port (+₹{isMonthlyBilling ? '9' : '27'})</SelectItem>
-                            <SelectItem value="2">2 additional ports (+₹{isMonthlyBilling ? '18' : '54'})</SelectItem>
-                            <SelectItem value="3">3 additional ports (+₹{isMonthlyBilling ? '27' : '81'})</SelectItem>
-                            <SelectItem value="4">4 additional ports (+₹{isMonthlyBilling ? '36' : '108'})</SelectItem>
-                            <SelectItem value="5">5 additional ports (+₹{isMonthlyBilling ? '45' : '135'})</SelectItem>
+                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
+                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
+                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
+                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
+                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -653,13 +650,13 @@ const PurchaseForm = () => {
                           {parseInt(formData.additionalBackups) > 0 && (
                             <div className="flex justify-between text-white">
                               <span>Additional backups ({formData.additionalBackups}):</span>
-                              <span>+₹{parseInt(formData.additionalBackups) * 19 * (isMonthlyBilling ? 1 : 3)}</span>
+                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
                             </div>
                           )}
                           {parseInt(formData.additionalPorts) > 0 && (
                             <div className="flex justify-between text-white">
                               <span>Additional ports ({formData.additionalPorts}):</span>
-                              <span>+₹{parseInt(formData.additionalPorts) * 9 * (isMonthlyBilling ? 1 : 3)}</span>
+                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
                             </div>
                           )}
                           <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">

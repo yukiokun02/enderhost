@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
@@ -173,8 +172,8 @@ const QRCodePayment = () => {
           ? Math.round(planPrices[plan] * 1.25)
           : planPrices[plan] * 3;
         
-        const backupCost = (parseInt(additionalBackups) || 0) * 19 * (isMonthlyBilling ? 1 : 3);
-        const portCost = (parseInt(additionalPorts) || 0) * 9 * (isMonthlyBilling ? 1 : 3);
+        const backupCost = (parseInt(additionalBackups) || 0) * 19;
+        const portCost = (parseInt(additionalPorts) || 0) * 9;
         setTotalPrice(basePrice + backupCost + portCost);
       }
       
@@ -186,8 +185,8 @@ const QRCodePayment = () => {
       if (!alreadySentEmail && details) {
         const finalTotalPrice = totalPrice || (
           (billingCycle === 1 ? Math.round(planPrices[plan] * 1.25) : planPrices[plan] * 3) + 
-          (parseInt(additionalBackups) || 0) * 19 * (billingCycle === 1 ? 1 : 3) + 
-          (parseInt(additionalPorts) || 0) * 9 * (billingCycle === 1 ? 1 : 3)
+          (parseInt(additionalBackups) || 0) * 19 + 
+          (parseInt(additionalPorts) || 0) * 9
         );
         
         sendOrderNotification(
@@ -243,9 +242,9 @@ const QRCodePayment = () => {
     ? Math.round(planPrices[planId] * 1.25) 
     : planPrices[planId] * 3;
   
-  // Calculate addon costs with proper multiplier
-  const backupsCost = additionalBackups * 19 * (billingCycle === 1 ? 1 : 3);
-  const portsCost = additionalPorts * 9 * (billingCycle === 1 ? 1 : 3);
+  // Calculate addon costs - no longer multiplying by billing cycle
+  const backupsCost = additionalBackups * 19;
+  const portsCost = additionalPorts * 9;
   const hasAddons = additionalBackups > 0 || additionalPorts > 0;
 
   // Format billing period for display
@@ -343,8 +342,7 @@ const QRCodePayment = () => {
                         {additionalBackups > 0 && (
                           <div className="flex justify-between">
                             <span className="text-gray-300">
-                              Additional Backups ({additionalBackups})
-                              {billingCycle === 3 && " × 3 months"}:
+                              Additional Backups ({additionalBackups}):
                             </span>
                             <span className="text-gray-300">₹{backupsCost.toLocaleString()}</span>
                           </div>
@@ -353,8 +351,7 @@ const QRCodePayment = () => {
                         {additionalPorts > 0 && (
                           <div className="flex justify-between">
                             <span className="text-gray-300">
-                              Additional Ports ({additionalPorts})
-                              {billingCycle === 3 && " × 3 months"}:
+                              Additional Ports ({additionalPorts}):
                             </span>
                             <span className="text-gray-300">₹{portsCost.toLocaleString()}</span>
                           </div>
