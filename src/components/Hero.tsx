@@ -110,14 +110,18 @@ export default function Hero() {
               <div className="text-xs md:text-sm text-gray-300">Top tier</div>
             </div>
             
-            {/* Server Location Card */}
+            {/* Server Location Card - Updated with Indian Flag */}
             <div 
               className="rounded-lg p-4 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-primary/15 to-minecraft-secondary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:900ms] w-[90%] sm:w-full mx-auto"
               style={{ boxShadow: '0 0 10px rgba(94, 66, 227, 0.1)' }}
             >
               <div className="flex justify-center mb-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-minecraft-primary/30 to-minecraft-secondary/30 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-minecraft-secondary" />
+                  <img 
+                    src="/lovable-uploads/54053dab-497e-4eee-9a19-ba23d9b0be19.png"
+                    alt="Indian Flag"
+                    className="w-6 h-6 rounded-sm object-cover"
+                  />
                 </div>
               </div>
               <div className="text-xs uppercase tracking-wider text-gray-400 mb-1">Location</div>

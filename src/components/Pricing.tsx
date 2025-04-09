@@ -1,5 +1,4 @@
-
-import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, Flag, IndianRupee } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -274,15 +273,19 @@ export default function Pricing() {
             Choose Your Plan
           </h2>
           
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
-              <Flag className="w-4 h-4 text-minecraft-secondary" />
-              <span className="text-sm font-medium text-white">India Based Servers</span>
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
+              <img 
+                src="/lovable-uploads/54053dab-497e-4eee-9a19-ba23d9b0be19.png" 
+                alt="Indian Flag" 
+                className="w-4 h-4 rounded-sm object-cover"
+              />
+              <span className="text-xs font-medium text-white">India Based</span>
             </div>
             
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
-              <Signal className="w-4 h-4 text-minecraft-secondary" />
-              <span className="text-sm font-medium text-white">20-60ms Ping</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
+              <Signal className="w-3.5 h-3.5 text-minecraft-secondary" />
+              <span className="text-xs font-medium text-white">20-60ms</span>
             </div>
           </div>
         </div>
