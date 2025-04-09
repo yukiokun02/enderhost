@@ -275,7 +275,7 @@ export default function Pricing() {
                 {category.plans.map((plan) => (
                   <div 
                     key={plan.name}
-                    className={`relative rounded-xl p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(94,66,227,0.3)] ${
+                    className={`relative rounded-xl p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(94,66,227,0.3)] overflow-hidden ${
                       plan.mostPopular
                         ? "border-2 border-opacity-50 shadow-lg"
                         : "border border-white/10"
@@ -287,6 +287,21 @@ export default function Pricing() {
                       backgroundColor: plan.mostPopular ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)'
                     }}
                   >
+                    {/* Large background icon (watermark style) */}
+                    {minecraftItems[plan.icon] && (
+                      <div className="absolute top-0 left-0 w-32 h-32 opacity-[0.08] pointer-events-none">
+                        <img 
+                          src={minecraftItems[plan.icon]} 
+                          alt="" 
+                          className="w-full h-full object-contain"
+                          style={{
+                            transform: "rotate(-5deg) translateY(-15%)",
+                          }}
+                          aria-hidden="true"
+                        />
+                      </div>
+                    )}
+                    
                     {plan.mostPopular && (
                       <div className="absolute -top-3 right-4 rotate-2 z-10">
                         <div className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary text-white text-xs font-medium px-3 py-1 rounded-full">
@@ -295,32 +310,22 @@ export default function Pricing() {
                       </div>
                     )}
                     
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="w-10 h-10 flex items-center justify-center">
-                        {minecraftItems[plan.icon] && (
-                          <img 
-                            src={minecraftItems[plan.icon]} 
-                            alt={plan.icon} 
-                            className="w-full h-full object-contain"
-                            title={plan.icon}
-                          />
-                        )}
-                      </div>
+                    <div className="flex items-center justify-between mb-2 relative z-10">
                       <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10">
                         <Users className="w-3.5 h-3.5" />
                         <span className="text-sm text-white/80">{plan.players}</span>
                       </div>
                     </div>
                     
-                    <h3 className="text-xl font-bold mb-2 text-white">{plan.name}</h3>
+                    <h3 className="text-xl font-bold mb-2 text-white relative z-10">{plan.name}</h3>
                     
-                    <div className="flex items-baseline mb-4">
+                    <div className="flex items-baseline mb-4 relative z-10">
                       <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
                       <span className="text-3xl font-bold text-white">{plan.price}</span>
                       <span className="text-white/70 ml-1">/month</span>
                     </div>
                     
-                    <ul className="space-y-3 mb-6">
+                    <ul className="space-y-3 mb-6 relative z-10">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-sm">
                           {getFeatureIcon(feature)}
@@ -329,7 +334,7 @@ export default function Pricing() {
                       ))}
                     </ul>
                     
-                    <Link to="/purchase">
+                    <Link to="/purchase" className="relative z-10 block">
                       <Button
                         className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
                           ${category.buttonColor} text-white hover:scale-105`}
