@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,7 +19,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        minecraft: ["Mojangles", "Minecraft", "monospace"],
+        minecraft: ["MinecraftTen", "Mojangles", "monospace"],
+      },
+      fontWeight: {
+        minecraft: 400,
       },
       colors: {
         border: "hsl(var(--border))",
