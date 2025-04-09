@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -215,16 +216,15 @@ const PurchaseForm = () => {
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
-    // For 3-month billing, use original price × 3
+    // For 3-month billing, use original price
     // For monthly billing, apply 25% increase
     const basePrice = isMonthlyBilling 
       ? Math.round(selectedPlan.price * 1.25) 
-      : selectedPlan.price * 3;
+      : selectedPlan.price;
       
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
     
-    // Apply multiplier for billing cycle only to base price, not to addons
     return basePrice + backupPrice + portPrice;
   };
 
@@ -274,19 +274,11 @@ const PurchaseForm = () => {
   };
 
   const getPlanPrice = (originalPrice: number) => {
-    // For 3-month billing, show total price for the entire period
-    // For monthly billing, apply 25% increase to monthly price
+    // For 3-month billing, use original price
+    // For monthly billing, apply 25% increase
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
-      : originalPrice * 3;
-  };
-
-  const formatPriceDisplay = (price: number) => {
-    if (isMonthlyBilling) {
-      return `₹${price}/month`;
-    } else {
-      return `₹${price} total`;
-    }
+      : originalPrice;
   };
 
   return (
@@ -520,21 +512,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - {formatPriceDisplay(getPlanPrice(plan.price))}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - {formatPriceDisplay(getPlanPrice(plan.price))}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - {formatPriceDisplay(getPlanPrice(plan.price))}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -579,9 +571,7 @@ const PurchaseForm = () => {
                         <span className="text-sm font-medium text-white">Price:</span>
                         <div className="flex items-center">
                           <span className="text-lg font-bold text-white">₹{getPlanPrice(selectedPlan.price)}</span>
-                          <span className="text-sm text-white/70 ml-1">
-                            {isMonthlyBilling ? '/month' : ' total'}
-                          </span>
+                          <span className="text-sm text-white/70 ml-1">/{isMonthlyBilling ? 'month' : 'month × 3'}</span>
                         </div>
                       </div>
                       
