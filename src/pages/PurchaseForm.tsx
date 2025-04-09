@@ -319,7 +319,7 @@ const PurchaseForm = () => {
                     alt="Indian Flag" 
                     className="w-4 h-4 rounded-sm object-cover"
                   />
-                  <span className="text-xs font-medium text-white">India Based</span>
+                  <span className="text-xs font-medium text-white">India</span>
                 </div>
                 
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-28 justify-center">
