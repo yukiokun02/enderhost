@@ -10,7 +10,7 @@ import UptimeStats from "@/components/UptimeStats";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Server } from "lucide-react";
 
 const Index = () => {
   // Apply smooth scrolling behavior to the html element
@@ -57,8 +57,16 @@ const Index = () => {
         <ServerTypes />
       </AnimateOnScroll>
       
-      {/* FAQ Pill Button */}
-      <div className="fixed bottom-6 right-6 z-40">
+      {/* Action Buttons */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col space-y-4">
+        <Link 
+          to="/panel-hosting"
+          className="inline-flex items-center gap-2 bg-minecraft-primary hover:bg-minecraft-accent text-white px-5 py-3 rounded-full transition-colors shadow-lg"
+        >
+          <Server className="w-5 h-5" />
+          <span className="font-medium">Host Your Own Panel</span>
+        </Link>
+        
         <Link 
           to="/troubleshooting"
           className="inline-flex items-center gap-2 bg-minecraft-secondary hover:bg-minecraft-primary text-white px-5 py-3 rounded-full transition-colors shadow-lg"
