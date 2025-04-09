@@ -1,9 +1,7 @@
-
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Switch } from "@/components/ui/switch";
 
 const minecraftItems = {
   "Oak Log": "/lovable-uploads/9b5fa930-abf6-434b-b424-efa2c7da4843.png",
@@ -261,7 +259,6 @@ export default function Pricing() {
     return <Check className="w-5 h-5 flex-shrink-0" />;
   };
   
-  // Get price with correct billing cycle
   const getPlanPrice = (originalPrice: number) => {
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
@@ -301,32 +298,35 @@ export default function Pricing() {
             </div>
           </div>
           
-          {/* Billing cycle toggle */}
-          <div className="flex items-center justify-center space-x-6 mb-6 px-6 py-3 bg-black/40 rounded-xl border border-white/10 max-w-sm mx-auto">
-            <div className="flex flex-col items-center">
-              <span className={`text-sm font-medium ${isMonthlyBilling ? 'text-white' : 'text-gray-400'}`}>
-                1 Month
-              </span>
-              <span className={`text-xs ${isMonthlyBilling ? 'text-minecraft-secondary' : 'text-gray-500'}`}>
-                Standard Price
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch 
-                checked={!isMonthlyBilling}
-                onCheckedChange={(checked) => setIsMonthlyBilling(!checked)}
-                className="data-[state=checked]:bg-minecraft-secondary"
-              />
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <span className={`text-sm font-medium ${!isMonthlyBilling ? 'text-white' : 'text-gray-400'}`}>
-                3 Months
-              </span>
-              <span className={`text-xs ${!isMonthlyBilling ? 'text-minecraft-secondary' : 'text-gray-500'}`}>
-                Save 25%
-              </span>
+          <div className="flex items-center justify-center mb-6 max-w-sm mx-auto">
+            <div className="flex w-full bg-black/40 rounded-xl border border-white/10 p-1.5">
+              <button
+                onClick={() => setIsMonthlyBilling(true)}
+                className={`flex-1 py-3 px-4 rounded-lg transition-all duration-300 ${
+                  isMonthlyBilling 
+                    ? "bg-minecraft-secondary text-white font-medium" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <span className="block text-sm">1 Month</span>
+                <span className={`text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                  Standard Price
+                </span>
+              </button>
+              
+              <button
+                onClick={() => setIsMonthlyBilling(false)}
+                className={`flex-1 py-3 px-4 rounded-lg transition-all duration-300 ${
+                  !isMonthlyBilling 
+                    ? "bg-minecraft-secondary text-white font-medium" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <span className="block text-sm">3 Months</span>
+                <span className={`text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                  Save 25%
+                </span>
+              </button>
             </div>
           </div>
         </div>

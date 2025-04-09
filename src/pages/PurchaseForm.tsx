@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -320,31 +319,35 @@ const PurchaseForm = () => {
 
             <div className="bg-black/50 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-sm shadow-xl">
               {/* Billing cycle toggle */}
-              <div className="flex items-center justify-center space-x-6 mb-8 p-4 bg-black/40 rounded-lg border border-white/10">
-                <div className="flex flex-col items-center">
-                  <span className={`text-sm font-medium ${isMonthlyBilling ? 'text-white' : 'text-gray-400'}`}>
-                    1 Month
-                  </span>
-                  <span className={`text-xs ${isMonthlyBilling ? 'text-minecraft-secondary' : 'text-gray-500'}`}>
-                    Standard Price
-                  </span>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    checked={!isMonthlyBilling}
-                    onCheckedChange={(checked) => setIsMonthlyBilling(!checked)}
-                    className="data-[state=checked]:bg-minecraft-secondary"
-                  />
-                </div>
-                
-                <div className="flex flex-col items-center">
-                  <span className={`text-sm font-medium ${!isMonthlyBilling ? 'text-white' : 'text-gray-400'}`}>
-                    3 Months
-                  </span>
-                  <span className={`text-xs ${!isMonthlyBilling ? 'text-minecraft-secondary' : 'text-gray-500'}`}>
-                    Save 25%
-                  </span>
+              <div className="flex items-center justify-center mb-8">
+                <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1.5">
+                  <button
+                    onClick={() => setIsMonthlyBilling(true)}
+                    className={`flex-1 py-3 px-4 rounded-md transition-all duration-300 ${
+                      isMonthlyBilling 
+                        ? "bg-minecraft-secondary text-white font-medium" 
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <span className="block text-sm">1 Month</span>
+                    <span className={`text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                      Standard Price
+                    </span>
+                  </button>
+                  
+                  <button
+                    onClick={() => setIsMonthlyBilling(false)}
+                    className={`flex-1 py-3 px-4 rounded-md transition-all duration-300 ${
+                      !isMonthlyBilling 
+                        ? "bg-minecraft-secondary text-white font-medium" 
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <span className="block text-sm">3 Months</span>
+                    <span className={`text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                      Save 25%
+                    </span>
+                  </button>
                 </div>
               </div>
 
