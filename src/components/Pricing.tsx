@@ -1,3 +1,4 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, Flag, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -341,8 +342,8 @@ export default function Pricing() {
                     )}
                     
                     {plan.mostPopular && (
-                      <div className="absolute -top-1 -right-1 z-10">
-                        <div className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary text-white text-xs font-bold px-3 py-1 rounded-br-xl rounded-tl-lg shadow-lg transform rotate-0">
+                      <div className="absolute top-2 right-2 z-10">
+                        <div className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg">
                           MOST POPULAR
                         </div>
                       </div>
