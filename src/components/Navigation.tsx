@@ -58,44 +58,44 @@ export default function Navigation() {
                       : "max-h-0 opacity-0 -translate-y-4 pointer-events-none"
                   }`}
                 >
-                  <div className="py-3 px-4 flex flex-col">
+                  <div className="py-2 px-3 flex flex-col space-y-1">
                     <a
                       href="https://panel.enderhost.in"
-                      className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+                      className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
                       onClick={() => setDesktopMenuOpen(false)}
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
-                      <Settings className="w-4 h-4" />
+                      <Settings className="w-3.5 h-3.5" />
                       Game Panel
                     </a>
                     <a
                       href="/purchase"
-                      className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+                      className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
                       onClick={() => setDesktopMenuOpen(false)}
                     >
-                      <CreditCard className="w-4 h-4" />
+                      <CreditCard className="w-3.5 h-3.5" />
                       Billing Area
                     </a>
                     <a
                       href="#pricing"
-                      className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+                      className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
                       onClick={() => setDesktopMenuOpen(false)}
                     >
-                      <IndianRupee className="w-4 h-4" />
+                      <IndianRupee className="w-3.5 h-3.5" />
                       Pricing
                     </a>
                     <a
                       href="/troubleshooting"
-                      className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+                      className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
                       onClick={() => setDesktopMenuOpen(false)}
                     >
-                      <HelpCircle className="w-4 h-4" />
+                      <HelpCircle className="w-3.5 h-3.5" />
                       FAQ's
                     </a>
                     <a
                       href="https://discord.gg/bsGPB9VpUY"
-                      className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+                      className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
                       onClick={() => setDesktopMenuOpen(false)}
                       target="_blank" 
                       rel="noopener noreferrer"
@@ -103,7 +103,7 @@ export default function Navigation() {
                       <img 
                         src="/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png" 
                         alt="Discord" 
-                        className="w-4 h-4" 
+                        className="w-3.5 h-3.5" 
                       />
                       Discord
                     </a>
@@ -138,44 +138,44 @@ export default function Navigation() {
             : "max-h-0 opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
-        <div className="py-3 px-4 flex flex-col">
+        <div className="py-2 px-3 flex flex-col space-y-1">
           <a
             href="https://panel.enderhost.in"
-            className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+            className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
             onClick={() => setMobileMenuOpen(false)}
             target="_blank" 
             rel="noopener noreferrer"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-3.5 h-3.5" />
             Game Panel
           </a>
           <a
             href="/purchase"
-            className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+            className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <CreditCard className="w-4 h-4" />
+            <CreditCard className="w-3.5 h-3.5" />
             Billing Area
           </a>
           <a
             href="#pricing"
-            className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+            className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <IndianRupee className="w-4 h-4" />
+            <IndianRupee className="w-3.5 h-3.5" />
             Pricing
           </a>
           <a
             href="/troubleshooting"
-            className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+            className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <HelpCircle className="w-4 h-4" />
+            <HelpCircle className="w-3.5 h-3.5" />
             FAQ's
           </a>
           <a
             href="https://discord.gg/bsGPB9VpUY"
-            className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+            className="py-1.5 px-3 text-xs text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
             onClick={() => setMobileMenuOpen(false)}
             target="_blank" 
             rel="noopener noreferrer"
@@ -183,7 +183,7 @@ export default function Navigation() {
             <img 
               src="/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png" 
               alt="Discord" 
-              className="w-4 h-4" 
+              className="w-3.5 h-3.5" 
             />
             Discord
           </a>

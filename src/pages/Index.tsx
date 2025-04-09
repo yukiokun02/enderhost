@@ -8,9 +8,10 @@ import Footer from "@/components/Footer";
 import PromoOffer from "@/components/PromoOffer";
 import UptimeStats from "@/components/UptimeStats";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
+import SelfHostingSection from "@/components/SelfHostingSection";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { HelpCircle, Server } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 
 const Index = () => {
   // Apply smooth scrolling behavior to the html element
@@ -57,21 +58,15 @@ const Index = () => {
         <ServerTypes />
       </AnimateOnScroll>
       
-      {/* Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col space-y-4">
-        <Link 
-          to="/panel-hosting"
-          className="inline-flex items-center gap-2 bg-minecraft-primary hover:bg-minecraft-accent text-white px-5 py-3 rounded-full transition-colors shadow-lg"
-        >
-          <Server className="w-5 h-5" />
-          <span className="font-medium">Host Your Own Panel</span>
-        </Link>
-        
+      <SelfHostingSection />
+      
+      {/* FAQ Button (smaller version) */}
+      <div className="fixed bottom-6 right-6 z-40">
         <Link 
           to="/troubleshooting"
-          className="inline-flex items-center gap-2 bg-minecraft-secondary hover:bg-minecraft-primary text-white px-5 py-3 rounded-full transition-colors shadow-lg"
+          className="inline-flex items-center gap-1.5 bg-minecraft-secondary hover:bg-minecraft-primary text-white text-xs px-3 py-2 rounded-full transition-colors shadow-lg"
         >
-          <HelpCircle className="w-5 h-5" />
+          <HelpCircle className="w-3.5 h-3.5" />
           <span className="font-medium">FAQ's</span>
         </Link>
       </div>
