@@ -17,6 +17,21 @@ const minecraftItems = {
   "Elytra": "/lovable-uploads/42f68d43-0471-44a4-a49f-19b186484ba1.png"
 };
 
+// Define button colors that match each item
+const itemButtonColors = {
+  "Oak Log": "bg-amber-700 hover:bg-amber-800", // Brown for wood
+  "Stone Pickaxe": "bg-gray-600 hover:bg-gray-700", // Gray for stone
+  "Cobblestone": "bg-gray-500 hover:bg-gray-600", // Light gray for cobblestone
+  "Iron Pickaxe": "bg-gray-400 hover:bg-gray-500", // Light gray with slight blue for iron
+  "Iron Ore": "bg-blue-500 hover:bg-blue-600", // Light blue-gray for iron ore
+  "Diamond": "bg-cyan-500 hover:bg-cyan-600", // Cyan for diamond
+  "Ice Block": "bg-sky-400 hover:bg-sky-500", // Light blue for ice
+  "Obsidian": "bg-purple-900 hover:bg-purple-950", // Deep purple for obsidian
+  "Ancient Debris": "bg-amber-900 hover:bg-amber-950", // Dark brown for ancient debris
+  "End Portal Frame": "bg-emerald-800 hover:bg-emerald-900", // Green for end portal frame
+  "Elytra": "bg-slate-800 hover:bg-slate-900" // Dark gray for elytra
+};
+
 const planCategories = [
   {
     id: "vanilla",
@@ -287,18 +302,32 @@ export default function Pricing() {
                       backgroundColor: plan.mostPopular ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)'
                     }}
                   >
-                    {/* Much larger background icon with higher opacity */}
+                    {/* Much larger background icon with higher opacity and glow effect */}
                     {minecraftItems[plan.icon] && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-end overflow-hidden">
-                        <img 
-                          src={minecraftItems[plan.icon]} 
-                          alt="" 
-                          className="w-[90%] h-[90%] object-contain opacity-[0.3]"
+                        <div 
+                          className="w-[90%] h-[90%]"
                           style={{
+                            position: 'relative',
                             transform: "rotate(10deg) translate(15%, -5%)",
                           }}
                           aria-hidden="true"
-                        />
+                        >
+                          {/* Add a subtle radial gradient glow behind the icon */}
+                          <div 
+                            className="absolute inset-0"
+                            style={{
+                              background: `radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%)`,
+                              transform: 'scale(1.2)',
+                              zIndex: 0
+                            }}
+                          />
+                          <img 
+                            src={minecraftItems[plan.icon]} 
+                            alt="" 
+                            className="w-full h-full object-contain opacity-[0.3]"
+                          />
+                        </div>
                       </div>
                     )}
                     
@@ -337,7 +366,7 @@ export default function Pricing() {
                     <Link to="/purchase" className="relative z-10 block">
                       <Button
                         className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
-                          ${category.buttonColor} text-white hover:scale-105`}
+                          ${itemButtonColors[plan.icon] || category.buttonColor} text-white hover:scale-105`}
                       >
                         Buy Now
                       </Button>
