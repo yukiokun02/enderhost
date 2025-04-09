@@ -39,18 +39,18 @@ export default function Hero() {
           <div className="inline-flex items-center justify-center px-4 py-2 mb-8 bg-black/70 rounded-full animate-fade-up backdrop-blur-md border border-minecraft-secondary/50 shadow-lg">
             <Server className="w-4 h-4 mr-2 text-minecraft-secondary" />
             <span className="text-sm font-semibold text-white md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">
-              99.9% Uptime
+              99.9% Uptime Guarantee
             </span>
           </div>
           
           <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-white animate-fade-up [animation-delay:200ms] tracking-tight leading-tight md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">
-            MC Hosting<br />
-            <span className="bg-gradient-to-r from-minecraft-light to-minecraft-secondary bg-clip-text text-transparent md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Fast, Reliable</span>
+            Premium Minecraft<br />
+            <span className="bg-gradient-to-r from-minecraft-light to-minecraft-secondary bg-clip-text text-transparent md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Fast, Reliable Hosting</span>
           </h1>
           
           <p className="text-lg md:text-xl text-white mb-10 max-w-2xl mx-auto animate-fade-up [animation-delay:400ms] md:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] font-medium">
-            Deploy your server in seconds with premium hardware
-            and 24/7 support.
+            Deploy your server in seconds with Indian-based premium hardware,
+            low latency connections, and dedicated 24/7 technical support.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-fade-up [animation-delay:600ms]">
@@ -134,3 +134,4 @@ export default function Hero() {
     </section>
   );
 }
+
