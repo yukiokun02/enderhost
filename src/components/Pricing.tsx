@@ -1,4 +1,3 @@
-
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -262,8 +261,6 @@ export default function Pricing() {
   };
   
   const getPlanPrice = (originalPrice: number) => {
-    // For 3-month billing, use original price
-    // For monthly billing, apply 25% increase (multiply by 1.25)
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
       : originalPrice;
@@ -317,7 +314,7 @@ export default function Pricing() {
                 )}
                 <span className="relative block text-sm">1 Month</span>
                 <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  Pay 25% extra
+                  Standard Plan
                 </span>
               </button>
               
@@ -415,7 +412,11 @@ export default function Pricing() {
                     <div className="flex items-baseline mb-4 relative z-10">
                       <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
                       <span className="text-3xl font-bold text-white">{getPlanPrice(plan.price)}</span>
-                      <span className="text-white/70 ml-1">/{isMonthlyBilling ? 'month' : '3 months'}</span>
+                      <span className="text-white/70 ml-1">
+                        {isMonthlyBilling 
+                          ? '/month' 
+                          : '/month × 3'}
+                      </span>
                     </div>
                     
                     <ul className="space-y-3 mb-6 relative z-10">

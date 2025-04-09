@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -355,7 +356,7 @@ const PurchaseForm = () => {
                     )}
                     <span className="relative block text-sm">1 Month</span>
                     <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                      Pay 25% extra
+                      Standard Plan
                     </span>
                   </button>
                   
@@ -511,21 +512,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : '3 months'}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : '3 months'}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : '3 months'}
+                          {plan.name} - ₹{getPlanPrice(plan.price)}/{isMonthlyBilling ? 'month' : 'month × 3'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -570,7 +571,7 @@ const PurchaseForm = () => {
                         <span className="text-sm font-medium text-white">Price:</span>
                         <div className="flex items-center">
                           <span className="text-lg font-bold text-white">₹{getPlanPrice(selectedPlan.price)}</span>
-                          <span className="text-sm text-white/70 ml-1">/{isMonthlyBilling ? 'month' : '3 months'}</span>
+                          <span className="text-sm text-white/70 ml-1">/{isMonthlyBilling ? 'month' : 'month × 3'}</span>
                         </div>
                       </div>
                       
