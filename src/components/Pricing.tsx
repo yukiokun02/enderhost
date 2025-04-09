@@ -299,31 +299,37 @@ export default function Pricing() {
           </div>
           
           <div className="flex items-center justify-center mb-6 max-w-sm mx-auto">
-            <div className="flex w-full bg-black/40 rounded-xl border border-white/10 p-1.5">
+            <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1">
               <button
                 onClick={() => setIsMonthlyBilling(true)}
-                className={`flex-1 py-3 px-4 rounded-lg transition-all duration-300 ${
+                className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
                   isMonthlyBilling 
-                    ? "bg-minecraft-secondary text-white font-medium" 
+                    ? "" 
                     : "text-gray-400 hover:text-white"
                 }`}
               >
-                <span className="block text-sm">1 Month</span>
-                <span className={`text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                {isMonthlyBilling && (
+                  <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
+                )}
+                <span className="relative block text-sm">1 Month</span>
+                <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
                   Standard Price
                 </span>
               </button>
               
               <button
                 onClick={() => setIsMonthlyBilling(false)}
-                className={`flex-1 py-3 px-4 rounded-lg transition-all duration-300 ${
+                className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
                   !isMonthlyBilling 
-                    ? "bg-minecraft-secondary text-white font-medium" 
+                    ? "" 
                     : "text-gray-400 hover:text-white"
                 }`}
               >
-                <span className="block text-sm">3 Months</span>
-                <span className={`text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                {!isMonthlyBilling && (
+                  <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
+                )}
+                <span className="relative block text-sm">3 Months</span>
+                <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
                   Save 25%
                 </span>
               </button>

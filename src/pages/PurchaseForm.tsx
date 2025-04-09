@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -196,7 +195,6 @@ const PurchaseForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMonthlyBilling, setIsMonthlyBilling] = useState(true);
   
-  // Extract and use plan from URL query parameter
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const planFromUrl = queryParams.get('plan');
@@ -211,7 +209,6 @@ const PurchaseForm = () => {
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
-    // Apply 25% price increase for monthly billing
     const basePrice = isMonthlyBilling 
       ? Math.round(selectedPlan.price * 1.25) 
       : selectedPlan.price;
@@ -267,7 +264,6 @@ const PurchaseForm = () => {
     });
   };
 
-  // Get price with correct billing cycle
   const getPlanPrice = (originalPrice: number) => {
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
@@ -318,33 +314,38 @@ const PurchaseForm = () => {
             </div>
 
             <div className="bg-black/50 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-sm shadow-xl">
-              {/* Billing cycle toggle */}
               <div className="flex items-center justify-center mb-8">
-                <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1.5">
+                <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1">
                   <button
                     onClick={() => setIsMonthlyBilling(true)}
-                    className={`flex-1 py-3 px-4 rounded-md transition-all duration-300 ${
+                    className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
                       isMonthlyBilling 
-                        ? "bg-minecraft-secondary text-white font-medium" 
+                        ? "" 
                         : "text-gray-400 hover:text-white"
                     }`}
                   >
-                    <span className="block text-sm">1 Month</span>
-                    <span className={`text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                    {isMonthlyBilling && (
+                      <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
+                    )}
+                    <span className="relative block text-sm">1 Month</span>
+                    <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
                       Standard Price
                     </span>
                   </button>
                   
                   <button
                     onClick={() => setIsMonthlyBilling(false)}
-                    className={`flex-1 py-3 px-4 rounded-md transition-all duration-300 ${
+                    className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
                       !isMonthlyBilling 
-                        ? "bg-minecraft-secondary text-white font-medium" 
+                        ? "" 
                         : "text-gray-400 hover:text-white"
                     }`}
                   >
-                    <span className="block text-sm">3 Months</span>
-                    <span className={`text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
+                    {!isMonthlyBilling && (
+                      <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
+                    )}
+                    <span className="relative block text-sm">3 Months</span>
+                    <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
                       Save 25%
                     </span>
                   </button>
