@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
 
 import {
@@ -177,6 +177,7 @@ const allPlans = [
 
 const PurchaseForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     serverName: "",
     name: "",
@@ -190,6 +191,18 @@ const PurchaseForm = () => {
   });
   const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Extract and use plan from URL query parameter
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const planFromUrl = queryParams.get('plan');
+    
+    if (planFromUrl) {
+      setFormData(prev => ({ ...prev, plan: planFromUrl }));
+      const plan = allPlans.find(p => p.id === planFromUrl);
+      setSelectedPlan(plan || null);
+    }
+  }, [location.search]);
   
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;

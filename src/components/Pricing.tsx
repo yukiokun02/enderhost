@@ -31,6 +31,21 @@ const itemButtonColors = {
   "Elytra": "bg-purple-700 hover:bg-purple-800 text-white" // Purple for elytra
 };
 
+// Map plan names to their IDs for the purchase form
+const planIdMap = {
+  "Getting Woods": "getting-woods",
+  "Getting an Upgrade": "getting-an-upgrade",
+  "Stone Age": "stone-age",
+  "Acquire Hardware": "acquire-hardware",
+  "Isn't It Iron Pick?": "isnt-it-iron-pick",
+  "Diamonds": "diamonds",
+  "Ice Bucket Challenge": "ice-bucket-challenge",
+  "We Need to Go Deeper": "we-need-to-go-deeper",
+  "Hidden in the Depths": "hidden-in-the-depths",
+  "The End": "the-end",
+  "Sky is the Limit": "sky-is-the-limit"
+};
+
 const planCategories = [
   {
     id: "vanilla",
@@ -359,10 +374,10 @@ export default function Pricing() {
                       ))}
                     </ul>
                     
-                    <Link to="/purchase" className="relative z-10 block">
+                    <Link to={`/purchase?plan=${planIdMap[plan.name]}`} className="relative z-10 block">
                       <Button
                         className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
-                          ${itemButtonColors[plan.icon] || category.buttonColor} text-white hover:scale-105`}
+                          ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105`}
                       >
                         Buy Now
                       </Button>
