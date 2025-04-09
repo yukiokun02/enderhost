@@ -81,7 +81,7 @@
   body {
     @apply bg-black text-foreground antialiased font-minecraft;
     scroll-behavior: smooth;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.025em;
     font-weight: 400;
   }
 
@@ -89,23 +89,37 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'MinecraftTen', 'Mojangles', monospace;
     font-weight: 400;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.025em;
+    line-height: 1.2;
   }
   
   p, span, div, button, a, input, textarea, select, label {
     font-family: 'MinecraftTen', 'Mojangles', monospace;
     font-weight: 400;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.025em;
   }
   
   /* Adjust headings specifically */
   h1 {
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
   }
   
   /* Make smaller text more legible */
   .text-sm, .text-xs {
-    letter-spacing: 0.02em;
+    letter-spacing: 0.015em;
+  }
+
+  /* Adjust heading sizes for better fit */
+  h1, .h1 {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  h2, .h2 {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  h3, .h3 {
+    @apply text-xl md:text-2xl;
   }
 }
 
@@ -127,10 +141,10 @@
     pointer-events: none;
   }
   
-  /* New utility for thinner text appearance */
+  /* Utility for thinner text appearance */
   .minecraft-text {
     font-weight: 400;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.025em;
     font-feature-settings: "tnum" on, "lnum" on;
   }
 }

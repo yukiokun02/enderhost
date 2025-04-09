@@ -26,12 +26,12 @@ export default function PromoOffer() {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto text-center py-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white tracking-tight leading-tight">
-            🔥 Limited-Time Opening Offer – 25% OFF! 🔥
+          <h2 className="text-xl md:text-2xl font-bold mb-2 text-white tracking-tight leading-tight">
+            🔥 Grand Opening - 25% OFF! 🔥
           </h2>
 
-          <p className="text-lg text-white/90">
-            Enjoy 25% off on all Minecraft hosting plans as part of our grand opening special!
+          <p className="text-base text-white/90">
+            25% off all plans - limited time offer!
           </p>
         </div>
       </div>

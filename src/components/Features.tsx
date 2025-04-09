@@ -4,33 +4,33 @@ import { Shield, Database, Settings, Headphones, Zap, Server } from "lucide-reac
 const features = [
   {
     icon: Zap,
-    title: "One-Click Deploy",
-    description: "Get your server running in seconds with our automated setup",
+    title: "Quick Deploy",
+    description: "Get your server running in seconds",
   },
   {
     icon: Shield,
-    title: "DDoS Protection",
-    description: "Enterprise-grade protection against attacks, included free",
+    title: "DDoS Shield",
+    description: "Enterprise-grade protection",
   },
   {
     icon: Database,
-    title: "Automated Backups",
-    description: "Daily backups with instant restoration capabilities",
+    title: "Daily Backups",
+    description: "With instant restoration",
   },
   {
     icon: Settings,
-    title: "Custom Control Panel",
-    description: "Intuitive dashboard for complete server management",
+    title: "Easy Controls",
+    description: "Simple server management",
   },
   {
     icon: Headphones,
     title: "24/7 Support",
-    description: "Expert assistance available around the clock",
+    description: "Expert help anytime",
   },
   {
     icon: Server,
-    title: "Performance Metrics",
-    description: "Real-time monitoring of your server's health",
+    title: "Live Metrics",
+    description: "Monitor server health",
   },
 ];
 
@@ -39,12 +39,11 @@ export default function Features() {
     <section className="py-24 bg-gradient-to-b from-black to-minecraft-dark/70">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Everything You Need to Run Your Server
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+            Pro Server Features
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Powerful features designed to give you the best possible hosting
-            experience
+            Top tools for the best hosting
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

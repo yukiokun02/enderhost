@@ -15,10 +15,10 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 font-minecraft">404</h1>
-        <p className="text-xl text-gray-600 mb-4 font-minecraft">Oops! Page not found</p>
+        <h1 className="text-3xl font-bold mb-4 font-minecraft">404</h1>
+        <p className="text-lg text-gray-600 mb-4 font-minecraft">Page not found</p>
         <a href="/" className="text-blue-500 hover:text-blue-700 underline font-minecraft">
-          Return to Home
+          Back Home
         </a>
       </div>
     </div>
