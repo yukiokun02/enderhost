@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -72,11 +73,18 @@
   
   html {
     @apply scroll-smooth;
+    font-family: 'Mojangles', 'Minecraft', monospace;
   }
   
   body {
-    @apply bg-black text-foreground antialiased;
+    @apply bg-black text-foreground antialiased font-minecraft;
     scroll-behavior: smooth;
+    letter-spacing: 0.05em;
+  }
+
+  /* Apply Minecraft font to all text elements */
+  h1, h2, h3, h4, h5, h6, p, span, div, button, a, input, textarea, select, label {
+    font-family: 'Mojangles', 'Minecraft', monospace;
   }
 }
 
