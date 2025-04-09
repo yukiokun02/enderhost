@@ -318,7 +318,7 @@ const PurchaseForm = () => {
                 <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1">
                   <button
                     onClick={() => setIsMonthlyBilling(true)}
-                    className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
+                    className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
                       isMonthlyBilling 
                         ? "" 
                         : "text-gray-400 hover:text-white"
@@ -335,7 +335,7 @@ const PurchaseForm = () => {
                   
                   <button
                     onClick={() => setIsMonthlyBilling(false)}
-                    className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
+                    className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
                       !isMonthlyBilling 
                         ? "" 
                         : "text-gray-400 hover:text-white"

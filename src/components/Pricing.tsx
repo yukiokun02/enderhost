@@ -284,7 +284,7 @@ export default function Pricing() {
           </h2>
           
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-32 justify-center">
               <img 
                 src="/lovable-uploads/54053dab-497e-4eee-9a19-ba23d9b0be19.png" 
                 alt="Indian Flag" 
@@ -293,7 +293,7 @@ export default function Pricing() {
               <span className="text-xs font-medium text-white">India Based</span>
             </div>
             
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-32 justify-center">
               <Signal className="w-3.5 h-3.5 text-minecraft-secondary" />
               <span className="text-xs font-medium text-white">20-60ms</span>
             </div>
@@ -303,7 +303,7 @@ export default function Pricing() {
             <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1">
               <button
                 onClick={() => setIsMonthlyBilling(true)}
-                className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
+                className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
                   isMonthlyBilling 
                     ? "" 
                     : "text-gray-400 hover:text-white"
@@ -320,7 +320,7 @@ export default function Pricing() {
               
               <button
                 onClick={() => setIsMonthlyBilling(false)}
-                className={`relative flex-1 py-2 px-3 rounded-md transition-all duration-300 ${
+                className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
                   !isMonthlyBilling 
                     ? "" 
                     : "text-gray-400 hover:text-white"
