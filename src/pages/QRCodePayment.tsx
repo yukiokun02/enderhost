@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink, Mail } from "lucide-react";
@@ -71,7 +70,7 @@ const QRCodePayment = () => {
     return `${details.email}-${plan}-${details.serverName}-${new Date().toDateString()}`;
   };
   
-  // Email sending function - Updated with better error handling
+  // Email sending function - Updated to include discount information
   const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     if (isSubmitting) return false;
     

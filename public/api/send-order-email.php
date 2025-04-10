@@ -88,6 +88,16 @@ $additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPort
 $total_price = isset($data['totalPrice']) ? sanitize_input($data['totalPrice']) : $plan_price;
 $order_date = isset($data['orderDate']) ? date('Y-m-d H:i:s', strtotime($data['orderDate'])) : date('Y-m-d H:i:s');
 
+// Extract discount data if available
+$discount_code = null;
+$discount_amount = null;
+$discount_type = null;
+if (isset($data['discountApplied']) && $data['discountApplied']) {
+    $discount_code = isset($data['discountApplied']['code']) ? sanitize_input($data['discountApplied']['code']) : null;
+    $discount_amount = isset($data['discountApplied']['amount']) ? sanitize_input($data['discountApplied']['amount']) : null;
+    $discount_type = isset($data['discountApplied']['type']) ? sanitize_input($data['discountApplied']['type']) : 'percent';
+}
+
 // Generate order ID
 $order_id = "EH-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)) . "-" . date("Ymd");
 
@@ -101,6 +111,9 @@ $subject = "New Minecraft Server Order - " . $server_name;
 // Calculate add-on prices
 $backup_cost = $additional_backups * 19;
 $port_cost = $additional_ports * 9;
+
+// Calculate base plan price with billing cycle
+$base_plan_price = $billing_cycle === 1 ? round($plan_price * 1.25) : $plan_price * 3;
 
 // HTML email body
 $html_message = "
@@ -120,6 +133,7 @@ $html_message = "
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
         .credentials { background-color: #f5f5f5; border-left: 4px solid #00C853; padding: 10px; margin: 15px 0; }
+        .discount { background-color: #e8f5e9; border-left: 4px solid #00C853; padding: 5px 10px; margin: 5px 0; }
     </style>
 </head>
 <body>
@@ -149,11 +163,22 @@ $html_message = "
                     <tr>
                         <th>Billing Cycle:</th>
                         <td>{$billing_cycle_text}</td>
-                    </tr>
+                    </tr>";
+
+// Add base plan price with appropriate explanation based on billing cycle
+if ($billing_cycle === 1) {
+    $html_message .= "
                     <tr>
                         <th>Base Price:</th>
-                        <td>₹{$plan_price}</td>
+                        <td>₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}</td>
                     </tr>";
+} else {
+    $html_message .= "
+                    <tr>
+                        <th>Base Price:</th>
+                        <td>₹{$plan_price} × 3 months = ₹{$base_plan_price}</td>
+                    </tr>";
+}
 
 // Add add-ons only if they exist
 if ($additional_backups > 0) {
@@ -169,6 +194,16 @@ if ($additional_ports > 0) {
                     <tr>
                         <th>Additional Ports ({$additional_ports}):</th>
                         <td>₹{$port_cost}</td>
+                    </tr>";
+}
+
+// Add discount information if applied
+if ($discount_code && $discount_amount) {
+    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
+    $html_message .= "
+                    <tr>
+                        <th>Discount:</th>
+                        <td class='discount'><strong>Code: {$discount_code}</strong> - {$discount_display} off</td>
                     </tr>";
 }
 
@@ -233,14 +268,27 @@ Order ID: {$order_id}
 Server Name: {$server_name}
 Plan: {$plan}
 Billing Cycle: {$billing_cycle_text}
-Base Price: ₹{$plan_price}";
+";
+
+// Add billing details to plain text message
+if ($billing_cycle === 1) {
+    $text_message .= "Base Price: ₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}\n";
+} else {
+    $text_message .= "Base Price: ₹{$plan_price} × 3 months = ₹{$base_plan_price}\n";
+}
 
 if ($additional_backups > 0) {
-    $text_message .= "\nAdditional Backups ({$additional_backups}): ₹{$backup_cost}";
+    $text_message .= "Additional Backups ({$additional_backups}): ₹{$backup_cost}\n";
 }
 
 if ($additional_ports > 0) {
-    $text_message .= "\nAdditional Ports ({$additional_ports}): ₹{$port_cost}";
+    $text_message .= "Additional Ports ({$additional_ports}): ₹{$port_cost}\n";
+}
+
+// Add discount info to plain text if applicable
+if ($discount_code && $discount_amount) {
+    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
+    $text_message .= "Discount: Code {$discount_code} - {$discount_display} off\n";
 }
 
 $text_message .= "
@@ -361,7 +409,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
         'embeds' => [
             [
                 'title' => "New Minecraft Server Order - {$plan}",
-                'description' => "Customer: {$customer_name}\nServer: {$server_name}\nTotal Price: ₹{$total_price}",
+                'description' => "Customer: {$customer_name}\nServer: {$server_name}\nBilling: {$billing_cycle_text}\nTotal Price: ₹{$total_price}",
                 'color' => 3066993, // Green color
                 'fields' => [
                     ['name' => 'Order ID', 'value' => $order_id, 'inline' => true],
@@ -372,6 +420,16 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
             ]
         ]
     ];
+    
+    // Add discount field if applicable
+    if ($discount_code && $discount_amount) {
+        $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
+        $discord_message['embeds'][0]['fields'][] = [
+            'name' => 'Discount Applied',
+            'value' => "Code: {$discount_code} ({$discount_display})",
+            'inline' => true
+        ];
+    }
     
     $discord_payload = json_encode($discord_message);
     
@@ -399,3 +457,4 @@ echo json_encode([
     'message' => $success ? 'Order notification sent successfully.' : 'Failed to send order notification. Please contact support.',
     'order_id' => $order_id
 ]);
+
