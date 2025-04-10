@@ -80,55 +80,55 @@ export default function Hero() {
             </Button>
           </div>
           
-          {/* Stats section - now smaller */}
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+          {/* Stats section */}
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
             {/* Live Support Card */}
             <div 
-              className="rounded-lg p-3 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-primary/15 to-minecraft-secondary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:700ms] w-[90%] sm:w-full mx-auto"
+              className="rounded-lg p-4 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-primary/15 to-minecraft-secondary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:700ms] w-[90%] sm:w-full mx-auto"
               style={{ boxShadow: '0 0 10px rgba(94, 66, 227, 0.1)' }}
             >
-              <div className="flex justify-center mb-1">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-minecraft-primary/30 to-minecraft-secondary/30 flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-minecraft-secondary" />
+              <div className="flex justify-center mb-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-minecraft-primary/30 to-minecraft-secondary/30 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-minecraft-secondary" />
                 </div>
               </div>
-              <div className="text-xs uppercase tracking-wider text-gray-400 mb-0.5">Support</div>
-              <div className="text-xl font-bold mb-0.5 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary bg-clip-text text-transparent">24/7</div>
-              <div className="text-xs text-gray-300">Expert help</div>
+              <div className="text-xs uppercase tracking-wider text-gray-400 mb-1">Support</div>
+              <div className="text-2xl md:text-2xl font-bold mb-1 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary bg-clip-text text-transparent">24/7</div>
+              <div className="text-xs md:text-sm text-gray-300">Expert help</div>
             </div>
             
             {/* Hardware Performance Card */}
             <div 
-              className="rounded-lg p-3 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-secondary/15 to-minecraft-primary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:800ms] w-[90%] sm:w-full mx-auto"
+              className="rounded-lg p-4 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-secondary/15 to-minecraft-primary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:800ms] w-[90%] sm:w-full mx-auto"
               style={{ boxShadow: '0 0 10px rgba(94, 66, 227, 0.1)' }}
             >
-              <div className="flex justify-center mb-1">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-minecraft-secondary/30 to-minecraft-primary/30 flex items-center justify-center">
-                  <ZapIcon className="w-4 h-4 text-minecraft-primary" />
+              <div className="flex justify-center mb-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-minecraft-secondary/30 to-minecraft-primary/30 flex items-center justify-center">
+                  <ZapIcon className="w-5 h-5 text-minecraft-primary" />
                 </div>
               </div>
-              <div className="text-xs uppercase tracking-wider text-gray-400 mb-0.5">Hardware</div>
-              <div className="text-xl font-bold mb-0.5 bg-gradient-to-r from-minecraft-secondary to-minecraft-primary bg-clip-text text-transparent">Pro</div>
-              <div className="text-xs text-gray-300">Top tier</div>
+              <div className="text-xs uppercase tracking-wider text-gray-400 mb-1">Hardware</div>
+              <div className="text-2xl md:text-2xl font-bold mb-1 bg-gradient-to-r from-minecraft-secondary to-minecraft-primary bg-clip-text text-transparent">Pro</div>
+              <div className="text-xs md:text-sm text-gray-300">Top tier</div>
             </div>
             
-            {/* Server Location Card - With Indian Flag */}
+            {/* Server Location Card - Updated with Indian Flag */}
             <div 
-              className="rounded-lg p-3 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-primary/15 to-minecraft-secondary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:900ms] w-[90%] sm:w-full mx-auto"
+              className="rounded-lg p-4 backdrop-blur-sm transition-all duration-500 bg-gradient-to-br from-minecraft-primary/15 to-minecraft-secondary/15 bg-black/50 border border-white/10 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(94,66,227,0.2)] animate-fade-up [animation-delay:900ms] w-[90%] sm:w-full mx-auto"
               style={{ boxShadow: '0 0 10px rgba(94, 66, 227, 0.1)' }}
             >
-              <div className="flex justify-center mb-1">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-minecraft-primary/30 to-minecraft-secondary/30 flex items-center justify-center">
+              <div className="flex justify-center mb-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-minecraft-primary/30 to-minecraft-secondary/30 flex items-center justify-center">
                   <img 
                     src="/lovable-uploads/54053dab-497e-4eee-9a19-ba23d9b0be19.png"
                     alt="Indian Flag"
-                    className="w-5 h-5 rounded-sm object-cover"
+                    className="w-6 h-6 rounded-sm object-cover"
                   />
                 </div>
               </div>
-              <div className="text-xs uppercase tracking-wider text-gray-400 mb-0.5">Location</div>
-              <div className="text-xl font-bold mb-0.5 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary bg-clip-text text-transparent">India</div>
-              <div className="text-xs text-gray-300">Low ping</div>
+              <div className="text-xs uppercase tracking-wider text-gray-400 mb-1">Location</div>
+              <div className="text-2xl md:text-2xl font-bold mb-1 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary bg-clip-text text-transparent">India</div>
+              <div className="text-xs md:text-sm text-gray-300">Low ping</div>
             </div>
           </div>
         </div>
