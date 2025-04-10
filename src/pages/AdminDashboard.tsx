@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -7,12 +8,7 @@ import {
   UserCog,
   KeyRound,
   Activity,
-  Mail,
   Home,
-  CreditCard,
-  HelpCircle,
-  Info,
-  FileQuestion
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -26,7 +22,6 @@ import UserManagement from "@/components/admin/UserManagement";
 import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
 import RedeemCodeManager from "@/components/admin/RedeemCodeManager";
 import ActivityLog from "@/components/admin/ActivityLog";
-import EmailTemplateEditor from "@/components/admin/EmailTemplateEditor";
 import SiteNav from "@/components/admin/SiteNav";
 
 const AdminDashboard = () => {
@@ -126,15 +121,6 @@ const AdminDashboard = () => {
             </Button>
             
             <Button
-              variant={activeTab === "emails" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => handleTabChange("emails")}
-            >
-              <Mail className="mr-2 h-4 w-4" />
-              Email Templates
-            </Button>
-            
-            <Button
               variant={activeTab === "changePassword" ? "secondary" : "ghost"}
               className="w-full justify-start"
               onClick={() => handleTabChange("changePassword")}
@@ -183,7 +169,6 @@ const AdminDashboard = () => {
             {activeTab === "log" && "Activity Log"}
             {activeTab === "users" && "User Management"}
             {activeTab === "redeemCodes" && "Redeem Codes"}
-            {activeTab === "emails" && "Email Templates"}
             {activeTab === "changePassword" && "Change Password"}
             {activeTab === "siteNav" && "Site Navigation"}
           </h1>
@@ -193,7 +178,6 @@ const AdminDashboard = () => {
           {activeTab === "log" && <ActivityLog currentUser={currentUser} />}
           {activeTab === "users" && <UserManagement />}
           {activeTab === "redeemCodes" && <RedeemCodeManager />}
-          {activeTab === "emails" && <EmailTemplateEditor />}
           {activeTab === "changePassword" && <ChangePasswordForm />}
           {activeTab === "siteNav" && <SiteNav />}
         </main>

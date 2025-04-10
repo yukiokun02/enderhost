@@ -30,7 +30,6 @@ interface ActivityLogEntry {
 const ADMIN_SESSION_KEY = 'adminSession';
 const ADMIN_USERS_KEY = 'adminUsers';
 const ACTIVITY_LOG_KEY = 'activityLog';
-const EMAIL_TEMPLATES_KEY = 'emailTemplates';
 const SESSION_TIMEOUT = 1600; // 1600 seconds = ~26.6 minutes
 
 // Check if admin session is valid
@@ -138,35 +137,6 @@ export function getActivityLogs(limit?: number, userId?: string): ActivityLogEnt
   } catch (error) {
     console.error("Error getting activity logs:", error);
     return [];
-  }
-}
-
-// Get email templates - since we're now directly editing the PHP file, these functions
-// are only kept for backward compatibility but will be deprecated
-export function getEmailTemplates() {
-  try {
-    return {
-      orderConfirmation: {
-        id: 'orderConfirmation',
-        name: 'Order Confirmation',
-        subject: 'New Minecraft Server Order - {{server_name}}',
-        body: 'Loading...',
-      }
-    };
-  } catch (error) {
-    console.error("Error getting email templates:", error);
-    return {};
-  }
-}
-
-// This function is now just a stub that logs the activity
-export function updateEmailTemplate(templateId: string, data: any): boolean {
-  try {
-    // Log this activity
-    return true;
-  } catch (error) {
-    console.error("Error updating email template:", error);
-    return false;
   }
 }
 
