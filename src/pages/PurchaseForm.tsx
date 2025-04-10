@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
@@ -221,6 +220,9 @@ const PurchaseForm = () => {
     // If 3-month billing, multiply base price by 3 to show total cost
     if (!isMonthlyBilling) {
       basePrice = basePrice * 3;
+    } else {
+      // For monthly billing, keep the original price (don't increase by 25%)
+      // We'll handle the display separately
     }
     
     // Add additional costs - these are always the same regardless of billing cycle
@@ -286,7 +288,14 @@ const PurchaseForm = () => {
   // Get the unit price (monthly price) for display purposes
   const getUnitPrice = (originalPrice: number) => {
     return isMonthlyBilling 
-      ? Math.round(originalPrice * 1.25) 
+      ? originalPrice  // For monthly billing, return the original price
+      : originalPrice;
+  };
+
+  // Get display price for UI (with 25% markup for monthly plans)
+  const getDisplayPrice = (originalPrice: number) => {
+    return isMonthlyBilling 
+      ? Math.round(originalPrice * 1.25)  // Apply 25% markup for monthly billing display
       : originalPrice;
   };
 
@@ -521,21 +530,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}{isMonthlyBilling ? '/month' : ' for 3 months'}
+                          {plan.name} - ₹{isMonthlyBilling ? getDisplayPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}{isMonthlyBilling ? '/month' : ' for 3 months'}
+                          {plan.name} - ₹{isMonthlyBilling ? getDisplayPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{getPlanPrice(plan.price)}{isMonthlyBilling ? '/month' : ' for 3 months'}
+                          {plan.name} - ₹{isMonthlyBilling ? getDisplayPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -576,18 +585,18 @@ const PurchaseForm = () => {
                         )}
                       </div>
 
-                      {/* Price breakdown section - now always visible */}
+                      {/* Price breakdown section - now always visible with corrected pricing */}
                       <div className="mt-4 pt-3 border-t border-white/10">
                         <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
-                          {!isMonthlyBilling ? (
+                          {isMonthlyBilling ? (
                             <div className="flex justify-between text-white">
-                              <span>Base plan price:</span>
-                              <span>₹{getUnitPrice(selectedPlan.price)} × 3 months</span>
+                              <span>Total price:</span>
+                              <span>₹{getDisplayPrice(selectedPlan.price)}/month</span>
                             </div>
                           ) : (
                             <div className="flex justify-between text-white">
                               <span>Base plan price:</span>
-                              <span>₹{getUnitPrice(selectedPlan.price)}/month</span>
+                              <span>₹{getUnitPrice(selectedPlan.price)} × 3 months</span>
                             </div>
                           )}
                           
@@ -607,7 +616,9 @@ const PurchaseForm = () => {
                           
                           <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
                             <span>Total price:</span>
-                            <span>₹{calculateTotalPrice()}{isMonthlyBilling ? '/month' : ' for 3 months'}</span>
+                            <span>₹{isMonthlyBilling ? 
+                              (getDisplayPrice(selectedPlan.price) + parseInt(formData.additionalBackups || "0") * 19 + parseInt(formData.additionalPorts || "0") * 9) + '/month' : 
+                              calculateTotalPrice() + ' for 3 months'}</span>
                           </div>
                         </div>
                       </div>
