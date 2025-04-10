@@ -7,22 +7,32 @@ import {
   LogOut, 
   UserCog,
   KeyRound,
-  LayoutDashboard
+  Activity,
+  Mail,
+  Home,
+  CreditCard,
+  HelpCircle,
+  Info,
+  FileQuestion
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   checkAdminSession, 
   logoutAdmin, 
   getCurrentAdmin,
-  updateLastActivity
+  updateLastActivity,
+  logUserActivity
 } from "@/lib/adminAuth";
 import UserManagement from "@/components/admin/UserManagement";
 import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
 import RedeemCodeManager from "@/components/admin/RedeemCodeManager";
+import ActivityLog from "@/components/admin/ActivityLog";
+import EmailTemplateEditor from "@/components/admin/EmailTemplateEditor";
+import SiteNav from "@/components/admin/SiteNav";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("log");
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
@@ -36,6 +46,9 @@ const AdminDashboard = () => {
     // Get current admin user
     const admin = getCurrentAdmin();
     setCurrentUser(admin);
+    
+    // Log this activity
+    logUserActivity("Accessed admin dashboard");
     
     // Setup activity tracking
     const activityEvents = ["mousedown", "keydown", "scroll", "touchstart"];
@@ -66,8 +79,17 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   const handleLogout = () => {
+    logUserActivity("Logged out");
     logoutAdmin();
-    navigate("/admin");
+    setIsAdmin(false);
+    setDesktopMenuOpen(false);
+    setMobileMenuOpen(false);
+    navigate("/");
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    logUserActivity(`Switched to ${tab} tab`);
   };
 
   return (
@@ -82,18 +104,18 @@ const AdminDashboard = () => {
         <div className="p-4 flex-1">
           <nav className="space-y-2">
             <Button
-              variant={activeTab === "dashboard" ? "secondary" : "ghost"}
+              variant={activeTab === "log" ? "secondary" : "ghost"}
               className="w-full justify-start"
-              onClick={() => setActiveTab("dashboard")}
+              onClick={() => handleTabChange("log")}
             >
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              Dashboard
+              <Activity className="mr-2 h-4 w-4" />
+              Activity Log
             </Button>
             
             <Button
               variant={activeTab === "users" ? "secondary" : "ghost"}
               className="w-full justify-start"
-              onClick={() => setActiveTab("users")}
+              onClick={() => handleTabChange("users")}
             >
               <UserCog className="mr-2 h-4 w-4" />
               User Management
@@ -102,19 +124,37 @@ const AdminDashboard = () => {
             <Button
               variant={activeTab === "redeemCodes" ? "secondary" : "ghost"}
               className="w-full justify-start"
-              onClick={() => setActiveTab("redeemCodes")}
+              onClick={() => handleTabChange("redeemCodes")}
             >
               <KeyRound className="mr-2 h-4 w-4" />
               Redeem Codes
             </Button>
             
             <Button
+              variant={activeTab === "emails" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => handleTabChange("emails")}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Email Templates
+            </Button>
+            
+            <Button
               variant={activeTab === "changePassword" ? "secondary" : "ghost"}
               className="w-full justify-start"
-              onClick={() => setActiveTab("changePassword")}
+              onClick={() => handleTabChange("changePassword")}
             >
               <Lock className="mr-2 h-4 w-4" />
               Change Password
+            </Button>
+
+            <Button
+              variant={activeTab === "siteNav" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => handleTabChange("siteNav")}
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Site Navigation
             </Button>
           </nav>
         </div>
@@ -147,49 +187,23 @@ const AdminDashboard = () => {
         {/* Top bar */}
         <header className="bg-black/50 backdrop-blur-sm border-b border-white/10 p-4">
           <h1 className="text-xl font-bold">
-            {activeTab === "dashboard" && "Admin Dashboard"}
+            {activeTab === "log" && "Activity Log"}
             {activeTab === "users" && "User Management"}
             {activeTab === "redeemCodes" && "Redeem Codes"}
+            {activeTab === "emails" && "Email Templates"}
             {activeTab === "changePassword" && "Change Password"}
+            {activeTab === "siteNav" && "Site Navigation"}
           </h1>
         </header>
         
         {/* Content Area */}
         <main className="flex-1 overflow-auto p-6 bg-gradient-to-b from-black/50 to-minecraft-dark/50">
-          {activeTab === "dashboard" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-black/40 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
-                <h2 className="text-lg font-semibold mb-4">Welcome to Admin Panel</h2>
-                <p className="text-gray-400">
-                  From here you can manage users, access settings and configure your site.
-                </p>
-              </div>
-              
-              <div className="bg-black/40 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
-                <h2 className="text-lg font-semibold mb-4">Session Information</h2>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Username:</span>
-                    <span>{currentUser?.username}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Group:</span>
-                    <span>{currentUser?.group}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Session Timeout:</span>
-                    <span>{1600} seconds</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
+          {activeTab === "log" && <ActivityLog currentUser={currentUser} />}
           {activeTab === "users" && <UserManagement />}
-          
           {activeTab === "redeemCodes" && <RedeemCodeManager />}
-          
+          {activeTab === "emails" && <EmailTemplateEditor />}
           {activeTab === "changePassword" && <ChangePasswordForm />}
+          {activeTab === "siteNav" && <SiteNav />}
         </main>
       </div>
     </div>

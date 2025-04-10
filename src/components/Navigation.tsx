@@ -5,7 +5,7 @@ import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee, HelpCircle, Lo
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import DiscordPopup from "./DiscordPopup";
-import { checkAdminSession, logoutAdmin } from "@/lib/adminAuth";
+import { checkAdminSession, logoutAdmin, logUserActivity } from "@/lib/adminAuth";
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -53,6 +53,10 @@ export default function Navigation() {
   };
 
   const handleLogout = () => {
+    if (isAdmin) {
+      logUserActivity("Logged out from navigation menu");
+    }
+    
     logoutAdmin();
     setIsAdmin(false);
     setDesktopMenuOpen(false);

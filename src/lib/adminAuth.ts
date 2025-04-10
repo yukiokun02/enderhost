@@ -1,4 +1,3 @@
-
 import { toast } from "@/components/ui/use-toast";
 
 export interface AdminUser {
@@ -19,8 +18,19 @@ interface AdminSession {
   lastActivity: number;
 }
 
+interface ActivityLogEntry {
+  id: string;
+  userId: string;
+  username: string;
+  action: string;
+  timestamp: number;
+  ipAddress?: string;
+}
+
 const ADMIN_SESSION_KEY = 'adminSession';
 const ADMIN_USERS_KEY = 'adminUsers';
+const ACTIVITY_LOG_KEY = 'activityLog';
+const EMAIL_TEMPLATES_KEY = 'emailTemplates';
 const SESSION_TIMEOUT = 1600; // 1600 seconds = ~26.6 minutes
 
 // Check if admin session is valid
@@ -78,8 +88,122 @@ export function initializeAdminUsers(): void {
       
       localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify([defaultAdmin]));
     }
+    
+    // Initialize default email templates if none exist
+    initializeEmailTemplates();
   } catch (error) {
     console.error("Error initializing admin users:", error);
+  }
+}
+
+// Initialize default email templates
+function initializeEmailTemplates(): void {
+  try {
+    const existingTemplates = localStorage.getItem(EMAIL_TEMPLATES_KEY);
+    if (!existingTemplates) {
+      const defaultTemplates = {
+        welcome: {
+          id: 'welcome',
+          name: 'Welcome Email',
+          subject: 'Welcome to EnderHOST!',
+          body: '<h1>Welcome to EnderHOST!</h1><p>Thank you for choosing our services.</p>',
+        },
+        orderConfirmation: {
+          id: 'orderConfirmation',
+          name: 'Order Confirmation',
+          subject: 'Your EnderHOST Order Confirmation',
+          body: '<h1>Order Confirmation</h1><p>Thank you for your purchase!</p>',
+        },
+        passwordReset: {
+          id: 'passwordReset',
+          name: 'Password Reset',
+          subject: 'EnderHOST Password Reset',
+          body: '<h1>Password Reset</h1><p>Click the link below to reset your password.</p>',
+        }
+      };
+      
+      localStorage.setItem(EMAIL_TEMPLATES_KEY, JSON.stringify(defaultTemplates));
+    }
+  } catch (error) {
+    console.error("Error initializing email templates:", error);
+  }
+}
+
+// Log user activity
+export function logUserActivity(action: string): void {
+  try {
+    const session = getCurrentAdmin();
+    if (!session) return;
+    
+    const activityLogs: ActivityLogEntry[] = JSON.parse(localStorage.getItem(ACTIVITY_LOG_KEY) || '[]');
+    
+    const newEntry: ActivityLogEntry = {
+      id: generateId(),
+      userId: session.userId,
+      username: session.username,
+      action: action,
+      timestamp: Date.now(),
+    };
+    
+    // Add to beginning to keep newest first
+    activityLogs.unshift(newEntry);
+    
+    // Keep only the last 1000 entries to avoid localStorage overflow
+    const trimmedLogs = activityLogs.slice(0, 1000);
+    localStorage.setItem(ACTIVITY_LOG_KEY, JSON.stringify(trimmedLogs));
+  } catch (error) {
+    console.error("Error logging user activity:", error);
+  }
+}
+
+// Get activity logs
+export function getActivityLogs(limit?: number, userId?: string): ActivityLogEntry[] {
+  try {
+    const activityLogs: ActivityLogEntry[] = JSON.parse(localStorage.getItem(ACTIVITY_LOG_KEY) || '[]');
+    
+    let filteredLogs = activityLogs;
+    if (userId) {
+      filteredLogs = activityLogs.filter(log => log.userId === userId);
+    }
+    
+    if (limit && limit > 0) {
+      return filteredLogs.slice(0, limit);
+    }
+    
+    return filteredLogs;
+  } catch (error) {
+    console.error("Error getting activity logs:", error);
+    return [];
+  }
+}
+
+// Get email templates
+export function getEmailTemplates() {
+  try {
+    const templates = localStorage.getItem(EMAIL_TEMPLATES_KEY);
+    return templates ? JSON.parse(templates) : {};
+  } catch (error) {
+    console.error("Error getting email templates:", error);
+    return {};
+  }
+}
+
+// Update email template
+export function updateEmailTemplate(templateId: string, data: any): boolean {
+  try {
+    const templates = getEmailTemplates();
+    if (!templates[templateId]) return false;
+    
+    templates[templateId] = {
+      ...templates[templateId],
+      ...data
+    };
+    
+    localStorage.setItem(EMAIL_TEMPLATES_KEY, JSON.stringify(templates));
+    return true;
+  } catch (error) {
+    console.error("Error updating email template:", error);
+    return false;
   }
 }
 
@@ -106,6 +230,10 @@ export async function loginAdmin(username: string, password: string): Promise<{s
       };
       
       localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
+      
+      // Log this activity
+      logUserActivity("Logged in");
+      
       return { success: true };
     } else {
       return { 
@@ -196,6 +324,9 @@ export function createAdminUser(
     adminUsers.push(newUser);
     localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(adminUsers));
     
+    // Log this activity
+    logUserActivity(`Created new user: ${username}`);
+    
     return {
       success: true,
       message: "User created successfully"
@@ -249,6 +380,10 @@ export function changePassword(
     // Update the password
     adminUsers[userIndex].password = newPassword;
     localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(adminUsers));
+    
+    // Log this activity
+    const targetUsername = adminUsers[userIndex].username;
+    logUserActivity(isOwnPassword ? "Changed own password" : `Changed password for user: ${targetUsername}`);
     
     return {
       success: true,
