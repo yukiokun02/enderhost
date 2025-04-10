@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
@@ -627,21 +628,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{isMonthlyBilling ? getDisplayPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
+                          {plan.name} - ₹{isMonthlyBilling ? getUnitPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{isMonthlyBilling ? getDisplayPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
+                          {plan.name} - ₹{isMonthlyBilling ? getUnitPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{isMonthlyBilling ? getDisplayPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
+                          {plan.name} - ₹{isMonthlyBilling ? getUnitPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
                         </SelectItem>
                       ))}
                     </SelectContent>
