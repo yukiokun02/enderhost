@@ -7,21 +7,25 @@ const serverSpecs = [
     icon: Cpu,
     title: "Premium CPUs",
     description: "AMD EPYC & Intel Xeon processors",
+    specs: "Up to 3.9GHz clock speeds with 32 cores",
   },
   {
     icon: HardDrive,
     title: "Fast Storage",
     description: "NVMe SSD storage for maximum performance",
+    specs: "Read speeds up to 7,000MB/s",
   },
   {
     icon: Gauge,
     title: "High Memory",
     description: "DDR4 ECC RAM for reliability",
+    specs: "3,200MHz with up to 256GB capacity",
   },
   {
     icon: Network,
     title: "Fast Network",
     description: "1Gbps unmetered bandwidth",
+    specs: "Low latency connections with DDoS protection",
   }
 ];
 
@@ -49,7 +53,10 @@ export default function Features() {
                   <spec.icon className="w-6 h-6 text-minecraft-secondary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-white">{spec.title}</h3>
-                <p className="text-gray-400">{spec.description}</p>
+                <p className="text-gray-400 mb-2">{spec.description}</p>
+                <div className="mt-2 py-1 px-2 bg-minecraft-secondary/10 rounded text-xs text-minecraft-secondary font-medium">
+                  {spec.specs}
+                </div>
               </CardContent>
             </Card>
           ))}
