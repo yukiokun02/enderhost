@@ -42,7 +42,7 @@ export default function PanelShowcase() {
 
   return (
     <AnimateOnScroll variant="fade-up">
-      <section className="py-16 bg-gradient-to-b from-minecraft-dark via-minecraft-dark/80 to-minecraft-primary/10">
+      <section className="py-16 bg-gradient-to-b from-minecraft-dark via-minecraft-dark/70 to-[#1A1F2C]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center px-4 py-1.5 mb-4 bg-black/50 rounded-full border border-minecraft-primary/30">
