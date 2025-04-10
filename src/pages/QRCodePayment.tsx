@@ -1,15 +1,20 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
+import { ArrowLeft, Copy, ExternalLink, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import DiscordPopup from "@/components/DiscordPopup";
 
 // Static QR code path from config
 const PAYMENT_QR_CODE = "/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png";
 
 // UPI ID
 const UPI_ID = "mail.enderhost@okhdfcbank";
+
+// Email address
+const SUPPORT_EMAIL = "mail@enderhost.in";
 
 // Plan display names
 const planNames: Record<string, string> = {
@@ -53,6 +58,7 @@ const QRCodePayment = () => {
   const [additionalPorts, setAdditionalPorts] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [billingCycle, setBillingCycle] = useState<number>(3);
+  const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
   
   // Generate a unique order identifier based on form data
   const generateOrderIdentifier = (details: any, plan: string): string => {
@@ -218,6 +224,11 @@ const QRCodePayment = () => {
     toast.success("UPI ID copied to clipboard!");
   };
   
+  const copyEmail = () => {
+    navigator.clipboard.writeText(SUPPORT_EMAIL);
+    toast.success("Email address copied to clipboard!");
+  };
+  
   if (!planId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -317,6 +328,22 @@ const QRCodePayment = () => {
                 </div>
                 
                 <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                  <p className="text-sm font-medium text-gray-400">Email Support</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="font-mono text-gray-100">{SUPPORT_EMAIL}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={copyEmail}
+                      className="ml-2 h-8 border-gray-700 hover:bg-gray-800 text-gray-200"
+                    >
+                      <Copy className="h-4 w-4 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
                   <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
                   <div className="space-y-1 text-sm mb-3">
                     {billingCycle === 1 ? (
@@ -382,33 +409,36 @@ const QRCodePayment = () => {
                   <li>Our team will set up your server and provide access details</li>
                 </ol>
                 
-                {/* Call-to-action button for Discord - Centered and enhanced */}
-                <Button
-                  className="w-full mt-6 bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white font-medium shadow-lg shadow-minecraft-secondary/20 py-6 button-texture"
-                  size="lg"
-                >
-                  <Link 
-                    to="https://discord.gg/bsGPB9VpUY"
-                    target="_blank"
-                    rel="noopener noreferrer" 
-                    className="flex items-center justify-center w-full"
+                {/* Contact options with Discord popup and email */}
+                <div className="mt-6 space-y-3">
+                  <Button
+                    onClick={() => setIsDiscordPopupOpen(true)}
+                    className="w-full bg-minecraft-secondary hover:bg-minecraft-secondary/80 text-white font-medium shadow-lg shadow-minecraft-secondary/20 py-6 button-texture flex items-center justify-center"
+                    size="lg"
                   >
                     <img 
                       src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
                       alt="Discord" 
                       className="w-5 h-5 mr-2" 
                     />
-                    Join Our Discord Server
-                    <ExternalLink className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
+                    Discord
+                  </Button>
+                  
+                  <a 
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="flex items-center justify-center w-full rounded-md px-4 py-6 bg-blue-600/30 hover:bg-blue-600/40 text-white border border-blue-500/30 transition-colors"
+                  >
+                    <Mail className="w-5 h-5 mr-2" />
+                    {SUPPORT_EMAIL}
+                  </a>
+                </div>
               </div>
               
               <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-md">
                 <p className="text-sm text-blue-300 flex items-start">
                   <span className="font-bold mr-2">Note:</span>
                   Your server will be set up within 24 hours after payment verification. 
-                  For immediate assistance, please contact us on Discord.
+                  For immediate assistance, please contact us via Discord or email.
                 </p>
               </div>
               
@@ -451,6 +481,12 @@ const QRCodePayment = () => {
           </p>
         </div>
       </footer>
+
+      {/* Discord Popup */}
+      <DiscordPopup 
+        isOpen={isDiscordPopupOpen} 
+        onClose={() => setIsDiscordPopupOpen(false)} 
+      />
     </div>
   );
 };

@@ -1,8 +1,12 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Server, Zap, Clock, Zap as ZapIcon, Globe } from "lucide-react";
+import DiscordPopup from "./DiscordPopup";
 
 export default function Hero() {
+  const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
+  
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing');
     if (pricingSection) {
@@ -63,10 +67,8 @@ export default function Hero() {
               Start Hosting
             </Button>
             
-            <a 
-              href="https://discord.gg/bsGPB9VpUY"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Button
+              onClick={() => setIsDiscordPopupOpen(true)}
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8 px-8 py-7 text-lg rounded-lg border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:border-minecraft-secondary/70 hover:scale-105 shadow-lg flex items-center gap-3 font-minecraft min-w-[220px]"
             >
               <img 
@@ -74,8 +76,8 @@ export default function Hero() {
                 alt="Discord" 
                 className="w-5 h-5" 
               />
-              Support
-            </a>
+              Discord
+            </Button>
           </div>
           
           {/* Stats section */}
@@ -131,7 +133,12 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      
+      {/* Discord Popup */}
+      <DiscordPopup 
+        isOpen={isDiscordPopupOpen} 
+        onClose={() => setIsDiscordPopupOpen(false)} 
+      />
     </section>
   );
 }
-
