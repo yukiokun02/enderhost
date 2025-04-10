@@ -280,12 +280,9 @@ export default function Pricing() {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold mb-2 text-white">
+          <h2 className="text-3xl font-bold mb-6 text-white">
             Choose Your Plan
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto mb-6">
-            Select the perfect Minecraft hosting package for your gaming needs
-          </p>
           
           <div className="flex items-center justify-center gap-4 mb-8">
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-28 justify-center">
