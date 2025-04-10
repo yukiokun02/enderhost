@@ -34,11 +34,6 @@ export default function PanelShowcase() {
       title: "Activity Logs",
     },
     {
-      src: "/lovable-uploads/502f172e-f0bf-43a0-88a4-04ceb778cd43.png",
-      alt: "Server allocation panel showing hostname and port",
-      title: "Server Allocation",
-    },
-    {
       src: "/lovable-uploads/e647dada-0bed-4764-b3b7-ed77a3038f2a.png",
       alt: "Dashboard overview showing server status and resources",
       title: "Resource Dashboard",
@@ -47,7 +42,7 @@ export default function PanelShowcase() {
 
   return (
     <AnimateOnScroll variant="fade-up">
-      <section className="py-16 bg-gradient-to-b from-minecraft-dark via-minecraft-dark/90 to-black">
+      <section className="py-16 bg-gradient-to-b from-minecraft-dark via-minecraft-dark/80 to-minecraft-primary/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center px-4 py-1.5 mb-4 bg-black/50 rounded-full border border-minecraft-primary/30">
