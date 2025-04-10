@@ -5,18 +5,26 @@ import { Badge } from "@/components/ui/badge";
 
 export default function PanelShowcase() {
   const [activeIndex, setActiveIndex] = useState(0);
+  
+  // Updated panel images with new uploads
   const panelImages = [
-    "/lovable-uploads/d23159aa-a866-4336-a98d-b9b58ebce59d.png",
-    "/lovable-uploads/2fdea8a1-98b9-45cf-bc6e-65c345b1900b.png",
-    "/lovable-uploads/27463630-cd59-420d-977c-9913444d1228.png",
-    "/lovable-uploads/d5b1a78b-c368-4d8c-813f-6d76b964445c.png",
-    "/lovable-uploads/59f3f635-d5b4-4dee-a19a-c441d10b255f.png"
+    "/lovable-uploads/ebe8df3e-5dbb-48d4-af70-fe5ddd23e6ed.png",
+    "/lovable-uploads/7737d780-40ed-4889-a60b-01b1b9a1f1e6.png",
+    "/lovable-uploads/d3a1e46c-c178-43b5-8bb1-d22cd2146dde.png",
+    "/lovable-uploads/23b89a39-f87c-4283-a32e-5ee9e65fff19.png",
+    "/lovable-uploads/d23159aa-a866-4336-a98d-b9b58ebce59d.png"
   ];
 
   // Function to handle dot indicator clicks
   const goToSlide = (index) => {
     setActiveIndex(index);
   };
+
+  // Debug log to confirm images loading
+  useEffect(() => {
+    console.log("Panel images loaded:", panelImages);
+    console.log("Active index:", activeIndex);
+  }, [activeIndex]);
 
   return (
     <section className="py-16 bg-gradient-to-b from-[#1A1E5A]/95 via-[#1A1F2C] to-[#1A1F2C]">
@@ -32,7 +40,11 @@ export default function PanelShowcase() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <CarouselWrapper images={panelImages} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+          <CarouselWrapper 
+            images={panelImages} 
+            activeIndex={activeIndex} 
+            setActiveIndex={setActiveIndex} 
+          />
           
           <div className="flex justify-center mt-4 gap-2">
             {panelImages.map((_, index) => (
@@ -66,6 +78,7 @@ function CarouselWrapper({ images, activeIndex, setActiveIndex }) {
     };
     
     api.on("select", handleSelect);
+    
     return () => {
       api.off("select", handleSelect);
     };
@@ -76,19 +89,34 @@ function CarouselWrapper({ images, activeIndex, setActiveIndex }) {
     api.scrollTo(activeIndex);
   }, [activeIndex, api]);
 
+  // Debug log to help identify carousel rendering issues
+  useEffect(() => {
+    console.log("Carousel API initialized:", !!api);
+    if (api) {
+      console.log("Carousel canScrollPrev:", api.canScrollPrev());
+      console.log("Carousel canScrollNext:", api.canScrollNext());
+    }
+  }, [api]);
+
   return (
     <Carousel 
       className="mx-auto"
       setApi={setApi}
+      opts={{
+        align: "center",
+        loop: true
+      }}
     >
       <CarouselContent className="rounded-xl overflow-hidden">
         {images.map((image, index) => (
-          <CarouselItem key={index}>
+          <CarouselItem key={index} className="overflow-hidden">
             <div className="relative w-full aspect-[16/9] rounded-xl border border-white/10 shadow-xl overflow-hidden">
               <img 
                 src={image} 
                 alt={`Panel screenshot ${index + 1}`}
                 className="w-full h-full object-cover rounded-xl"
+                onError={(e) => console.error(`Error loading image ${index}:`, e)}
+                onLoad={() => console.log(`Image ${index} loaded successfully`)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
             </div>
