@@ -1,8 +1,11 @@
 
+import { useState, useEffect, useCallback } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
+import { useCarousel } from "@/components/ui/carousel";
 
 export default function PanelShowcase() {
+  const [activeIndex, setActiveIndex] = useState(0);
   const panelImages = [
     "/lovable-uploads/d23159aa-a866-4336-a98d-b9b58ebce59d.png",
     "/lovable-uploads/2fdea8a1-98b9-45cf-bc6e-65c345b1900b.png",
@@ -11,8 +14,13 @@ export default function PanelShowcase() {
     "/lovable-uploads/59f3f635-d5b4-4dee-a19a-c441d10b255f.png"
   ];
 
+  // Function to handle dot indicator clicks
+  const goToSlide = (index) => {
+    setActiveIndex(index);
+  };
+
   return (
-    <section className="py-16 bg-gradient-to-b from-black/90 via-minecraft-dark/80 to-black">
+    <section className="py-16 bg-gradient-to-b from-[#1A1E5A]/95 via-[#1A1F2C] to-[#1A1F2C]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <Badge variant="pill" className="mb-4">Control Panel</Badge>
@@ -25,35 +33,71 @@ export default function PanelShowcase() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <Carousel className="mx-auto">
-            <CarouselContent className="rounded-xl overflow-hidden">
-              {panelImages.map((image, index) => (
-                <CarouselItem key={index}>
-                  <div className="relative w-full aspect-[16/9] rounded-xl border border-white/10 shadow-xl overflow-hidden">
-                    <img 
-                      src={image} 
-                      alt={`Panel screenshot ${index + 1}`}
-                      className="w-full h-full object-cover rounded-xl"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-2 lg:-left-12 bg-black/60 hover:bg-black/80 border-minecraft-secondary/30 text-white" />
-            <CarouselNext className="right-2 lg:-right-12 bg-black/60 hover:bg-black/80 border-minecraft-secondary/30 text-white" />
-          </Carousel>
+          <CarouselWrapper images={panelImages} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
           
-          <div className="flex justify-center mt-4 gap-1">
+          <div className="flex justify-center mt-4 gap-2">
             {panelImages.map((_, index) => (
-              <div 
+              <button 
                 key={index}
-                className="w-2 h-2 rounded-full bg-white/30"
-              ></div>
+                onClick={() => goToSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  activeIndex === index 
+                    ? "bg-white scale-125" 
+                    : "bg-white/30 hover:bg-white/50"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              ></button>
             ))}
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+// Separate component for the carousel to use the hook properly
+function CarouselWrapper({ images, activeIndex, setActiveIndex }) {
+  const [api, setApi] = useState(null);
+
+  useEffect(() => {
+    if (!api) return;
+    
+    const handleSelect = () => {
+      setActiveIndex(api.selectedScrollSnap());
+    };
+    
+    api.on("select", handleSelect);
+    return () => {
+      api.off("select", handleSelect);
+    };
+  }, [api, setActiveIndex]);
+
+  useEffect(() => {
+    if (!api) return;
+    api.scrollTo(activeIndex);
+  }, [activeIndex, api]);
+
+  return (
+    <Carousel 
+      className="mx-auto"
+      setApi={setApi}
+    >
+      <CarouselContent className="rounded-xl overflow-hidden">
+        {images.map((image, index) => (
+          <CarouselItem key={index}>
+            <div className="relative w-full aspect-[16/9] rounded-xl border border-white/10 shadow-xl overflow-hidden">
+              <img 
+                src={image} 
+                alt={`Panel screenshot ${index + 1}`}
+                className="w-full h-full object-cover rounded-xl"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="left-2 lg:-left-12 bg-black/60 hover:bg-black/80 border-minecraft-secondary/30 text-white" />
+      <CarouselNext className="right-2 lg:-right-12 bg-black/60 hover:bg-black/80 border-minecraft-secondary/30 text-white" />
+    </Carousel>
   );
 }
