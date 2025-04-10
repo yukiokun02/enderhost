@@ -1,8 +1,7 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
-import { useCarousel } from "@/components/ui/carousel";
 
 export default function PanelShowcase() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -55,7 +54,7 @@ export default function PanelShowcase() {
   );
 }
 
-// Separate component for the carousel to use the hook properly
+// Separate component for the carousel to use the API directly without the hook
 function CarouselWrapper({ images, activeIndex, setActiveIndex }) {
   const [api, setApi] = useState(null);
 
