@@ -86,6 +86,7 @@ const QRCodePayment = () => {
           additionalPorts: details.additionalPorts || 0,
           totalPrice: totalPrice,
           orderDate: new Date().toISOString(),
+          billingCycle: billingCycle,
         }),
       });
       

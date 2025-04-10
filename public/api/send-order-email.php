@@ -1,3 +1,4 @@
+
 <?php
 /**
  * EnderHOST Order Email Notification Script
@@ -80,6 +81,8 @@ $discord_username = isset($data['discordUsername']) ? sanitize_input($data['disc
 $server_name = isset($data['serverName']) ? sanitize_input($data['serverName']) : 'Unknown';
 $plan = isset($data['plan']) ? sanitize_input($data['plan']) : 'Unknown';
 $plan_price = isset($data['basePlanPrice']) ? sanitize_input($data['basePlanPrice']) : 'Unknown';
+$billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3; // Default to 3 months if not specified
+$billing_cycle_text = $billing_cycle === 1 ? '1 Month' : '3 Months';
 $additional_backups = isset($data['additionalBackups']) ? (int)$data['additionalBackups'] : 0;
 $additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPorts'] : 0;
 $total_price = isset($data['totalPrice']) ? sanitize_input($data['totalPrice']) : $plan_price;
@@ -89,7 +92,7 @@ $order_date = isset($data['orderDate']) ? date('Y-m-d H:i:s', strtotime($data['o
 $order_id = "EH-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)) . "-" . date("Ymd");
 
 // Log order details
-logError("New order received - ID: $order_id, Plan: $plan, Total: ₹$total_price", "INFO");
+logError("New order received - ID: $order_id, Plan: $plan, Total: ₹$total_price, Billing: $billing_cycle_text", "INFO");
 
 // Prepare email content
 $admin_email = ADMIN_EMAIL; // From config.php
@@ -142,6 +145,10 @@ $html_message = "
                     <tr>
                         <th>Plan:</th>
                         <td>{$plan}</td>
+                    </tr>
+                    <tr>
+                        <th>Billing Cycle:</th>
+                        <td>{$billing_cycle_text}</td>
                     </tr>
                     <tr>
                         <th>Base Price:</th>
@@ -225,6 +232,7 @@ NEW MINECRAFT SERVER ORDER
 Order ID: {$order_id}
 Server Name: {$server_name}
 Plan: {$plan}
+Billing Cycle: {$billing_cycle_text}
 Base Price: ₹{$plan_price}";
 
 if ($additional_backups > 0) {
