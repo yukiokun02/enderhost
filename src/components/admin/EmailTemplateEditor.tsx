@@ -211,16 +211,16 @@ const EmailTemplateEditor = () => {
                   <p>This template is used in send-order-email.php</p>
                   <p className="mt-2">Available variables:</p>
                   <ul className="list-disc pl-4 mt-1 space-y-1">
-                    <li>{"{{order_id}}"}</li>
-                    <li>{"{{server_name}}"}</li>
-                    <li>{"{{plan}}"}</li>
-                    <li>{"{{billing_cycle_text}}"}</li>
-                    <li>{"{{total_price}}"}</li>
-                    <li>{"{{customer_name}}"}</li>
-                    <li>{"{{customer_email}}"}</li>
-                    <li>{"{{customer_phone}}"}</li>
-                    <li>{"{{discord_username}}"}</li>
-                    <li>{"{{customer_password}}"}</li>
+                    <li>{"{order_id}"}</li>
+                    <li>{"{server_name}"}</li>
+                    <li>{"{plan}"}</li>
+                    <li>{"{billing_cycle_text}"}</li>
+                    <li>{"{total_price}"}</li>
+                    <li>{"{customer_name}"}</li>
+                    <li>{"{customer_email}"}</li>
+                    <li>{"{customer_phone}"}</li>
+                    <li>{"{discord_username}"}</li>
+                    <li>{"{customer_password}"}</li>
                   </ul>
                 </div>
               </div>
