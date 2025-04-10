@@ -7,8 +7,7 @@ import {
   CarouselPrevious
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRef, useState, useEffect } from "react";
-import { Sparkles } from "lucide-react";
+import { useRef, useState } from "react";
 
 const PANEL_IMAGES = [
   "/lovable-uploads/2ba731ce-22f8-4d9e-93a9-2b3b4ce81b92.png",
@@ -23,27 +22,7 @@ export default function PanelShowcase() {
   const carouselRef = useRef(null);
   
   return (
-    <section className="py-8 bg-black relative overflow-hidden">
-      {/* Animated sparkles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute animate-float opacity-20"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          >
-            <Sparkles
-              className="text-yellow-300"
-              size={16 + Math.random() * 8}
-            />
-          </div>
-        ))}
-      </div>
-
+    <section className="py-8 bg-[#1A1E5A] relative overflow-hidden"> {/* Changed to static color */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight leading-tight mb-3">
