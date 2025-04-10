@@ -20,7 +20,14 @@ import PageTransition from "./components/PageTransition";
 import { useEffect } from "react";
 import { initializeAdminUsers } from "@/lib/adminAuth";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Prevent unnecessary refetching
+      retry: false, // Reduce retries that might cause state changes
+    },
+  },
+});
 
 // Initialize admin users on app start
 const AppInitializer = () => {
@@ -31,12 +38,12 @@ const AppInitializer = () => {
   return null;
 };
 
-// Wrapper component to handle AnimatePresence with useLocation
+// Modified AnimatedRoutes component to prevent excessive history updates
 const AnimatedRoutes = () => {
   const location = useLocation();
   
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route 
           path="/" 

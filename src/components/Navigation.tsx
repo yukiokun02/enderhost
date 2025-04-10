@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee, HelpCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import DiscordPopup from "./DiscordPopup";
 
@@ -11,6 +11,7 @@ export default function Navigation() {
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { visible } = useScrollDirection();
 
   const toggleMobileMenu = () => {
@@ -19,6 +20,20 @@ export default function Navigation() {
 
   const toggleDesktopMenu = () => {
     setDesktopMenuOpen(!desktopMenuOpen);
+  };
+
+  const handleNavigation = (path: string) => {
+    // Close menus after navigation
+    setMobileMenuOpen(false);
+    setDesktopMenuOpen(false);
+    
+    // If current page contains the anchor already, just scroll to it
+    if (location.pathname === '/' && path.startsWith('#')) {
+      const element = document.querySelector(path);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   };
 
   return (
@@ -30,7 +45,7 @@ export default function Navigation() {
       <nav className="bg-black/70 backdrop-blur-md border-b border-white/10">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
-            <a href="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
+            <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
               <img 
                 src="/lovable-uploads/e1341b42-612c-4eb3-b5f9-d6ac7e41acf3.png" 
                 alt="EnderHOST Logo" 
@@ -40,7 +55,7 @@ export default function Navigation() {
                 <span className="text-white">Ender</span>
                 <span className="text-minecraft-secondary">HOST</span>
               </span>
-            </a>
+            </Link>
 
             <div className="hidden md:flex items-center">
               <div className="relative">
@@ -71,30 +86,30 @@ export default function Navigation() {
                       <Settings className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">Game Panel</span>
                     </a>
-                    <a
-                      href="/purchase"
+                    <Link
+                      to="/purchase"
                       className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-                      onClick={() => setDesktopMenuOpen(false)}
+                      onClick={() => handleNavigation('/purchase')}
                     >
                       <CreditCard className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">Billing Area</span>
-                    </a>
-                    <a
-                      href="#pricing"
+                    </Link>
+                    <Link
+                      to="/#pricing"
                       className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-                      onClick={() => setDesktopMenuOpen(false)}
+                      onClick={() => handleNavigation('#pricing')}
                     >
                       <IndianRupee className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">Pricing</span>
-                    </a>
-                    <a
-                      href="/troubleshooting"
+                    </Link>
+                    <Link
+                      to="/troubleshooting"
                       className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-                      onClick={() => setDesktopMenuOpen(false)}
+                      onClick={() => handleNavigation('/troubleshooting')}
                     >
                       <HelpCircle className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">FAQ's</span>
-                    </a>
+                    </Link>
                     <button
                       className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5 w-full text-left"
                       onClick={() => {
@@ -151,30 +166,30 @@ export default function Navigation() {
             <Settings className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">Game Panel</span>
           </a>
-          <a
-            href="/purchase"
+          <Link
+            to="/purchase"
             className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => handleNavigation('/purchase')}
           >
             <CreditCard className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">Billing Area</span>
-          </a>
-          <a
-            href="#pricing"
+          </Link>
+          <Link
+            to="/#pricing"
             className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => handleNavigation('#pricing')}
           >
             <IndianRupee className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">Pricing</span>
-          </a>
-          <a
-            href="/troubleshooting"
+          </Link>
+          <Link
+            to="/troubleshooting"
             className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => handleNavigation('/troubleshooting')}
           >
             <HelpCircle className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">FAQ's</span>
-          </a>
+          </Link>
           <button
             className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5 w-full text-left"
             onClick={() => {

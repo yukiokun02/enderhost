@@ -9,19 +9,26 @@ import PromoOffer from "@/components/PromoOffer";
 import UptimeStats from "@/components/UptimeStats";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 import SelfHostingSection from "@/components/SelfHostingSection";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { HelpCircle } from "lucide-react";
 
 const Index = () => {
-  // Apply smooth scrolling behavior to the html element
+  const isScrollApplied = useRef(false);
+
+  // Apply smooth scrolling behavior to the html element, with debounce
   useEffect(() => {
+    // Only apply once
+    if (isScrollApplied.current) return;
+    isScrollApplied.current = true;
+    
     // Ensure smooth scrolling is applied
     document.documentElement.style.scrollBehavior = "smooth";
     
     return () => {
       // Clean up when component unmounts
       document.documentElement.style.scrollBehavior = "";
+      isScrollApplied.current = false;
     };
   }, []);
 
