@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
@@ -496,7 +495,7 @@ const PurchaseForm = () => {
                     )}
                     <span className="relative block text-sm">3 Months</span>
                     <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                      Standard Price
+                      25% Off
                     </span>
                   </button>
                 </div>

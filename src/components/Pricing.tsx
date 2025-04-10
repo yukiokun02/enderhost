@@ -1,3 +1,4 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -331,7 +332,7 @@ export default function Pricing() {
                 )}
                 <span className="relative block text-sm">3 Months</span>
                 <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  Standard Price
+                  25% Off
                 </span>
               </button>
             </div>
