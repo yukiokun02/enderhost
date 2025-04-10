@@ -1,64 +1,57 @@
 
-import { Shield, Database, Settings, Headphones, Zap, Server } from "lucide-react";
+import { Cpu, HardDrive, Gauge, Network } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
-const features = [
+const serverSpecs = [
   {
-    icon: Zap,
-    title: "Quick Deploy",
-    description: "Get your server running in seconds",
+    icon: Cpu,
+    title: "Premium CPUs",
+    description: "AMD EPYC & Intel Xeon processors",
   },
   {
-    icon: Shield,
-    title: "DDoS Shield",
-    description: "Enterprise-grade protection",
+    icon: HardDrive,
+    title: "Fast Storage",
+    description: "NVMe SSD storage for maximum performance",
   },
   {
-    icon: Database,
-    title: "Daily Backups",
-    description: "With instant restoration",
+    icon: Gauge,
+    title: "High Memory",
+    description: "DDR4 ECC RAM for reliability",
   },
   {
-    icon: Settings,
-    title: "Easy Controls",
-    description: "Simple server management",
-  },
-  {
-    icon: Headphones,
-    title: "24/7 Support",
-    description: "Expert help anytime",
-  },
-  {
-    icon: Server,
-    title: "Live Metrics",
-    description: "Monitor server health",
-  },
+    icon: Network,
+    title: "Fast Network",
+    description: "1Gbps unmetered bandwidth",
+  }
 ];
 
 export default function Features() {
   return (
-    <section className="py-24 bg-gradient-to-b from-black to-minecraft-dark/70">
+    <section className="py-16 bg-gradient-to-b from-black to-minecraft-dark/70">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
-            Pro Features
+            Enterprise Hardware
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Top tools for the best hosting
+            Powered by the latest server technology
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className="p-6 rounded-xl border border-white/10 hover:border-minecraft-secondary/50 transition-all duration-300 hover:shadow-lg group animate-fade-up bg-black/50"
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          {serverSpecs.map((spec, index) => (
+            <Card
+              key={spec.title}
+              className="border-white/10 bg-black/50 hover:border-minecraft-secondary/50 transition-all duration-300 animate-fade-up"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-minecraft-primary/10 to-minecraft-secondary/10 flex items-center justify-center mb-4 group-hover:from-minecraft-primary/20 group-hover:to-minecraft-secondary/20 transition-colors duration-300">
-                <feature.icon className="w-6 h-6 text-minecraft-secondary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
-            </div>
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-minecraft-primary/10 to-minecraft-secondary/10 flex items-center justify-center mb-4">
+                  <spec.icon className="w-6 h-6 text-minecraft-secondary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white">{spec.title}</h3>
+                <p className="text-gray-400">{spec.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
