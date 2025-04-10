@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud } from "lucide-react";
+import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
 
 import {
   Select,
@@ -14,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { useToast } from "@/components/ui/use-toast";
+import DiscordPopup from "@/components/DiscordPopup";
 
 const allPlans = [
   // Vanilla plans
@@ -180,6 +183,7 @@ const allPlans = [
 const PurchaseForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     serverName: "",
     name: "",
@@ -189,11 +193,19 @@ const PurchaseForm = () => {
     discordUsername: "",
     plan: "",
     additionalBackups: "0",
-    additionalPorts: "0"
+    additionalPorts: "0",
+    redeemCode: ""
   });
+  const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMonthlyBilling, setIsMonthlyBilling] = useState(false);
+  const [isRedeemCodeValid, setIsRedeemCodeValid] = useState<boolean | null>(null);
+  const [redeemCodeDiscount, setRedeemCodeDiscount] = useState<{
+    amount: number;
+    type: 'percent' | 'fixed';
+  } | null>(null);
+  const [isCheckingCode, setIsCheckingCode] = useState(false);
   
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -229,7 +241,18 @@ const PurchaseForm = () => {
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
     
-    return basePrice + backupPrice + portPrice;
+    let totalPrice = basePrice + backupPrice + portPrice;
+    
+    // Apply discount if redeem code is valid
+    if (isRedeemCodeValid && redeemCodeDiscount) {
+      if (redeemCodeDiscount.type === 'percent') {
+        totalPrice = totalPrice * (1 - redeemCodeDiscount.amount / 100);
+      } else {
+        totalPrice = Math.max(0, totalPrice - redeemCodeDiscount.amount);
+      }
+    }
+    
+    return totalPrice;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -246,6 +269,55 @@ const PurchaseForm = () => {
     }
   };
 
+  const validateRedeemCode = async () => {
+    if (!formData.redeemCode.trim()) {
+      setIsRedeemCodeValid(null);
+      setRedeemCodeDiscount(null);
+      return;
+    }
+    
+    setIsCheckingCode(true);
+    
+    try {
+      // In a real app, this would be an API call to validate the code
+      // For now, we'll simulate a check with localStorage
+      const storedCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
+      const codeFound = storedCodes.find((code: any) => 
+        code.code === formData.redeemCode && 
+        !code.used &&
+        new Date() < new Date(code.expiryDate)
+      );
+      
+      if (codeFound) {
+        setIsRedeemCodeValid(true);
+        setRedeemCodeDiscount({
+          amount: codeFound.discountAmount,
+          type: codeFound.discountType,
+        });
+        toast({
+          title: "Redeem code applied!",
+          description: codeFound.discountType === 'percent' ? 
+            `You got a ${codeFound.discountAmount}% discount` : 
+            `You got ₹${codeFound.discountAmount} off`,
+          variant: "default",
+        });
+      } else {
+        setIsRedeemCodeValid(false);
+        setRedeemCodeDiscount(null);
+        toast({
+          title: "Invalid code",
+          description: "This code is invalid, already used, or expired",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error validating code:", error);
+      setIsRedeemCodeValid(false);
+    } finally {
+      setIsCheckingCode(false);
+    }
+  };
+
   const getSpecIcon = (spec: string) => {
     if (spec.includes("RAM")) return <Gauge className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
     if (spec.includes("CPU")) return <Cpu className="w-5 h-5 flex-shrink-0 text-minecraft-secondary" />;
@@ -259,7 +331,11 @@ const PurchaseForm = () => {
     e.preventDefault();
     
     if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
-      alert("Please fill in all required fields");
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -268,11 +344,27 @@ const PurchaseForm = () => {
     const totalPrice = calculateTotalPrice();
     const billingCycle = isMonthlyBilling ? 1 : 3;
     
+    // If a valid redeem code was used, mark it as used
+    if (isRedeemCodeValid && formData.redeemCode) {
+      const storedCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
+      const updatedCodes = storedCodes.map((code: any) => {
+        if (code.code === formData.redeemCode) {
+          return { ...code, used: true };
+        }
+        return code;
+      });
+      localStorage.setItem('redeemCodes', JSON.stringify(updatedCodes));
+    }
+    
     navigate("/payment", { 
       state: {
         ...formData,
         totalPrice,
-        billingCycle
+        billingCycle,
+        discountApplied: isRedeemCodeValid && redeemCodeDiscount ? {
+          code: formData.redeemCode,
+          ...redeemCodeDiscount
+        } : null
       }
     });
   };
@@ -355,6 +447,19 @@ const PurchaseForm = () => {
                   <Signal className="w-3.5 h-3.5 text-minecraft-secondary" />
                   <span className="text-xs font-medium text-white">20-60ms</span>
                 </div>
+                
+                <Button 
+                  variant="ghost" 
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-28 justify-center"
+                  onClick={() => setIsDiscordPopupOpen(true)}
+                >
+                  <img 
+                    src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
+                    alt="Discord" 
+                    className="w-4 h-4"
+                  />
+                  <span className="text-xs font-medium text-white">Discord</span>
+                </Button>
               </div>
             </div>
 
@@ -551,6 +656,53 @@ const PurchaseForm = () => {
                   </Select>
                 </div>
 
+                {/* Redeem Code Section */}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="redeemCode"
+                    className="text-sm font-medium text-white/90 flex items-center gap-2"
+                  >
+                    <KeyRound className="h-4 w-4 text-minecraft-secondary" />
+                    Redeem Code (Optional)
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-grow">
+                      <Input
+                        id="redeemCode"
+                        name="redeemCode"
+                        placeholder="Enter your redeem code"
+                        value={formData.redeemCode}
+                        onChange={handleChange}
+                        className="bg-black/70 border-white/10 text-white placeholder:text-gray-500 pr-8"
+                      />
+                      {isRedeemCodeValid !== null && (
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                          {isRedeemCodeValid ? (
+                            <Check className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <X className="h-4 w-4 text-red-500" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={validateRedeemCode}
+                      disabled={isCheckingCode || !formData.redeemCode.trim()}
+                      className="bg-minecraft-secondary hover:bg-minecraft-primary text-white"
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                  {isRedeemCodeValid === true && redeemCodeDiscount && (
+                    <p className="text-xs text-green-500">
+                      {redeemCodeDiscount.type === 'percent' 
+                        ? `${redeemCodeDiscount.amount}% discount applied` 
+                        : `₹${redeemCodeDiscount.amount} discount applied`}
+                    </p>
+                  )}
+                </div>
+
                 {selectedPlan && (
                   <>
                     <div className="space-y-3 bg-black/70 border border-white/10 rounded-md p-4 mt-4 backdrop-blur-sm">
@@ -585,7 +737,7 @@ const PurchaseForm = () => {
                         )}
                       </div>
 
-                      {/* Price breakdown section - now always visible with corrected pricing */}
+                      {/* Price breakdown section */}
                       <div className="mt-4 pt-3 border-t border-white/10">
                         <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
                           {isMonthlyBilling ? (
@@ -614,11 +766,23 @@ const PurchaseForm = () => {
                             </div>
                           )}
                           
+                          {isRedeemCodeValid && redeemCodeDiscount && (
+                            <div className="flex justify-between text-green-400 font-medium">
+                              <span>Discount:</span>
+                              <span>
+                                {redeemCodeDiscount.type === 'percent' 
+                                  ? `-${redeemCodeDiscount.amount}%` 
+                                  : `-₹${redeemCodeDiscount.amount}`}
+                              </span>
+                            </div>
+                          )}
+                          
                           <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
                             <span>Total price:</span>
-                            <span>₹{isMonthlyBilling ? 
-                              (getDisplayPrice(selectedPlan.price) + parseInt(formData.additionalBackups || "0") * 19 + parseInt(formData.additionalPorts || "0") * 9) + '/month' : 
-                              calculateTotalPrice() + ' for 3 months'}</span>
+                            <span>
+                              ₹{calculateTotalPrice()}
+                              {isMonthlyBilling ? '/month' : ' for 3 months'}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -725,6 +889,12 @@ const PurchaseForm = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Discord Popup */}
+      <DiscordPopup 
+        isOpen={isDiscordPopupOpen} 
+        onClose={() => setIsDiscordPopupOpen(false)} 
+      />
     </div>
   );
 };

@@ -13,6 +13,8 @@ import RefundPolicy from "@/pages/RefundPolicy";
 import PurchaseForm from "@/pages/PurchaseForm";
 import Troubleshooting from "@/pages/Troubleshooting";
 import QRCodePayment from "@/pages/QRCodePayment";
+import AdminLogin from "@/pages/AdminLogin";
+import AdminToolbar from "@/components/admin/AdminToolbar";
 import PageTransition from "./components/PageTransition";
 
 const queryClient = new QueryClient();
@@ -81,6 +83,14 @@ const AnimatedRoutes = () => {
           } 
         />
         <Route 
+          path="/admin" 
+          element={
+            <PageTransition>
+              <AdminLogin />
+            </PageTransition>
+          } 
+        />
+        <Route 
           path="*" 
           element={
             <PageTransition>
@@ -100,6 +110,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AnimatedRoutes />
+        <AdminToolbar />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
