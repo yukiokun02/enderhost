@@ -10,8 +10,6 @@ import UptimeStats from "@/components/UptimeStats";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 import SelfHostingSection from "@/components/SelfHostingSection";
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { HelpCircle } from "lucide-react";
 
 const Index = () => {
   const isScrollApplied = useRef(false);
@@ -66,17 +64,6 @@ const Index = () => {
       </AnimateOnScroll>
       
       <SelfHostingSection />
-      
-      {/* FAQ Button - Made slightly larger */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <Link 
-          to="/troubleshooting"
-          className="inline-flex items-center gap-2 bg-minecraft-secondary hover:bg-minecraft-primary text-white px-4 py-2.5 rounded-full transition-colors shadow-lg"
-        >
-          <HelpCircle className="w-4 h-4" />
-          <span className="font-medium text-sm">FAQ's</span>
-        </Link>
-      </div>
       
       <Footer />
     </div>

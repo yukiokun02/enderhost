@@ -1,18 +1,34 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee, HelpCircle } from "lucide-react";
+import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee, HelpCircle, LogOut } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import DiscordPopup from "./DiscordPopup";
+import { checkAdminSession, logoutAdmin } from "@/lib/adminAuth";
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { visible } = useScrollDirection();
+
+  useEffect(() => {
+    // Check admin status whenever component mounts or location changes
+    const checkAdmin = () => {
+      try {
+        const adminLoggedIn = checkAdminSession();
+        setIsAdmin(adminLoggedIn);
+      } catch (error) {
+        setIsAdmin(false);
+      }
+    };
+    
+    checkAdmin();
+  }, [location.pathname]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -34,6 +50,14 @@ export default function Navigation() {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
+  };
+
+  const handleLogout = () => {
+    logoutAdmin();
+    setIsAdmin(false);
+    setDesktopMenuOpen(false);
+    setMobileMenuOpen(false);
+    navigate("/");
   };
 
   return (
@@ -124,6 +148,29 @@ export default function Navigation() {
                       />
                       <span className="truncate">Discord</span>
                     </button>
+                    
+                    {/* Only show Admin Dashboard link if user is logged in as admin */}
+                    {isAdmin && (
+                      <Link
+                        to="/admin/dashboard"
+                        className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
+                        onClick={() => handleNavigation('/admin/dashboard')}
+                      >
+                        <Settings className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">Admin Dashboard</span>
+                      </Link>
+                    )}
+                    
+                    {/* Only show Logout if user is logged in as admin */}
+                    {isAdmin && (
+                      <button
+                        className="py-1.5 px-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-1.5 w-full text-left"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">Logout</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -204,6 +251,29 @@ export default function Navigation() {
             />
             <span className="truncate">Discord</span>
           </button>
+          
+          {/* Only show Admin Dashboard link if user is logged in as admin */}
+          {isAdmin && (
+            <Link
+              to="/admin/dashboard"
+              className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
+              onClick={() => handleNavigation('/admin/dashboard')}
+            >
+              <Settings className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">Admin Dashboard</span>
+            </Link>
+          )}
+          
+          {/* Only show Logout if user is logged in as admin */}
+          {isAdmin && (
+            <button
+              className="py-1.5 px-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-1.5 w-full text-left"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">Logout</span>
+            </button>
+          )}
         </div>
       </div>
       

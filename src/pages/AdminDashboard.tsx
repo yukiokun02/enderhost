@@ -5,10 +5,9 @@ import {
   Users, 
   Lock, 
   LogOut, 
-  Plus, 
-  UserPlus, 
   UserCog,
-  AlertTriangle
+  KeyRound,
+  LayoutDashboard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -19,6 +18,7 @@ import {
 } from "@/lib/adminAuth";
 import UserManagement from "@/components/admin/UserManagement";
 import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
+import RedeemCodeManager from "@/components/admin/RedeemCodeManager";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
               className="w-full justify-start"
               onClick={() => setActiveTab("dashboard")}
             >
-              <Users className="mr-2 h-4 w-4" />
+              <LayoutDashboard className="mr-2 h-4 w-4" />
               Dashboard
             </Button>
             
@@ -97,6 +97,15 @@ const AdminDashboard = () => {
             >
               <UserCog className="mr-2 h-4 w-4" />
               User Management
+            </Button>
+
+            <Button
+              variant={activeTab === "redeemCodes" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => setActiveTab("redeemCodes")}
+            >
+              <KeyRound className="mr-2 h-4 w-4" />
+              Redeem Codes
             </Button>
             
             <Button
@@ -140,6 +149,7 @@ const AdminDashboard = () => {
           <h1 className="text-xl font-bold">
             {activeTab === "dashboard" && "Admin Dashboard"}
             {activeTab === "users" && "User Management"}
+            {activeTab === "redeemCodes" && "Redeem Codes"}
             {activeTab === "changePassword" && "Change Password"}
           </h1>
         </header>
@@ -176,6 +186,8 @@ const AdminDashboard = () => {
           )}
           
           {activeTab === "users" && <UserManagement />}
+          
+          {activeTab === "redeemCodes" && <RedeemCodeManager />}
           
           {activeTab === "changePassword" && <ChangePasswordForm />}
         </main>
