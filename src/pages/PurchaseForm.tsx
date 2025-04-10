@@ -232,8 +232,8 @@ const PurchaseForm = () => {
     if (!isMonthlyBilling) {
       basePrice = basePrice * 3;
     } else {
-      // For monthly billing, keep the original price (don't increase by 25%)
-      // We'll handle the display separately
+      // For monthly billing, apply 25% markup
+      basePrice = Math.round(basePrice * 1.25);
     }
     
     // Add additional costs - these are always the same regardless of billing cycle
@@ -369,7 +369,7 @@ const PurchaseForm = () => {
   };
 
   const getPlanPrice = (originalPrice: number) => {
-    // For monthly billing, return the plan's monthly price
+    // For monthly billing, return the plan's monthly price with markup
     // For 3-month billing, return the total cost for 3 months
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25) 
@@ -378,13 +378,6 @@ const PurchaseForm = () => {
 
   // Get the unit price (monthly price) for display purposes
   const getUnitPrice = (originalPrice: number) => {
-    return isMonthlyBilling 
-      ? originalPrice  // For monthly billing, return the original price
-      : originalPrice;
-  };
-
-  // Get display price for UI (with 25% markup for monthly plans)
-  const getDisplayPrice = (originalPrice: number) => {
     return isMonthlyBilling 
       ? Math.round(originalPrice * 1.25)  // Apply 25% markup for monthly billing display
       : originalPrice;
@@ -741,8 +734,8 @@ const PurchaseForm = () => {
                         <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
                           {isMonthlyBilling ? (
                             <div className="flex justify-between text-white">
-                              <span>Total price:</span>
-                              <span>₹{getDisplayPrice(selectedPlan.price)}/month</span>
+                              <span>Monthly price:</span>
+                              <span>₹{getUnitPrice(selectedPlan.price)}</span>
                             </div>
                           ) : (
                             <div className="flex justify-between text-white">
