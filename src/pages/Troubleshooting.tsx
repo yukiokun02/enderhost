@@ -18,10 +18,12 @@ import {
   Info, 
   MessageSquare, 
   Settings,
-  ArrowLeft
+  ArrowLeft,
+  Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DiscordPopup from "@/components/DiscordPopup";
 
 interface FAQ {
   question: string;
@@ -38,6 +40,7 @@ interface FAQCategory {
 const Troubleshooting = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
+  const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
 
   const faqCategories: FAQCategory[] = [
     {
@@ -368,10 +371,8 @@ const Troubleshooting = () => {
               If you couldn't find the answer to your question, our support team is ready to assist you.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a 
-                href="https://discord.gg/bsGPB9VpUY" 
-                target="_blank" 
-                rel="noopener noreferrer"
+              <Button
+                onClick={() => setIsDiscordPopupOpen(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-minecraft-secondary hover:bg-minecraft-primary transition-colors rounded-lg text-white"
               >
                 <img 
@@ -380,12 +381,25 @@ const Troubleshooting = () => {
                   className="w-5 h-5" 
                 />
                 Join Our Discord
+              </Button>
+              
+              <a 
+                href="mailto:mail@enderhost.in"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-black/60 border border-white/20 hover:bg-white/10 transition-colors rounded-lg text-white"
+              >
+                <Mail className="w-5 h-5" />
+                Email Support
               </a>
             </div>
           </section>
         </main>
         
         <Footer simplified={true} />
+        
+        <DiscordPopup 
+          isOpen={isDiscordPopupOpen} 
+          onClose={() => setIsDiscordPopupOpen(false)} 
+        />
       </div>
     </PageTransition>
   );
