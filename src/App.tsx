@@ -13,7 +13,6 @@ import RefundPolicy from "@/pages/RefundPolicy";
 import PurchaseForm from "@/pages/PurchaseForm";
 import Troubleshooting from "@/pages/Troubleshooting";
 import QRCodePayment from "@/pages/QRCodePayment";
-import PanelHosting from "@/pages/PanelHosting";
 import PageTransition from "./components/PageTransition";
 
 const queryClient = new QueryClient();
@@ -78,14 +77,6 @@ const AnimatedRoutes = () => {
           element={
             <PageTransition>
               <Troubleshooting />
-            </PageTransition>
-          } 
-        />
-        <Route 
-          path="/panel-hosting" 
-          element={
-            <PageTransition>
-              <PanelHosting />
             </PageTransition>
           } 
         />

@@ -1,5 +1,4 @@
 
-import { Link } from "react-router-dom";
 import { WrenchIcon, ShieldCheck, HelpCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import AnimateOnScroll from "./AnimateOnScroll";
@@ -51,15 +50,13 @@ export default function SelfHostingSection() {
             </div>
             
             <div className="text-center">
-              <Link to="/panel-hosting">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="border-minecraft-secondary hover:bg-minecraft-secondary/20 text-minecraft-secondary text-sm"
-                >
-                  Learn More
-                </Button>
-              </Link>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="border-minecraft-secondary hover:bg-minecraft-secondary/20 text-minecraft-secondary text-sm"
+              >
+                Stay Tuned
+              </Button>
             </div>
           </div>
         </div>
