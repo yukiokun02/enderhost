@@ -5,10 +5,10 @@ import Pricing from "@/components/Pricing";
 import ServerTypes from "@/components/ServerTypes";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import PromoOffer from "@/components/PromoOffer";
 import UptimeStats from "@/components/UptimeStats";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 import SelfHostingSection from "@/components/SelfHostingSection";
-import PanelShowcase from "@/components/PanelShowcase";
 import { useEffect, useRef } from "react";
 
 const Index = () => {
@@ -43,7 +43,9 @@ const Index = () => {
       <Navigation />
       <Hero />
       
-      <PanelShowcase />
+      <AnimateOnScroll variant="fade-up">
+        <PromoOffer />
+      </AnimateOnScroll>
       
       <AnimateOnScroll variant="fade-up" delay={0.1}>
         <Pricing />
