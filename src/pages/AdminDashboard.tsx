@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -34,35 +33,33 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("log");
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in
     const isLoggedIn = checkAdminSession();
     if (!isLoggedIn) {
       navigate("/admin");
       return;
     }
     
-    // Get current admin user
     const admin = getCurrentAdmin();
     setCurrentUser(admin);
+    setIsAdmin(admin?.group === 'admin');
     
-    // Log this activity
     logUserActivity("Accessed admin dashboard");
     
-    // Setup activity tracking
     const activityEvents = ["mousedown", "keydown", "scroll", "touchstart"];
     
     const handleUserActivity = () => {
       updateLastActivity();
     };
     
-    // Add activity event listeners
     activityEvents.forEach(event => {
       window.addEventListener(event, handleUserActivity);
     });
     
-    // Session check interval (every 30 seconds)
     const sessionCheckInterval = setInterval(() => {
       if (!checkAdminSession()) {
         navigate("/admin");
@@ -70,7 +67,6 @@ const AdminDashboard = () => {
     }, 30000);
     
     return () => {
-      // Cleanup
       activityEvents.forEach(event => {
         window.removeEventListener(event, handleUserActivity);
       });
@@ -94,7 +90,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex h-screen bg-black text-white">
-      {/* Sidebar */}
       <div className="w-64 bg-gradient-to-b from-black to-minecraft-dark border-r border-white/10 flex flex-col">
         <div className="p-4 border-b border-white/10">
           <h2 className="text-2xl font-bold text-minecraft-secondary">EnderHOST</h2>
@@ -182,9 +177,7 @@ const AdminDashboard = () => {
         </div>
       </div>
       
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top bar */}
         <header className="bg-black/50 backdrop-blur-sm border-b border-white/10 p-4">
           <h1 className="text-xl font-bold">
             {activeTab === "log" && "Activity Log"}
@@ -196,7 +189,6 @@ const AdminDashboard = () => {
           </h1>
         </header>
         
-        {/* Content Area */}
         <main className="flex-1 overflow-auto p-6 bg-gradient-to-b from-black/50 to-minecraft-dark/50">
           {activeTab === "log" && <ActivityLog currentUser={currentUser} />}
           {activeTab === "users" && <UserManagement />}
