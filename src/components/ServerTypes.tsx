@@ -1,5 +1,6 @@
 
 import { ExternalLink } from "lucide-react";
+import EditableText from "@/components/admin/EditableText";
 
 const serverTypes = [
   {
@@ -96,10 +97,12 @@ export default function ServerTypes() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            <span className="text-minecraft-secondary">Minecraft</span> Server Types
+            <span className="text-minecraft-secondary">
+              <EditableText id="server-types-heading-1" defaultContent="Minecraft" />
+            </span> <EditableText id="server-types-heading-2" defaultContent="Server Types" />
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            We support all major Minecraft server platforms to fit your unique gameplay needs
+            <EditableText id="server-types-description" defaultContent="We support all major Minecraft server platforms to fit your unique gameplay needs" />
           </p>
         </div>
         
@@ -123,10 +126,12 @@ export default function ServerTypes() {
                 </div>
               </div>
               <h3 className="text-white font-semibold mb-1 text-center flex items-center gap-1">
-                {type.name}
+                <EditableText id={`server-type-name-${type.name}`} defaultContent={type.name} />
                 <ExternalLink className="w-3 h-3 inline-block opacity-0 group-hover:opacity-100 transition-opacity" />
               </h3>
-              <p className="text-gray-400 text-xs text-center">{type.description}</p>
+              <p className="text-gray-400 text-xs text-center">
+                <EditableText id={`server-type-desc-${type.name}`} defaultContent={type.description} />
+              </p>
             </a>
           ))}
         </div>

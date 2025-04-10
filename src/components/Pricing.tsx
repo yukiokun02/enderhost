@@ -1,3 +1,4 @@
+
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -294,12 +295,16 @@ export default function Pricing() {
                 alt="Indian Flag" 
                 className="w-4 h-4 rounded-sm object-cover"
               />
-              <span className="text-xs font-medium text-white">India</span>
+              <span className="text-xs font-medium text-white">
+                <EditableText id="pricing-location" defaultContent="India" />
+              </span>
             </div>
             
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-28 justify-center">
               <Signal className="w-3.5 h-3.5 text-minecraft-secondary" />
-              <span className="text-xs font-medium text-white">20-60ms</span>
+              <span className="text-xs font-medium text-white">
+                <EditableText id="pricing-latency" defaultContent="20-60ms" />
+              </span>
             </div>
           </div>
           
@@ -316,9 +321,11 @@ export default function Pricing() {
                 {isMonthlyBilling && (
                   <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
                 )}
-                <span className="relative block text-sm">1 Month</span>
+                <span className="relative block text-sm">
+                  <EditableText id="pricing-monthly-option" defaultContent="1 Month" />
+                </span>
                 <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  Standard Plan
+                  <EditableText id="pricing-monthly-description" defaultContent="Standard Plan" />
                 </span>
               </button>
               
@@ -333,9 +340,11 @@ export default function Pricing() {
                 {!isMonthlyBilling && (
                   <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
                 )}
-                <span className="relative block text-sm">3 Months</span>
+                <span className="relative block text-sm">
+                  <EditableText id="pricing-quarterly-option" defaultContent="3 Months" />
+                </span>
                 <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  25% Off
+                  <EditableText id="pricing-quarterly-description" defaultContent="25% Off" />
                 </span>
               </button>
             </div>
@@ -348,9 +357,13 @@ export default function Pricing() {
               <div className={`p-8 ${category.color} bg-opacity-20`} 
                    style={{backgroundImage: `linear-gradient(to right, ${category.gradient})`}}>
                 <h3 className="flex items-center gap-2">
-                  <span className={`text-2xl font-bold ${category.textColor}`}>{category.name}</span>
+                  <span className={`text-2xl font-bold ${category.textColor}`}>
+                    <EditableText id={`category-name-${category.id}`} defaultContent={category.name} />
+                  </span>
                 </h3>
-                <p className="text-white/80 mt-2">{category.description}</p>
+                <p className="text-white/80 mt-2">
+                  <EditableText id={`category-description-${category.id}`} defaultContent={category.description} />
+                </p>
               </div>
               
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(category.plans.length, 4)} gap-4 p-4 bg-black/50 backdrop-blur-sm`}>
@@ -399,7 +412,7 @@ export default function Pricing() {
                     {plan.mostPopular && (
                       <div className="absolute top-2 right-2 z-10">
                         <div className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg">
-                          MOST POPULAR
+                          <EditableText id={`most-popular-${plan.name}`} defaultContent="MOST POPULAR" />
                         </div>
                       </div>
                     )}
@@ -407,19 +420,26 @@ export default function Pricing() {
                     <div className="flex items-center justify-between mb-2 relative z-10">
                       <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10">
                         <Users className="w-3.5 h-3.5" />
-                        <span className="text-sm text-white/80">{plan.players}</span>
+                        <span className="text-sm text-white/80">
+                          <EditableText id={`players-${plan.name}`} defaultContent={plan.players} />
+                        </span>
                       </div>
                     </div>
                     
-                    <h3 className="text-xl font-bold mb-2 text-white relative z-10">{plan.name}</h3>
+                    <h3 className="text-xl font-bold mb-2 text-white relative z-10">
+                      <EditableText id={`plan-name-${plan.name}`} defaultContent={plan.name} />
+                    </h3>
                     
                     <div className="flex items-baseline mb-4 relative z-10">
                       <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
-                      <span className="text-3xl font-bold text-white">{getPlanPrice(plan.price)}</span>
+                      <span className="text-3xl font-bold text-white">
+                        <EditableText id={`plan-price-${plan.name}`} defaultContent={getPlanPrice(plan.price).toString()} />
+                      </span>
                       <span className="text-white/70 ml-1">
-                        {isMonthlyBilling 
-                          ? '/month' 
-                          : '/month × 3'}
+                        <EditableText 
+                          id={`plan-price-period-${plan.name}`} 
+                          defaultContent={isMonthlyBilling ? '/month' : '/month × 3'} 
+                        />
                       </span>
                     </div>
                     
@@ -427,7 +447,9 @@ export default function Pricing() {
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-sm">
                           {getFeatureIcon(feature)}
-                          <span className="text-white/80">{feature}</span>
+                          <span className="text-white/80">
+                            <EditableText id={`feature-${plan.name}-${feature}`} defaultContent={feature} />
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -442,7 +464,7 @@ export default function Pricing() {
                           ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105`}
                         variant="minecraft"
                       >
-                        Buy Now
+                        <EditableText id={`buy-button-${plan.name}`} defaultContent="Buy Now" />
                       </Button>
                     </Link>
                   </div>
@@ -451,11 +473,15 @@ export default function Pricing() {
               
               <div className="px-8 py-4 bg-black/70 border-t border-white/10">
                 <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-                  <div className="text-white/90 font-medium">INCLUDED ON ALL SERVERS:</div>
+                  <div className="text-white/90 font-medium">
+                    <EditableText id={`included-label-${category.id}`} defaultContent="INCLUDED ON ALL SERVERS:" />
+                  </div>
                   {category.included.map((feature, index) => (
                     <div key={index} className="flex items-center gap-2 text-white/70">
                       <Check className="w-4 h-4" />
-                      <span>{feature}</span>
+                      <span>
+                        <EditableText id={`included-feature-${category.id}-${index}`} defaultContent={feature} />
+                      </span>
                     </div>
                   ))}
                 </div>
