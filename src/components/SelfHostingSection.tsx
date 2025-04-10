@@ -14,8 +14,8 @@ export default function SelfHostingSection() {
                 <WrenchIcon className="w-4 h-4 mr-2 text-minecraft-primary" />
                 <span className="text-xs font-semibold text-white">Expert Panel Installation</span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-                Self-Host Your Own <span className="text-minecraft-secondary">Pterodactyl Panel</span>
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">
+                <span className="text-minecraft-secondary">Self-Host</span> Your Own Pterodactyl Panel
               </h2>
               <p className="text-sm text-gray-300 max-w-2xl mx-auto">
                 Get expert help to set up and configure your own game control panel on your VPS.

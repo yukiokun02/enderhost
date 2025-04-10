@@ -95,8 +95,8 @@ export default function ServerTypes() {
     <section className="py-16 bg-gradient-to-b from-minecraft-dark/70 to-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Minecraft Server Types
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <span className="text-minecraft-secondary">Minecraft</span> Server Types
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
             We support all major Minecraft server platforms to fit your unique gameplay needs

@@ -25,8 +25,8 @@ export default function PanelShowcase() {
     <section className="py-8 bg-[#1A1E5A] relative overflow-hidden"> {/* Changed to static color */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight leading-tight mb-3">
-            Server Control Panel
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight mb-3">
+            <span className="text-minecraft-secondary">Server</span> Control Panel
           </h2>
           <p className="text-base text-white/90 max-w-2xl mx-auto">
             Our powerful, easy-to-use panel lets you manage your Minecraft server with just a few clicks

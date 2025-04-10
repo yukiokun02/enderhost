@@ -34,8 +34,8 @@ export default function Features() {
     <section className="py-16 bg-gradient-to-b from-black to-minecraft-dark/70">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
-            Enterprise Hardware
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+            <span className="text-minecraft-secondary">Enterprise</span> Hardware
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
             Powered by the latest server technology
