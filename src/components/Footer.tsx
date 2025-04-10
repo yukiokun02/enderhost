@@ -1,5 +1,8 @@
+
+import { useState } from "react";
 import { GamepadIcon, CreditCard, Mail, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import DiscordPopup from "./DiscordPopup";
 
 interface FooterProps {
   simplified?: boolean;
@@ -7,6 +10,8 @@ interface FooterProps {
 }
 
 export default function Footer({ simplified = false, copyrightOnly = false }: FooterProps) {
+  const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
+
   if (copyrightOnly) {
     return (
       <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm py-6">
@@ -76,14 +81,17 @@ export default function Footer({ simplified = false, copyrightOnly = false }: Fo
                 <h3 className="text-xl font-semibold text-white mb-6">Client Area</h3>
                 <ul className="space-y-4">
                   <li>
-                    <a href="https://discord.gg/bsGPB9VpUY" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base" target="_blank" rel="noopener noreferrer">
+                    <button 
+                      onClick={() => setIsDiscordPopupOpen(true)}
+                      className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base cursor-pointer"
+                    >
                       <img 
-                        src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
+                        src="/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png" 
                         alt="Discord" 
                         className="w-5 h-5" 
                       />
-                      Support
-                    </a>
+                      Discord
+                    </button>
                   </li>
                   <li>
                     <a href="https://panel.enderhost.in" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base" target="_blank" rel="noopener noreferrer">
@@ -132,6 +140,12 @@ export default function Footer({ simplified = false, copyrightOnly = false }: Fo
           </div>
         </div>
       </div>
+      
+      {/* Discord Popup */}
+      <DiscordPopup 
+        isOpen={isDiscordPopupOpen} 
+        onClose={() => setIsDiscordPopupOpen(false)} 
+      />
     </footer>
   );
 }

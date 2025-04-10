@@ -1,12 +1,15 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, Settings, CreditCard, IndianRupee, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
+import DiscordPopup from "./DiscordPopup";
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+  const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
   const navigate = useNavigate();
   const { visible } = useScrollDirection();
 
@@ -92,12 +95,12 @@ export default function Navigation() {
                       <HelpCircle className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">FAQ's</span>
                     </a>
-                    <a
-                      href="https://discord.gg/bsGPB9VpUY"
-                      className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-                      onClick={() => setDesktopMenuOpen(false)}
-                      target="_blank" 
-                      rel="noopener noreferrer"
+                    <button
+                      className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5 w-full text-left"
+                      onClick={() => {
+                        setDesktopMenuOpen(false);
+                        setIsDiscordPopupOpen(true);
+                      }}
                     >
                       <img 
                         src="/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png" 
@@ -105,7 +108,7 @@ export default function Navigation() {
                         className="w-3.5 h-3.5 flex-shrink-0" 
                       />
                       <span className="truncate">Discord</span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -172,12 +175,12 @@ export default function Navigation() {
             <HelpCircle className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">FAQ's</span>
           </a>
-          <a
-            href="https://discord.gg/bsGPB9VpUY"
-            className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5"
-            onClick={() => setMobileMenuOpen(false)}
-            target="_blank" 
-            rel="noopener noreferrer"
+          <button
+            className="py-1.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1.5 w-full text-left"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setIsDiscordPopupOpen(true);
+            }}
           >
             <img 
               src="/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png" 
@@ -185,9 +188,15 @@ export default function Navigation() {
               className="w-3.5 h-3.5 flex-shrink-0" 
             />
             <span className="truncate">Discord</span>
-          </a>
+          </button>
         </div>
       </div>
+      
+      {/* Discord Popup */}
+      <DiscordPopup 
+        isOpen={isDiscordPopupOpen} 
+        onClose={() => setIsDiscordPopupOpen(false)} 
+      />
     </div>
   );
 }
