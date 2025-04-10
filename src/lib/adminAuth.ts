@@ -88,145 +88,8 @@ export function initializeAdminUsers(): void {
       
       localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify([defaultAdmin]));
     }
-    
-    // Initialize default email templates if none exist
-    initializeEmailTemplates();
   } catch (error) {
     console.error("Error initializing admin users:", error);
-  }
-}
-
-// Initialize default email templates
-function initializeEmailTemplates(): void {
-  try {
-    const existingTemplates = localStorage.getItem(EMAIL_TEMPLATES_KEY);
-    if (!existingTemplates) {
-      // Load templates that match the structure in send-order-email.php
-      const defaultTemplates = {
-        orderConfirmation: {
-          id: 'orderConfirmation',
-          name: 'Order Confirmation',
-          subject: 'New Minecraft Server Order - {{server_name}}',
-          body: `<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #000; color: #fff; padding: 15px; text-align: center; }
-        .header h1 { margin: 0; color: #fff; }
-        .header h1 span { color: #00C853; }
-        .content { padding: 20px; border: 1px solid #ddd; border-top: none; }
-        .order-details { background-color: #f9f9f9; padding: 15px; margin-bottom: 20px; }
-        .footer { font-size: 12px; text-align: center; margin-top: 30px; color: #777; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
-        .credentials { background-color: #f5f5f5; border-left: 4px solid #00C853; padding: 10px; margin: 15px 0; }
-        .discount { background-color: #e8f5e9; border-left: 4px solid #00C853; padding: 5px 10px; margin: 5px 0; }
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <div class='header'>
-            <h1>Ender<span>HOST</span> - New Order</h1>
-        </div>
-        <div class='content'>
-            <h2>New Minecraft Server Order Received</h2>
-            <p>A new server order has been placed. The customer has been directed to the payment page.</p>
-            
-            <div class='order-details'>
-                <h3>Order Details:</h3>
-                <table>
-                    <tr>
-                        <th>Order ID:</th>
-                        <td>{{order_id}}</td>
-                    </tr>
-                    <tr>
-                        <th>Server Name:</th>
-                        <td>{{server_name}}</td>
-                    </tr>
-                    <tr>
-                        <th>Plan:</th>
-                        <td>{{plan}}</td>
-                    </tr>
-                    <tr>
-                        <th>Billing Cycle:</th>
-                        <td>{{billing_cycle_text}}</td>
-                    </tr>
-                    <tr>
-                        <th>Base Price:</th>
-                        <td>₹{{base_plan_price}}</td>
-                    </tr>
-                    <tr>
-                        <th>Total Price:</th>
-                        <td>₹{{total_price}}</td>
-                    </tr>
-                    <tr>
-                        <th>Order Date:</th>
-                        <td>{{order_date}}</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <h3>Customer Information:</h3>
-            <table>
-                <tr>
-                    <th>Name:</th>
-                    <td>{{customer_name}}</td>
-                </tr>
-                <tr>
-                    <th>Email:</th>
-                    <td>{{customer_email}}</td>
-                </tr>
-                <tr>
-                    <th>Phone:</th>
-                    <td>{{customer_phone}}</td>
-                </tr>
-                <tr>
-                    <th>Discord Username:</th>
-                    <td>{{discord_username}}</td>
-                </tr>
-            </table>
-            
-            <div class='credentials'>
-                <h3>Server Login Credentials:</h3>
-                <p><strong>Username:</strong> {{customer_email}}</p>
-                <p><strong>Password:</strong> {{customer_password}}</p>
-                <p><em>Note: These credentials will be used for the customer's server control panel access.</em></p>
-            </div>
-            
-            <p style='margin-top: 30px;'>
-                <b>Note:</b> This is just a notification that the customer has reached the payment page. 
-                Await payment confirmation from Discord before setting up the server.
-            </p>
-        </div>
-        <div class='footer'>
-            <p>This is an automated message from the EnderHOST ordering system.</p>
-            <p>&copy; 2025 EnderHOST. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>`,
-        },
-        welcome: {
-          id: 'welcome',
-          name: 'Welcome Email',
-          subject: 'Welcome to EnderHOST!',
-          body: '<h1>Welcome to EnderHOST!</h1><p>Thank you for choosing our services.</p>',
-        },
-        passwordReset: {
-          id: 'passwordReset',
-          name: 'Password Reset',
-          subject: 'EnderHOST Password Reset',
-          body: '<h1>Password Reset</h1><p>Click the link below to reset your password.</p>',
-        }
-      };
-      
-      localStorage.setItem(EMAIL_TEMPLATES_KEY, JSON.stringify(defaultTemplates));
-    }
-  } catch (error) {
-    console.error("Error initializing email templates:", error);
   }
 }
 
@@ -278,33 +141,27 @@ export function getActivityLogs(limit?: number, userId?: string): ActivityLogEnt
   }
 }
 
-// Get email templates
+// Get email templates - since we're now directly editing the PHP file, these functions
+// are only kept for backward compatibility but will be deprecated
 export function getEmailTemplates() {
   try {
-    // Initialize templates if they don't exist
-    initializeEmailTemplates();
-    
-    const templates = localStorage.getItem(EMAIL_TEMPLATES_KEY);
-    return templates ? JSON.parse(templates) : {};
+    return {
+      orderConfirmation: {
+        id: 'orderConfirmation',
+        name: 'Order Confirmation',
+        subject: 'New Minecraft Server Order - {{server_name}}',
+        body: 'Loading...',
+      }
+    };
   } catch (error) {
     console.error("Error getting email templates:", error);
     return {};
   }
 }
 
-// Update email template and sync with PHP email template
+// This function is now just a stub that logs the activity
 export function updateEmailTemplate(templateId: string, data: any): boolean {
   try {
-    const templates = getEmailTemplates();
-    if (!templates[templateId]) return false;
-    
-    templates[templateId] = {
-      ...templates[templateId],
-      ...data
-    };
-    
-    localStorage.setItem(EMAIL_TEMPLATES_KEY, JSON.stringify(templates));
-    
     // Log this activity
     return true;
   } catch (error) {
