@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRef, useState } from "react";
-import EditableText from "@/components/admin/EditableText";
 
 const PANEL_IMAGES = [
   "/lovable-uploads/2ba731ce-22f8-4d9e-93a9-2b3b4ce81b92.png",
@@ -23,16 +22,14 @@ export default function PanelShowcase() {
   const carouselRef = useRef(null);
   
   return (
-    <section className="py-8 bg-[#1A1E5A] relative overflow-hidden">
+    <section className="py-8 bg-[#1A1E5A] relative overflow-hidden"> {/* Changed to static color */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight mb-3">
-            <span className="text-minecraft-secondary">
-              <EditableText id="panel-heading-1" defaultContent="Server" />
-            </span> <EditableText id="panel-heading-2" defaultContent="Control Panel" />
+            <span className="text-minecraft-secondary">Server</span> Control Panel
           </h2>
           <p className="text-base text-white/90 max-w-2xl mx-auto">
-            <EditableText id="panel-description" defaultContent="Our powerful, easy-to-use panel lets you manage your Minecraft server with just a few clicks" />
+            Our powerful, easy-to-use panel lets you manage your Minecraft server with just a few clicks
           </p>
         </div>
         

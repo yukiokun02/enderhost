@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,8 +19,6 @@ import AdminToolbar from "@/components/admin/AdminToolbar";
 import PageTransition from "./components/PageTransition";
 import { useEffect } from "react";
 import { initializeAdminUsers } from "@/lib/adminAuth";
-import { AdminProvider } from './contexts/AdminContext';
-import AdminEditToolbar from './components/admin/AdminEditToolbar';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -131,21 +130,18 @@ const AnimatedRoutes = () => {
   );
 };
 
-function App() {
-  return (
-    <AdminProvider>
-      <div>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppInitializer />
-          <AnimatedRoutes />
-          <AdminToolbar />
-          <AdminEditToolbar />
-        </BrowserRouter>
-      </div>
-    </AdminProvider>
-  );
-}
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppInitializer />
+        <AnimatedRoutes />
+        <AdminToolbar />
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

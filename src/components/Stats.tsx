@@ -1,6 +1,5 @@
 
 import { Users, Server, Shield } from "lucide-react";
-import EditableText from "@/components/admin/EditableText";
 
 const stats = [
   {
@@ -37,11 +36,9 @@ export default function Stats() {
                 </div>
               </div>
               <div className="text-4xl font-bold mb-2 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary bg-clip-text text-transparent">
-                <EditableText id={`stat-value-${index}`} defaultContent={stat.value} />
+                {stat.value}
               </div>
-              <div className="text-gray-400">
-                <EditableText id={`stat-label-${index}`} defaultContent={stat.label} />
-              </div>
+              <div className="text-gray-400">{stat.label}</div>
             </div>
           ))}
         </div>

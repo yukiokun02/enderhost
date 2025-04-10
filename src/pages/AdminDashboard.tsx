@@ -9,7 +9,6 @@ import {
   KeyRound,
   Activity,
   Home,
-  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -24,7 +23,6 @@ import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
 import RedeemCodeManager from "@/components/admin/RedeemCodeManager";
 import ActivityLog from "@/components/admin/ActivityLog";
 import SiteNav from "@/components/admin/SiteNav";
-import ContentEditor from "@/components/admin/ContentEditor";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -105,15 +103,6 @@ const AdminDashboard = () => {
             </Button>
             
             <Button
-              variant={activeTab === "contentEditor" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => handleTabChange("contentEditor")}
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Content Editor
-            </Button>
-            
-            <Button
               variant={activeTab === "users" ? "secondary" : "ghost"}
               className="w-full justify-start"
               onClick={() => handleTabChange("users")}
@@ -182,7 +171,6 @@ const AdminDashboard = () => {
             {activeTab === "redeemCodes" && "Redeem Codes"}
             {activeTab === "changePassword" && "Change Password"}
             {activeTab === "siteNav" && "Site Navigation"}
-            {activeTab === "contentEditor" && "Content Editor"}
           </h1>
         </header>
         
@@ -192,7 +180,6 @@ const AdminDashboard = () => {
           {activeTab === "redeemCodes" && <RedeemCodeManager />}
           {activeTab === "changePassword" && <ChangePasswordForm />}
           {activeTab === "siteNav" && <SiteNav />}
-          {activeTab === "contentEditor" && <ContentEditor />}
         </main>
       </div>
     </div>
