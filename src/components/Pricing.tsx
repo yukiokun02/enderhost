@@ -1,9 +1,9 @@
-
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import EditableText from "@/components/admin/EditableText";
 
 const minecraftItems = {
   "Oak Log": "/lovable-uploads/9b5fa930-abf6-434b-b424-efa2c7da4843.png",
@@ -268,7 +268,7 @@ export default function Pricing() {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-minecraft-dark to-black relative z-10" id="pricing">
+    <section id="pricing" className="py-20 relative overflow-hidden">
       <div 
         className="absolute inset-0 grid-background"
         style={{ 
@@ -281,10 +281,10 @@ export default function Pricing() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold mb-2 text-white">
-            Choose Your Plan
+            <EditableText id="pricing-title" defaultContent="Choose Your Plan" isHeading={true} />
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto mb-6">
-            Select the perfect Minecraft hosting package for your gaming needs
+            <EditableText id="pricing-subtitle" defaultContent="Select the perfect Minecraft hosting package for your gaming needs" />
           </p>
           
           <div className="flex items-center justify-center gap-4 mb-8">
