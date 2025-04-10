@@ -59,6 +59,11 @@ const QRCodePayment = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [billingCycle, setBillingCycle] = useState<number>(3);
   const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
+  const [discountApplied, setDiscountApplied] = useState<{
+    code: string;
+    amount: number;
+    type: 'percent' | 'fixed';
+  } | null>(null);
   
   // Generate a unique order identifier based on form data
   const generateOrderIdentifier = (details: any, plan: string): string => {
@@ -93,6 +98,7 @@ const QRCodePayment = () => {
           totalPrice: totalPrice,
           orderDate: new Date().toISOString(),
           billingCycle: billingCycle,
+          discountApplied: discountApplied
         }),
       });
       
@@ -161,13 +167,22 @@ const QRCodePayment = () => {
   useEffect(() => {
     // Get state passed from purchase form
     if (location.state) {
-      const { plan, additionalBackups, additionalPorts, totalPrice, billingCycle: cycle, ...details } = location.state;
+      const { 
+        plan, 
+        additionalBackups, 
+        additionalPorts, 
+        totalPrice, 
+        billingCycle: cycle, 
+        discountApplied,
+        ...details 
+      } = location.state;
       
       setPlanId(plan);
       setCustomerDetails(details);
       setAdditionalBackups(parseInt(additionalBackups) || 0);
       setAdditionalPorts(parseInt(additionalPorts) || 0);
       setBillingCycle(cycle || 3);
+      setDiscountApplied(discountApplied || null);
       
       // Set total price directly from state if available
       if (totalPrice) {
@@ -369,6 +384,18 @@ const QRCodePayment = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
                         <span className="text-gray-300">+₹{portsCost}</span>
+                      </div>
+                    )}
+                    
+                    {/* Show discount information if a redeem code was applied */}
+                    {discountApplied && (
+                      <div className="flex justify-between text-green-400 font-medium">
+                        <span>Discount ({discountApplied.code}):</span>
+                        <span>
+                          {discountApplied.type === 'percent' 
+                            ? `-${discountApplied.amount}%` 
+                            : `-₹${discountApplied.amount}`}
+                        </span>
                       </div>
                     )}
                     
