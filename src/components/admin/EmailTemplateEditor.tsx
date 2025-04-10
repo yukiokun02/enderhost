@@ -27,8 +27,8 @@ const EmailTemplateEditor = () => {
   const loadEmailTemplate = async () => {
     setIsLoading(true);
     try {
-      // Fetch the email template directly from the PHP file
-      const response = await fetch('/api/send-order-email.php?action=get_template');
+      // Fetch the email template directly from the PHP script
+      const response = await fetch('/api/manage-email-template.php?action=get_template');
       if (!response.ok) {
         throw new Error('Failed to load template');
       }
@@ -141,7 +141,7 @@ const EmailTemplateEditor = () => {
     setIsLoading(true);
     try {
       // Save the template directly to the PHP file
-      const response = await fetch('/api/send-order-email.php?action=update_template', {
+      const response = await fetch('/api/manage-email-template.php?action=update_template', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -211,16 +211,16 @@ const EmailTemplateEditor = () => {
                   <p>This template is used in send-order-email.php</p>
                   <p className="mt-2">Available variables:</p>
                   <ul className="list-disc pl-4 mt-1 space-y-1">
-                    <li>{{'{{'}}order_id{{'}}'}}</li>
-                    <li>{{'{{'}}server_name{{'}}'}}</li>
-                    <li>{{'{{'}}plan{{'}}'}}</li>
-                    <li>{{'{{'}}billing_cycle_text{{'}}'}}</li>
-                    <li>{{'{{'}}total_price{{'}}'}}</li>
-                    <li>{{'{{'}}customer_name{{'}}'}}</li>
-                    <li>{{'{{'}}customer_email{{'}}'}}</li>
-                    <li>{{'{{'}}customer_phone{{'}}'}}</li>
-                    <li>{{'{{'}}discord_username{{'}}'}}</li>
-                    <li>{{'{{'}}customer_password{{'}}'}}</li>
+                    <li>{"{{order_id}}"}</li>
+                    <li>{"{{server_name}}"}</li>
+                    <li>{"{{plan}}"}</li>
+                    <li>{"{{billing_cycle_text}}"}</li>
+                    <li>{"{{total_price}}"}</li>
+                    <li>{"{{customer_name}}"}</li>
+                    <li>{"{{customer_email}}"}</li>
+                    <li>{"{{customer_phone}}"}</li>
+                    <li>{"{{discord_username}}"}</li>
+                    <li>{"{{customer_password}}"}</li>
                   </ul>
                 </div>
               </div>
@@ -229,7 +229,7 @@ const EmailTemplateEditor = () => {
           
           {/* Template Editor */}
           <div className="space-y-4">
-            <Tabs value={previewMode} onValueChange={setPreviewMode as any} className="w-full">
+            <Tabs value={previewMode} onValueChange={(value: "edit" | "preview") => setPreviewMode(value)} className="w-full">
               <TabsList className="bg-black/40 border border-white/10">
                 <TabsTrigger value="edit" className="flex items-center">
                   <FileText className="mr-2 h-4 w-4" />
