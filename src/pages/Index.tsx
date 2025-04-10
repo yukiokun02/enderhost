@@ -43,6 +43,8 @@ const Index = () => {
       <Navigation />
       <Hero />
       
+      <PanelShowcase />
+      
       <AnimateOnScroll variant="fade-up" delay={0.1}>
         <Pricing />
       </AnimateOnScroll>
@@ -54,8 +56,6 @@ const Index = () => {
       <AnimateOnScroll variant="fade-up" delay={0.3}>
         <Features />
       </AnimateOnScroll>
-      
-      <PanelShowcase />
       
       <AnimateOnScroll variant="fade-up" delay={0.4}>
         <ServerTypes />
