@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { logUserActivity } from "@/lib/adminAuth";
-import { 
-  Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +18,7 @@ const EmailTemplateEditor = () => {
   const [htmlBody, setHtmlBody] = useState("");
   const [previewMode, setPreviewMode] = useState<"edit" | "preview">("edit");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadEmailTemplate();
@@ -26,6 +26,7 @@ const EmailTemplateEditor = () => {
 
   const loadEmailTemplate = async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       // Fetch the email template directly from the PHP script
       const response = await fetch('/api/manage-email-template.php?action=get_template');
@@ -36,9 +37,10 @@ const EmailTemplateEditor = () => {
       const data = await response.json();
       
       if (data.success) {
-        setSubject(data.subject || "New Minecraft Server Order - {{server_name}}");
+        setSubject(data.subject || "New Minecraft Server Order - {server_name}");
         setHtmlBody(data.body || "");
       } else {
+        setLoadError(data.message || "Could not load the email template");
         toast({
           title: "Error loading template",
           description: data.message || "Could not load the email template",
@@ -47,6 +49,7 @@ const EmailTemplateEditor = () => {
       }
     } catch (error) {
       console.error("Error loading email template:", error);
+      setLoadError("There was a problem loading the email template. Please try again.");
       toast({
         title: "Error loading template",
         description: "There was a problem loading the email template. Please try again.",
@@ -54,7 +57,7 @@ const EmailTemplateEditor = () => {
       });
       
       // Fallback to default template values
-      setSubject("New Minecraft Server Order - {{server_name}}");
+      setSubject("New Minecraft Server Order - {server_name}");
       setHtmlBody(`
 <!DOCTYPE html>
 <html>
@@ -89,23 +92,23 @@ const EmailTemplateEditor = () => {
                 <table>
                     <tr>
                         <th>Order ID:</th>
-                        <td>{{order_id}}</td>
+                        <td>{order_id}</td>
                     </tr>
                     <tr>
                         <th>Server Name:</th>
-                        <td>{{server_name}}</td>
+                        <td>{server_name}</td>
                     </tr>
                     <tr>
                         <th>Plan:</th>
-                        <td>{{plan}}</td>
+                        <td>{plan}</td>
                     </tr>
                     <tr>
                         <th>Billing Cycle:</th>
-                        <td>{{billing_cycle_text}}</td>
+                        <td>{billing_cycle_text}</td>
                     </tr>
                     <tr>
                         <th>Total Price:</th>
-                        <td>₹{{total_price}}</td>
+                        <td>₹{total_price}</td>
                     </tr>
                 </table>
             </div>
@@ -114,11 +117,11 @@ const EmailTemplateEditor = () => {
             <table>
                 <tr>
                     <th>Name:</th>
-                    <td>{{customer_name}}</td>
+                    <td>{customer_name}</td>
                 </tr>
                 <tr>
                     <th>Email:</th>
-                    <td>{{customer_email}}</td>
+                    <td>{customer_email}</td>
                 </tr>
             </table>
         </div>
@@ -194,107 +197,120 @@ const EmailTemplateEditor = () => {
       </div>
 
       <div className="bg-black/40 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
-        <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6">
-          {/* Template Info */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-md font-medium mb-2">Order Confirmation Email</h3>
-              <p className="text-sm text-gray-400">
-                This template is sent to admin when a customer completes an order.
-              </p>
-            </div>
-            
-            <div className="space-y-2 mt-4">
-              <div className="mt-4">
-                <p className="text-sm text-gray-400 mb-2">Template Usage:</p>
-                <div className="text-xs text-gray-500">
-                  <p>This template is used in send-order-email.php</p>
-                  <p className="mt-2">Available variables:</p>
-                  <ul className="list-disc pl-4 mt-1 space-y-1">
-                    <li>{"{order_id}"}</li>
-                    <li>{"{server_name}"}</li>
-                    <li>{"{plan}"}</li>
-                    <li>{"{billing_cycle_text}"}</li>
-                    <li>{"{total_price}"}</li>
-                    <li>{"{customer_name}"}</li>
-                    <li>{"{customer_email}"}</li>
-                    <li>{"{customer_phone}"}</li>
-                    <li>{"{discord_username}"}</li>
-                    <li>{"{customer_password}"}</li>
-                  </ul>
+        {loadError ? (
+          <div className="bg-red-900/50 border border-red-500 rounded-lg p-6 text-center">
+            <h3 className="text-lg font-semibold text-white mb-2">Error loading template</h3>
+            <p className="text-gray-200 mb-4">{loadError}</p>
+            <Button 
+              onClick={loadEmailTemplate} 
+              className="bg-white text-red-900 hover:bg-gray-200"
+            >
+              Try Again
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6">
+            {/* Template Info */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-md font-medium mb-2">Order Confirmation Email</h3>
+                <p className="text-sm text-gray-400">
+                  This template is sent to admin when a customer completes an order.
+                </p>
+              </div>
+              
+              <div className="space-y-2 mt-4">
+                <div className="mt-4">
+                  <p className="text-sm text-gray-400 mb-2">Template Usage:</p>
+                  <div className="text-xs text-gray-500">
+                    <p>This template is used in send-order-email.php</p>
+                    <p className="mt-2">Available variables:</p>
+                    <ul className="list-disc pl-4 mt-1 space-y-1">
+                      <li>{"{order_id}"}</li>
+                      <li>{"{server_name}"}</li>
+                      <li>{"{plan}"}</li>
+                      <li>{"{billing_cycle_text}"}</li>
+                      <li>{"{total_price}"}</li>
+                      <li>{"{customer_name}"}</li>
+                      <li>{"{customer_email}"}</li>
+                      <li>{"{customer_phone}"}</li>
+                      <li>{"{discord_username}"}</li>
+                      <li>{"{customer_password}"}</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          {/* Template Editor */}
-          <div className="space-y-4">
-            <Tabs value={previewMode} onValueChange={(value: "edit" | "preview") => setPreviewMode(value)} className="w-full">
-              <TabsList className="bg-black/40 border border-white/10">
-                <TabsTrigger value="edit" className="flex items-center">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Edit
-                </TabsTrigger>
-                <TabsTrigger value="preview" className="flex items-center">
-                  <Eye className="mr-2 h-4 w-4" />
-                  Preview
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="edit" className="space-y-4 pt-4">
-                <div>
-                  <Label htmlFor="subject" className="flex items-center">
-                    Email Subject
-                  </Label>
-                  <Input 
-                    id="subject" 
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Email subject..."
-                    disabled={isLoading}
-                  />
-                </div>
+            
+            {/* Template Editor */}
+            <div className="space-y-4">
+              <Tabs value={previewMode} onValueChange={(value: "edit" | "preview") => setPreviewMode(value)} className="w-full">
+                <TabsList className="bg-black/40 border border-white/10">
+                  <TabsTrigger value="edit" className="flex items-center">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Edit
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" className="flex items-center">
+                    <Eye className="mr-2 h-4 w-4" />
+                    Preview
+                  </TabsTrigger>
+                </TabsList>
                 
-                <div>
-                  <Label htmlFor="html-body" className="flex items-center">
-                    Email Body (HTML)
-                  </Label>
-                  <Textarea
-                    id="html-body"
-                    value={htmlBody}
-                    onChange={(e) => setHtmlBody(e.target.value)}
-                    placeholder="<h1>Email content...</h1>"
-                    className="font-mono h-80"
-                    disabled={isLoading}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    You can use HTML tags to format your email content.
-                  </p>
-                </div>
-                
-                <div className="text-right">
-                  <Button 
-                    onClick={handleSave} 
-                    disabled={isLoading}
-                    className="flex items-center"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Changes
-                  </Button>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="preview" className="pt-4">
-                <div className="bg-white text-black rounded-md p-4 overflow-auto h-96">
-                  <div className="border-b border-gray-200 pb-2 mb-4">
-                    <div className="font-bold">Subject: {subject}</div>
+                <TabsContent value="edit" className="space-y-4 pt-4">
+                  <div>
+                    <Label htmlFor="subject" className="flex items-center">
+                      Email Subject
+                    </Label>
+                    <Input 
+                      id="subject" 
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      placeholder="Email subject..."
+                      disabled={isLoading}
+                    />
                   </div>
-                  <div className="email-preview" dangerouslySetInnerHTML={{ __html: htmlBody }} />
-                </div>
-              </TabsContent>
-            </Tabs>
+                  
+                  <div>
+                    <Label htmlFor="html-body" className="flex items-center">
+                      Email Body (HTML)
+                    </Label>
+                    <Textarea
+                      id="html-body"
+                      value={htmlBody}
+                      onChange={(e) => setHtmlBody(e.target.value)}
+                      placeholder="<h1>Email content...</h1>"
+                      className="font-mono h-80"
+                      disabled={isLoading}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      You can use HTML tags to format your email content.
+                    </p>
+                  </div>
+                  
+                  <div className="text-right">
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={isLoading}
+                      className="flex items-center"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </Button>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="preview" className="pt-4">
+                  <div className="bg-white text-black rounded-md p-4 overflow-auto h-96">
+                    <div className="border-b border-gray-200 pb-2 mb-4">
+                      <div className="font-bold">Subject: {subject}</div>
+                    </div>
+                    <div className="email-preview" dangerouslySetInnerHTML={{ __html: htmlBody }} />
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

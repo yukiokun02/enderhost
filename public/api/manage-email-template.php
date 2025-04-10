@@ -61,24 +61,46 @@ function getEmailTemplate() {
         ];
     }
     
-    $fileContent = file_get_contents($filePath);
-    
-    // Extract the subject
-    preg_match('/\$subject\s*=\s*"([^"]*)"/', $fileContent, $subjectMatches);
-    $subject = isset($subjectMatches[1]) ? $subjectMatches[1] : '';
-    
-    // Extract HTML message (this is a simplification and might need to be adjusted)
-    preg_match('/\$html_message\s*=\s*"(.+?)";/s', $fileContent, $bodyMatches);
-    $htmlBody = isset($bodyMatches[1]) ? $bodyMatches[1] : '';
-    
-    // Clean up escaped quotes
-    $htmlBody = str_replace('\"', '"', $htmlBody);
-    
-    return [
-        'success' => true,
-        'subject' => $subject,
-        'body' => $htmlBody
-    ];
+    try {
+        $fileContent = file_get_contents($filePath);
+        if ($fileContent === false) {
+            logError("Unable to read email template file");
+            return [
+                'success' => false,
+                'message' => 'Unable to read email template file'
+            ];
+        }
+        
+        // Extract the subject
+        if (preg_match('/\$subject\s*=\s*["\']([^"\']*)["\'];/i', $fileContent, $subjectMatches)) {
+            $subject = $subjectMatches[1];
+        } else {
+            $subject = "New Minecraft Server Order - {server_name}";
+            logError("Could not extract subject from email template, using default");
+        }
+        
+        // Extract HTML message
+        if (preg_match('/\$html_message\s*=\s*["\'](.+?)["\']\s*;/s', $fileContent, $bodyMatches)) {
+            $htmlBody = $bodyMatches[1];
+            $htmlBody = str_replace('\"', '"', $htmlBody);
+            $htmlBody = str_replace("\'", "'", $htmlBody);
+        } else {
+            $htmlBody = "";
+            logError("Could not extract HTML body from email template");
+        }
+        
+        return [
+            'success' => true,
+            'subject' => $subject,
+            'body' => $htmlBody
+        ];
+    } catch (Exception $e) {
+        logError("Exception reading email template: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Error reading email template: ' . $e->getMessage()
+        ];
+    }
 }
 
 // Update the email template in the PHP file
@@ -93,41 +115,71 @@ function updateEmailTemplate($subject, $body) {
         ];
     }
     
-    // Create a backup of the original file
-    $backupPath = $filePath . '.bak.' . time();
-    if (!copy($filePath, $backupPath)) {
-        logError("Failed to create backup of email template file");
+    try {
+        // Create a backup of the original file
+        $backupPath = $filePath . '.bak.' . time();
+        if (!copy($filePath, $backupPath)) {
+            logError("Failed to create backup of email template file");
+            return [
+                'success' => false,
+                'message' => 'Failed to create backup of email template file'
+            ];
+        }
+        
+        $fileContent = file_get_contents($filePath);
+        if ($fileContent === false) {
+            logError("Unable to read email template file for update");
+            return [
+                'success' => false, 
+                'message' => 'Unable to read email template file for update'
+            ];
+        }
+        
+        // Escape special characters for PHP string
+        $body = str_replace('"', '\"', $body);
+        $body = str_replace('$', '\$', $body);
+        
+        // Replace subject
+        $newFileContent = preg_replace('/(\$subject\s*=\s*["\'])([^"\']*)["\'];/i', '$1' . $subject . '$1;', $fileContent);
+        if ($newFileContent === null) {
+            logError("Error while replacing subject in template");
+            return [
+                'success' => false,
+                'message' => 'Failed to update subject in template'
+            ];
+        }
+        
+        // Replace HTML message
+        $newFileContent = preg_replace('/(\$html_message\s*=\s*["\'])(.+?)(["\'])\s*;/s', '$1' . $body . '$3;', $newFileContent);
+        if ($newFileContent === null) {
+            logError("Error while replacing HTML body in template");
+            return [
+                'success' => false,
+                'message' => 'Failed to update HTML body in template'
+            ];
+        }
+        
+        // Write the modified content back to the file
+        if (file_put_contents($filePath, $newFileContent) === false) {
+            logError("Failed to write updated email template to file");
+            return [
+                'success' => false,
+                'message' => 'Failed to write updated email template to file'
+            ];
+        }
+        
+        logError("Email template updated successfully", "INFO");
+        return [
+            'success' => true,
+            'message' => 'Email template updated successfully'
+        ];
+    } catch (Exception $e) {
+        logError("Exception updating email template: " . $e->getMessage());
         return [
             'success' => false,
-            'message' => 'Failed to create backup of email template file'
+            'message' => 'Error updating email template: ' . $e->getMessage()
         ];
     }
-    
-    $fileContent = file_get_contents($filePath);
-    
-    // Escape special characters
-    $body = str_replace('"', '\"', $body);
-    
-    // Replace subject
-    $fileContent = preg_replace('/(\$subject\s*=\s*")[^"]*(")/i', '$1' . $subject . '$2', $fileContent);
-    
-    // Replace HTML message (this is a simplification and might need to be adjusted)
-    $fileContent = preg_replace('/(\$html_message\s*=\s*")(.+?)(";)/s', '$1' . $body . '$3', $fileContent);
-    
-    // Write the modified content back to the file
-    if (file_put_contents($filePath, $fileContent) === false) {
-        logError("Failed to write updated email template to file");
-        return [
-            'success' => false,
-            'message' => 'Failed to write updated email template to file'
-        ];
-    }
-    
-    logError("Email template updated successfully", "INFO");
-    return [
-        'success' => true,
-        'message' => 'Email template updated successfully'
-    ];
 }
 
 // Handle the request
