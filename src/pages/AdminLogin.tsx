@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { KeyRound, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { checkAdminSession, loginAdmin } from "@/lib/adminAuth";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -12,50 +13,46 @@ const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  
+  useEffect(() => {
+    // Check if user is already logged in
+    const isLoggedIn = checkAdminSession();
+    if (isLoggedIn) {
+      navigate("/admin/dashboard");
+    }
+  }, [navigate]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simple admin authentication (in a real app this would be a secure API call)
-    // For demo purposes, we're using localStorage
-    const adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-    
-    // If no admin users exist, create a default one (for demo purposes)
-    if (adminUsers.length === 0) {
-      const defaultAdmin = { username: 'admin', password: 'admin123' };
-      localStorage.setItem('adminUsers', JSON.stringify([defaultAdmin]));
-    }
-    
-    const foundUser = adminUsers.find(
-      (user: { username: string; password: string }) => 
-        user.username === username && user.password === password
-    );
-
-    setTimeout(() => {
-      if (foundUser) {
-        // Set admin session
-        localStorage.setItem('adminSession', JSON.stringify({
-          isLoggedIn: true,
-          username: username,
-          timestamp: new Date().getTime()
-        }));
-
+    try {
+      const result = await loginAdmin(username, password);
+      
+      if (result.success) {
         toast({
           title: "Login successful",
-          description: "You are now logged in as admin",
+          description: `Welcome back, ${username}`,
         });
         
-        navigate("/");
+        navigate("/admin/dashboard");
       } else {
         toast({
           title: "Login failed",
-          description: "Invalid username or password",
+          description: result.message || "Invalid username or password",
           variant: "destructive",
         });
       }
+    } catch (error) {
+      toast({
+        title: "Login error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      console.error("Login error:", error);
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (
@@ -138,11 +135,6 @@ const AdminLogin = () => {
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
             </form>
-          </div>
-
-          <div className="mt-6 text-center text-gray-500 text-xs">
-            <p>Default Admin: username = admin, password = admin123</p>
-            <p className="mt-1">This is for demonstration purposes only.</p>
           </div>
         </div>
       </main>

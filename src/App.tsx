@@ -14,10 +14,22 @@ import PurchaseForm from "@/pages/PurchaseForm";
 import Troubleshooting from "@/pages/Troubleshooting";
 import QRCodePayment from "@/pages/QRCodePayment";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminDashboard from "@/pages/AdminDashboard";
 import AdminToolbar from "@/components/admin/AdminToolbar";
 import PageTransition from "./components/PageTransition";
+import { useEffect } from "react";
+import { initializeAdminUsers } from "@/lib/adminAuth";
 
 const queryClient = new QueryClient();
+
+// Initialize admin users on app start
+const AppInitializer = () => {
+  useEffect(() => {
+    initializeAdminUsers();
+  }, []);
+  
+  return null;
+};
 
 // Wrapper component to handle AnimatePresence with useLocation
 const AnimatedRoutes = () => {
@@ -91,6 +103,14 @@ const AnimatedRoutes = () => {
           } 
         />
         <Route 
+          path="/admin/dashboard" 
+          element={
+            <PageTransition>
+              <AdminDashboard />
+            </PageTransition>
+          } 
+        />
+        <Route 
           path="*" 
           element={
             <PageTransition>
@@ -109,6 +129,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AppInitializer />
         <AnimatedRoutes />
         <AdminToolbar />
       </BrowserRouter>

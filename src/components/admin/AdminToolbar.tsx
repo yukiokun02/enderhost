@@ -1,15 +1,10 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Settings, LogOut, Plus, KeyRound } from "lucide-react";
+import { Settings, LogOut, Plus, KeyRound, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RedeemCodeGenerator from "./RedeemCodeGenerator";
-
-interface AdminSession {
-  isLoggedIn: boolean;
-  username: string;
-  timestamp: number;
-}
+import { checkAdminSession, logoutAdmin } from "@/lib/adminAuth";
 
 const AdminToolbar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -23,13 +18,8 @@ const AdminToolbar = () => {
 
   const checkAdminStatus = () => {
     try {
-      const adminSession = JSON.parse(localStorage.getItem('adminSession') || '{}') as AdminSession;
-      
-      // Check if session exists and is not expired (24 hours)
-      const isValid = adminSession.isLoggedIn && 
-                     (new Date().getTime() - adminSession.timestamp) < 24 * 60 * 60 * 1000;
-      
-      setIsAdmin(isValid);
+      const isLoggedIn = checkAdminSession();
+      setIsAdmin(isLoggedIn);
     } catch (error) {
       setIsAdmin(false);
       console.error("Error checking admin status:", error);
@@ -37,9 +27,13 @@ const AdminToolbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('adminSession');
+    logoutAdmin();
     setIsAdmin(false);
     window.location.reload(); // Reload to remove edit mode
+  };
+
+  const handleDashboardClick = () => {
+    navigate("/admin/dashboard");
   };
 
   if (!isAdmin) return null;
@@ -54,6 +48,15 @@ const AdminToolbar = () => {
           title="Generate Redeem Code"
         >
           <KeyRound className="h-5 w-5" />
+        </Button>
+        
+        <Button 
+          size="icon"
+          className="w-12 h-12 rounded-full bg-minecraft-accent hover:bg-minecraft-accent/90 shadow-lg"
+          onClick={handleDashboardClick}
+          title="Admin Dashboard"
+        >
+          <UserCog className="h-5 w-5" />
         </Button>
         
         <Button 
