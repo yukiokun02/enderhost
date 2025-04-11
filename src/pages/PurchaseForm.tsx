@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
@@ -856,4 +857,94 @@ const PurchaseForm = () => {
                     <div className="bg-black/70 border border-white/10 rounded-md p-4 space-y-4">
                       <h3 className="font-medium text-white">Additional Options</h3>
                       
-                      <div className="space-
+                      <div className="space-y-2">
+                        <label htmlFor="additionalBackups" className="text-sm font-medium text-white/90">
+                          Additional Backups (₹19 each)
+                        </label>
+                        <Select
+                          name="additionalBackups"
+                          onValueChange={(value) => handleSelectChange("additionalBackups", value)}
+                          value={formData.additionalBackups}
+                        >
+                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
+                            <SelectValue placeholder="Select number of backups" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-black/90 border-white/10 text-white">
+                            <SelectItem value="0">None</SelectItem>
+                            <SelectItem value="1">1 additional backup</SelectItem>
+                            <SelectItem value="2">2 additional backups</SelectItem>
+                            <SelectItem value="3">3 additional backups</SelectItem>
+                            <SelectItem value="4">4 additional backups</SelectItem>
+                            <SelectItem value="5">5 additional backups</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="additionalPorts" className="text-sm font-medium text-white/90">
+                          Additional Ports (₹9 each)
+                        </label>
+                        <Select
+                          name="additionalPorts"
+                          onValueChange={(value) => handleSelectChange("additionalPorts", value)}
+                          value={formData.additionalPorts}
+                        >
+                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
+                            <SelectValue placeholder="Select number of ports" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-black/90 border-white/10 text-white">
+                            <SelectItem value="0">None</SelectItem>
+                            <SelectItem value="1">1 additional port</SelectItem>
+                            <SelectItem value="2">2 additional ports</SelectItem>
+                            <SelectItem value="3">3 additional ports</SelectItem>
+                            <SelectItem value="4">4 additional ports</SelectItem>
+                            <SelectItem value="5">5 additional ports</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      type="submit"
+                      className="w-full bg-minecraft-secondary hover:bg-minecraft-primary transition-all duration-300"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Processing...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2">
+                          <span>Checkout</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                      )}
+                    </Button>
+                  </>
+                )}
+                
+                {!selectedPlan && (
+                  <div className="text-center text-white/70 py-4 border border-dashed border-white/20 rounded-md">
+                    Please select a plan to continue
+                  </div>
+                )}
+              </form>
+            </div>
+          </div>
+        </div>
+      </main>
+      
+      {isDiscordPopupOpen && (
+        <DiscordPopup 
+          isOpen={isDiscordPopupOpen} 
+          onClose={() => setIsDiscordPopupOpen(false)} 
+        />
+      )}
+      
+      {isSubmitting && <LoadingIndicator />}
+    </div>
+  );
+};
+
+export default PurchaseForm;
