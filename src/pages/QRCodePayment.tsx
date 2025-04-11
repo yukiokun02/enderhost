@@ -70,7 +70,7 @@ const QRCodePayment = () => {
     return `${details.email}-${plan}-${details.serverName}-${new Date().toDateString()}`;
   };
   
-  // Email sending function - Updated to include discount information
+  // Email sending function - Fixed to correctly format discount and billing cycle information
   const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     if (isSubmitting) return false;
     
@@ -78,6 +78,24 @@ const QRCodePayment = () => {
     setEmailError(false);
     
     try {
+      // Prepare the discount data in a consistent format
+      let discountData = null;
+      if (discountApplied) {
+        discountData = {
+          code: discountApplied.code,
+          amount: discountApplied.amount,
+          type: discountApplied.type
+        };
+      }
+
+      // Log the exact data being sent for debugging
+      console.log("Sending order data:", {
+        customerName: details.name,
+        customerEmail: details.email,
+        billingCycle: billingCycle,
+        discountApplied: discountData
+      });
+      
       const response = await fetch('/api/send-order-email.php', {
         method: 'POST',
         headers: {
@@ -96,8 +114,8 @@ const QRCodePayment = () => {
           additionalPorts: details.additionalPorts || 0,
           totalPrice: totalPrice,
           orderDate: new Date().toISOString(),
-          billingCycle: billingCycle,
-          discountApplied: discountApplied
+          billingCycle: billingCycle, // Ensure this is sent as a number: 1 or 3
+          discountApplied: discountData // Send the properly formatted discount data
         }),
       });
       
@@ -180,8 +198,17 @@ const QRCodePayment = () => {
       setCustomerDetails(details);
       setAdditionalBackups(parseInt(additionalBackups) || 0);
       setAdditionalPorts(parseInt(additionalPorts) || 0);
-      setBillingCycle(cycle || 3);
-      setDiscountApplied(discountApplied || null);
+      
+      // Ensure billingCycle is explicitly set as a number
+      const billingCycleValue = parseInt(cycle) || 3;
+      setBillingCycle(billingCycleValue);
+      console.log("Setting billing cycle to:", billingCycleValue);
+      
+      // Ensure discount data is properly formatted
+      if (discountApplied) {
+        setDiscountApplied(discountApplied);
+        console.log("Discount applied:", discountApplied);
+      }
       
       // Set total price directly from state if available
       if (totalPrice) {

@@ -81,35 +81,49 @@ $discord_username = isset($data['discordUsername']) ? sanitize_input($data['disc
 $server_name = isset($data['serverName']) ? sanitize_input($data['serverName']) : 'Unknown';
 $plan = isset($data['plan']) ? sanitize_input($data['plan']) : 'Unknown';
 $plan_price = isset($data['basePlanPrice']) ? sanitize_input($data['basePlanPrice']) : 'Unknown';
-$billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3; 
-// Fix: Make sure billing cycle text matches the actual selected value
+
+// Fix: Ensure billing cycle is properly cast to integer and compared with "=="
+$billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3;
+logError("Billing cycle from data: " . (isset($data['billingCycle']) ? $data['billingCycle'] : 'Not set') . ", Converted to: $billing_cycle", "DEBUG");
+
+// Fix: Make sure billing cycle text matches the actual value using double equals for type coercion
 $billing_cycle_text = $billing_cycle == 1 ? '1 Month' : '3 Months';
+logError("Billing cycle text set to: $billing_cycle_text", "DEBUG");
+
 $additional_backups = isset($data['additionalBackups']) ? (int)$data['additionalBackups'] : 0;
 $additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPorts'] : 0;
 $total_price = isset($data['totalPrice']) ? sanitize_input($data['totalPrice']) : $plan_price;
 $order_date = isset($data['orderDate']) ? date('Y-m-d H:i:s', strtotime($data['orderDate'])) : date('Y-m-d H:i:s');
 
-// Extract discount data if available
+// Extract discount data if available - completely rewritten for clarity
 $discount_code = null;
 $discount_amount = null;
 $discount_type = null;
 $discount_applied = false;
 
-// Fix: Improved discount data extraction
+// Debug log discount data structure
+if (isset($data['discountApplied'])) {
+    logError("Raw discount data: " . json_encode($data['discountApplied']), "DEBUG");
+}
+
+// Improved discount data extraction - handle all possible formats
 if (isset($data['discountApplied']) && !empty($data['discountApplied'])) {
     $discount_applied = true;
+    
+    // Handle when discountApplied is an associative array
     if (is_array($data['discountApplied'])) {
         $discount_code = isset($data['discountApplied']['code']) ? sanitize_input($data['discountApplied']['code']) : null;
         $discount_amount = isset($data['discountApplied']['amount']) ? sanitize_input($data['discountApplied']['amount']) : null;
         $discount_type = isset($data['discountApplied']['type']) ? sanitize_input($data['discountApplied']['type']) : 'percent';
-    } else {
-        // Handle if discountApplied is not an array but still truthy
+    } 
+    // Handle when discountApplied is a string (just the code)
+    else {
         $discount_code = sanitize_input($data['discountApplied']);
         $discount_amount = isset($data['discountAmount']) ? sanitize_input($data['discountAmount']) : "Unknown";
         $discount_type = isset($data['discountType']) ? sanitize_input($data['discountType']) : 'percent';
     }
     
-    logError("Discount Applied: Code=$discount_code, Amount=$discount_amount, Type=$discount_type", "DEBUG");
+    logError("Discount extracted: Code=$discount_code, Amount=$discount_amount, Type=$discount_type", "DEBUG");
 }
 
 // Generate order ID
@@ -126,8 +140,9 @@ $subject = "New Minecraft Server Order - " . $server_name;
 $backup_cost = $additional_backups * 19;
 $port_cost = $additional_ports * 9;
 
-// Calculate base plan price with billing cycle - fix billing cycle calculation
+// Calculate base plan price with billing cycle - using double equals for type coercion
 $base_plan_price = $billing_cycle == 1 ? round($plan_price * 1.25) : $plan_price * 3;
+logError("Base plan calculation: Cycle=$billing_cycle, Price=$plan_price, Calculated=$base_plan_price", "DEBUG");
 
 // HTML email message using simple table design for admin use
 $html_message = "
@@ -200,7 +215,7 @@ if ($additional_ports > 0) {
 
 // Add discount information if applied - improved to ensure discount shows
 if ($discount_applied && $discount_code) {
-    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "{$discount_amount}";
+    $discount_display = $discount_type == 'percent' ? "{$discount_amount}%" : "{$discount_amount}";
     $html_message .= "
         <tr>
             <th>Discount Applied</th>
@@ -286,7 +301,7 @@ if ($additional_ports > 0) {
 
 // Add discount info to plain text if applicable - improved to ensure discount shows
 if ($discount_applied && $discount_code) {
-    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "{$discount_amount}";
+    $discount_display = $discount_type == 'percent' ? "{$discount_amount}%" : "{$discount_amount}";
     $text_message .= "Discount: Code {$discount_code} - {$discount_display} off\n";
 }
 

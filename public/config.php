@@ -36,4 +36,7 @@ define('QR_IMAGE_PATH', '/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.p
 // Error Logging Configuration
 define('ERROR_LOG_PATH', __DIR__ . '/logs/enderhost_errors.log');
 define('ENABLE_ERROR_LOGGING', true);
+
+// Character Encoding - Added to prevent character encoding issues
+define('APP_CHARSET', 'UTF-8');
 ?>
