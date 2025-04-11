@@ -5,7 +5,7 @@
  * This script handles order form submissions, saves to database, and sends email notifications
  */
 
-// Allow cross-origin requests
+// Allow cross-origin requests - adjust these based on your production requirements
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
@@ -18,6 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Load configuration
 require_once '../config.php';
+
+// Set up error display for debugging in development environments
+if (defined('DEBUG_MODE') && DEBUG_MODE) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+}
 
 // Set up error logging
 function logError($message, $type = 'ERROR') {
@@ -44,7 +51,11 @@ function sanitize_input($data) {
     return $data;
 }
 
-// Check if this is a POST request
+// Debug info about the request
+logError("Request method: " . $_SERVER['REQUEST_METHOD'], "DEBUG");
+logError("Request content type: " . (isset($_SERVER["CONTENT_TYPE"]) ? $_SERVER["CONTENT_TYPE"] : "Not set"), "DEBUG");
+
+// Ensure Content-Type is application/json and request method is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     logError("Method not allowed: " . $_SERVER['REQUEST_METHOD']);
@@ -52,11 +63,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// Debug log to check if script is being reached
-logError("Order processing script called at " . date('Y-m-d H:i:s'), "DEBUG");
-
 // Get JSON data from the request body
 $json_data = file_get_contents('php://input');
+if (!$json_data) {
+    logError("No input data received", "ERROR");
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'No input data provided']);
+    exit();
+}
+
 logError("Received data: " . $json_data, "DEBUG");
 
 $data = json_decode($json_data, true);
@@ -115,8 +130,12 @@ $order_date = date('Y-m-d H:i:s');
 
 // Connect to database
 try {
+    logError("Attempting database connection to " . DB_HOST, "DEBUG");
+    
     $conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . APP_CHARSET, DB_USER, DB_PASS);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    logError("Database connection successful", "DEBUG");
     
     // Begin transaction
     $conn->beginTransaction();
@@ -141,6 +160,19 @@ try {
         exit();
     }
     
+    // Check if tables exist before trying to insert
+    try {
+        $tableCheck = $conn->query("SHOW TABLES LIKE 'customers'");
+        if ($tableCheck->rowCount() === 0) {
+            throw new Exception("Required database tables don't exist. Please run database_setup.sql first.");
+        }
+    } catch (Exception $e) {
+        logError("Database structure check failed: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Database not properly set up']);
+        exit();
+    }
+    
     // Insert into customers table
     $stmt = $conn->prepare(
         "INSERT INTO customers (order_id, name, email, server_name, password, phone, order_date)
@@ -156,6 +188,8 @@ try {
         $customer_phone,
         $order_date
     ]);
+    
+    logError("Customer record inserted for order $order_id", "DEBUG");
     
     // Get the customer ID
     $customer_id = $conn->lastInsertId();
@@ -183,8 +217,9 @@ try {
         $discord_username
     ]);
     
+    logError("Order details inserted for customer $customer_id", "DEBUG");
+    
     // Insert into server_configs table with appropriate plan specs
-    // We'll extract specs from the plan name - in a production system you'd have a lookup table
     $ram = 2; // Default RAM in GB
     $cpu = 100; // Default CPU percentage
     $storage = 10; // Default storage in GB
@@ -252,6 +287,8 @@ try {
         $additional_ports
     ]);
     
+    logError("Server config inserted for customer $customer_id", "DEBUG");
+    
     // Commit transaction
     $conn->commit();
     
@@ -264,7 +301,7 @@ try {
     
     logError("Database error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to save order to database']);
+    echo json_encode(['success' => false, 'message' => 'Failed to save order to database: ' . $e->getMessage()]);
     exit();
 }
 
@@ -476,56 +513,85 @@ if (USE_SMTP) {
     }
     
     if ($phpmailer_missing) {
-        logError("PHPMailer not properly installed. Please check the README.md file for installation instructions.");
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Email system not properly configured. Please contact the administrator.']);
-        exit();
-    }
-    
-    // Use PHPMailer
-    require_once __DIR__ . '/lib/PHPMailer/src/Exception.php';
-    require_once __DIR__ . '/lib/PHPMailer/src/PHPMailer.php';
-    require_once __DIR__ . '/lib/PHPMailer/src/SMTP.php';
-    
-    try {
-        // Server settings
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        $mail->isSMTP();
-        $mail->SMTPDebug = 2; // Enable verbose debug output
-        $mail->Host = SMTP_HOST;
-        $mail->SMTPAuth = true;
-        $mail->Username = SMTP_USER;
-        $mail->Password = SMTP_PASS;
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = SMTP_PORT;
-        $mail->CharSet = APP_CHARSET;
+        logError("PHPMailer not properly installed. Attempting to fall back to mail()");
+        // Fall back to PHP mail function
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
+        $headers .= "Reply-To: {$customer_email}\r\n";
+        $headers .= "Message-ID: <$email_id@enderhost.in>\r\n";
+        $headers .= "X-Order-ID: $order_id\r\n";
         
-        // Recipients
-        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
-        $mail->addAddress(ADMIN_EMAIL);
-        $mail->addReplyTo($customer_email, $customer_name);
+        $success = mail(ADMIN_EMAIL, $email_subject, $html_message, $headers);
         
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = $email_subject;
-        $mail->Body = $html_message;
-        $mail->AltBody = $text_message;
+        // Log the attempt
+        if ($success) {
+            logError("Order notification email sent to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback", "SUCCESS");
+        } else {
+            logError("Failed to send order notification email to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback");
+        }
+    } else {
+        // Use PHPMailer
+        require_once __DIR__ . '/lib/PHPMailer/src/Exception.php';
+        require_once __DIR__ . '/lib/PHPMailer/src/PHPMailer.php';
+        require_once __DIR__ . '/lib/PHPMailer/src/SMTP.php';
         
-        // Add Message-ID header to help prevent duplicate delivery
-        $mail->addCustomHeader('Message-ID', "<$email_id@enderhost.in>");
-        $mail->addCustomHeader('X-Order-ID', $order_id);
-        
-        // Log before sending
-        logError("Attempting to send email to " . ADMIN_EMAIL . "...", "INFO");
-        
-        $send_result = $mail->send();
-        $success = true;
-        
-        // Log success
-        logError("Order notification email sent to " . ADMIN_EMAIL . " for order {$order_id}", "SUCCESS");
-    } catch (Exception $e) {
-        logError('Error sending email: ' . $mail->ErrorInfo);
-        $success = false;
+        try {
+            // Server settings
+            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail->isSMTP();
+            $mail->SMTPDebug = 2; // Enable verbose debug output
+            $mail->Host = SMTP_HOST;
+            $mail->SMTPAuth = true;
+            $mail->Username = SMTP_USER;
+            $mail->Password = SMTP_PASS;
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = SMTP_PORT;
+            $mail->CharSet = APP_CHARSET;
+            
+            // Recipients
+            $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+            $mail->addAddress(ADMIN_EMAIL);
+            $mail->addReplyTo($customer_email, $customer_name);
+            
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = $email_subject;
+            $mail->Body = $html_message;
+            $mail->AltBody = $text_message;
+            
+            // Add Message-ID header to help prevent duplicate delivery
+            $mail->addCustomHeader('Message-ID', "<$email_id@enderhost.in>");
+            $mail->addCustomHeader('X-Order-ID', $order_id);
+            
+            // Log before sending
+            logError("Attempting to send email to " . ADMIN_EMAIL . "...", "INFO");
+            
+            $send_result = $mail->send();
+            $success = true;
+            
+            // Log success
+            logError("Order notification email sent to " . ADMIN_EMAIL . " for order {$order_id}", "SUCCESS");
+        } catch (Exception $e) {
+            logError('Error sending email via PHPMailer: ' . $mail->ErrorInfo);
+            
+            // Fall back to PHP mail() function
+            $headers = "MIME-Version: 1.0\r\n";
+            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
+            $headers .= "Reply-To: {$customer_email}\r\n";
+            $headers .= "Message-ID: <$email_id@enderhost.in>\r\n";
+            $headers .= "X-Order-ID: $order_id\r\n";
+            
+            $success = mail(ADMIN_EMAIL, $email_subject, $html_message, $headers);
+            
+            // Log the attempt
+            if ($success) {
+                logError("Order notification email sent to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback after PHPMailer failure", "SUCCESS");
+            } else {
+                logError("Failed to send order notification email to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback after PHPMailer failure");
+            }
+        }
     }
 } else {
     // Use PHP mail() function

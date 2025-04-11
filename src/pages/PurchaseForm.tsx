@@ -399,8 +399,15 @@ const PurchaseForm = () => {
     };
     
     try {
+      console.log("Sending order data:", orderData);
+      
+      // Get the current host to construct the API URL
+      const baseUrl = window.location.origin;
+      const apiUrl = `${baseUrl}/api/process-order.php`;
+      console.log("Sending order to API URL:", apiUrl);
+      
       // Send data to our API
-      const response = await fetch('/api/process-order.php', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -408,11 +415,24 @@ const PurchaseForm = () => {
         body: JSON.stringify(orderData)
       });
       
-      const responseData = await response.json();
+      console.log("API response status:", response.status);
+      const responseText = await response.text();
+      console.log("API response text:", responseText);
+      
+      // Try to parse the response as JSON
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Error parsing JSON response:", parseError);
+        throw new Error("Invalid response format from server");
+      }
       
       if (!response.ok || !responseData.success) {
         throw new Error(responseData.message || 'Error processing order');
       }
+      
+      console.log("Order processed successfully:", responseData);
       
       // Mark as submitted to prevent duplicate submissions
       setIsOrderSubmitted(true);
@@ -919,7 +939,7 @@ const PurchaseForm = () => {
                     >
                       {isSubmitting ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <LoadingIndicator />
                           <span>Processing...</span>
                         </div>
                       ) : (

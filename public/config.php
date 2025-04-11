@@ -12,7 +12,7 @@ define('DB_USER', 'enderadmin');       // Database username
 define('DB_PASS', 'STRONGhold12@');    // Database password
 
 // Site Configuration
-define('SITE_URL', 'http://enderhost.in'); // Your actual domain
+define('SITE_URL', 'https://enderhost.in'); // Changed to HTTPS
 
 // Email Configuration
 define('ADMIN_EMAIL', 'mail.enderhost@gmail.com');
@@ -36,14 +36,18 @@ define('QR_IMAGE_PATH', '/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.p
 // Error Logging Configuration
 define('ERROR_LOG_PATH', __DIR__ . '/logs/enderhost_errors.log');
 define('ENABLE_ERROR_LOGGING', true);
+define('DEBUG_MODE', true); // Enable detailed error messages for troubleshooting
 
 // Email Duplication Prevention
 define('EMAIL_DUPLICATE_PREVENTION', true); // Enable duplicate email prevention
 
-// Character Encoding - Added to prevent character encoding issues
+// API Path Settings - Adjust this based on your server configuration
+define('API_BASE_URL', '/api'); // Use relative path for API endpoints
+
+// Character Encoding
 define('APP_CHARSET', 'UTF-8');
 
-// Ensure log directory exists
+// Ensure log directory exists and is writable
 $logDir = __DIR__ . '/logs';
 if (!is_dir($logDir)) {
     mkdir($logDir, 0755, true);
