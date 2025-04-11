@@ -86,7 +86,7 @@ export default function LoadingIndicator() {
             repeatType: "reverse"
           }}
         >
-          Loading World...
+          Loading
         </motion.p>
       </motion.div>
     </div>
