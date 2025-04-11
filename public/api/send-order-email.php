@@ -1,3 +1,4 @@
+
 <?php
 /**
  * EnderHOST Order Email Notification Script
@@ -81,7 +82,8 @@ $server_name = isset($data['serverName']) ? sanitize_input($data['serverName']) 
 $plan = isset($data['plan']) ? sanitize_input($data['plan']) : 'Unknown';
 $plan_price = isset($data['basePlanPrice']) ? sanitize_input($data['basePlanPrice']) : 'Unknown';
 $billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3; 
-$billing_cycle_text = $billing_cycle === 1 ? '1 Month' : '3 Months';
+// Fix: Make sure billing cycle text matches the actual selected value
+$billing_cycle_text = $billing_cycle == 1 ? '1 Month' : '3 Months';
 $additional_backups = isset($data['additionalBackups']) ? (int)$data['additionalBackups'] : 0;
 $additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPorts'] : 0;
 $total_price = isset($data['totalPrice']) ? sanitize_input($data['totalPrice']) : $plan_price;
@@ -91,10 +93,23 @@ $order_date = isset($data['orderDate']) ? date('Y-m-d H:i:s', strtotime($data['o
 $discount_code = null;
 $discount_amount = null;
 $discount_type = null;
-if (isset($data['discountApplied']) && $data['discountApplied']) {
-    $discount_code = isset($data['discountApplied']['code']) ? sanitize_input($data['discountApplied']['code']) : null;
-    $discount_amount = isset($data['discountApplied']['amount']) ? sanitize_input($data['discountApplied']['amount']) : null;
-    $discount_type = isset($data['discountApplied']['type']) ? sanitize_input($data['discountApplied']['type']) : 'percent';
+$discount_applied = false;
+
+// Fix: Improved discount data extraction
+if (isset($data['discountApplied']) && !empty($data['discountApplied'])) {
+    $discount_applied = true;
+    if (is_array($data['discountApplied'])) {
+        $discount_code = isset($data['discountApplied']['code']) ? sanitize_input($data['discountApplied']['code']) : null;
+        $discount_amount = isset($data['discountApplied']['amount']) ? sanitize_input($data['discountApplied']['amount']) : null;
+        $discount_type = isset($data['discountApplied']['type']) ? sanitize_input($data['discountApplied']['type']) : 'percent';
+    } else {
+        // Handle if discountApplied is not an array but still truthy
+        $discount_code = sanitize_input($data['discountApplied']);
+        $discount_amount = isset($data['discountAmount']) ? sanitize_input($data['discountAmount']) : "Unknown";
+        $discount_type = isset($data['discountType']) ? sanitize_input($data['discountType']) : 'percent';
+    }
+    
+    logError("Discount Applied: Code=$discount_code, Amount=$discount_amount, Type=$discount_type", "DEBUG");
 }
 
 // Generate order ID
@@ -111,10 +126,10 @@ $subject = "New Minecraft Server Order - " . $server_name;
 $backup_cost = $additional_backups * 19;
 $port_cost = $additional_ports * 9;
 
-// Calculate base plan price with billing cycle
-$base_plan_price = $billing_cycle === 1 ? round($plan_price * 1.25) : $plan_price * 3;
+// Calculate base plan price with billing cycle - fix billing cycle calculation
+$base_plan_price = $billing_cycle == 1 ? round($plan_price * 1.25) : $plan_price * 3;
 
-// HTML email body - SIMPLIFIED DESIGN FOR ADMIN USE ONLY
+// HTML email message using simple table design for admin use
 $html_message = "
 <!DOCTYPE html>
 <html>
@@ -150,7 +165,7 @@ $html_message = "
         </tr>";
 
 // Add base plan price with appropriate explanation based on billing cycle
-if ($billing_cycle === 1) {
+if ($billing_cycle == 1) {
     $monthly_price = round($plan_price * 1.25);
     $html_message .= "
         <tr>
@@ -183,8 +198,8 @@ if ($additional_ports > 0) {
         </tr>";
 }
 
-// Add discount information if applied
-if ($discount_code && $discount_amount) {
+// Add discount information if applied - improved to ensure discount shows
+if ($discount_applied && $discount_code) {
     $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "{$discount_amount}";
     $html_message .= "
         <tr>
@@ -254,8 +269,8 @@ Plan: {$plan}
 Billing Cycle: {$billing_cycle_text}
 ";
 
-// Add billing details to plain text message
-if ($billing_cycle === 1) {
+// Add billing details to plain text message with fixed comparison
+if ($billing_cycle == 1) {
     $text_message .= "Base Price: {$plan_price} x 1.25 (monthly rate) = " . round($plan_price * 1.25) . "\n";
 } else {
     $text_message .= "Base Price: {$plan_price} x 3 months = " . ($plan_price * 3) . "\n";
@@ -269,8 +284,8 @@ if ($additional_ports > 0) {
     $text_message .= "Additional Ports ({$additional_ports}): {$port_cost}\n";
 }
 
-// Add discount info to plain text if applicable
-if ($discount_code && $discount_amount) {
+// Add discount info to plain text if applicable - improved to ensure discount shows
+if ($discount_applied && $discount_code) {
     $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "{$discount_amount}";
     $text_message .= "Discount: Code {$discount_code} - {$discount_display} off\n";
 }
