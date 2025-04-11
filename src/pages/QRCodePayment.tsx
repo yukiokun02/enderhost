@@ -70,7 +70,7 @@ const QRCodePayment = () => {
     return `${details.email}-${plan}-${details.serverName}-${new Date().toDateString()}`;
   };
   
-  // Email sending function - Updated to include discount information
+  // Email sending function - Improved error handling
   const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     if (isSubmitting) return false;
     
@@ -78,6 +78,14 @@ const QRCodePayment = () => {
     setEmailError(false);
     
     try {
+      console.log("Sending order notification with data:", {
+        customerName: details.name,
+        customerEmail: details.email,
+        plan: planNames[plan] || plan,
+        totalPrice: totalPrice,
+        billingCycle: billingCycle,
+      });
+      
       const response = await fetch('/api/send-order-email.php', {
         method: 'POST',
         headers: {
@@ -92,8 +100,8 @@ const QRCodePayment = () => {
           serverName: details.serverName,
           plan: planNames[plan] || plan,
           basePlanPrice: planPrices[plan] || 0,
-          additionalBackups: details.additionalBackups || 0,
-          additionalPorts: details.additionalPorts || 0,
+          additionalBackups: additionalBackups || 0,
+          additionalPorts: additionalPorts || 0,
           totalPrice: totalPrice,
           orderDate: new Date().toISOString(),
           billingCycle: billingCycle,
@@ -104,6 +112,7 @@ const QRCodePayment = () => {
       let data;
       try {
         data = await response.json();
+        console.log("Order notification response:", data);
       } catch (jsonError) {
         console.error('Error parsing JSON response:', jsonError);
         setEmailError(true);
@@ -120,9 +129,15 @@ const QRCodePayment = () => {
         setIsSubmitting(false);
         return true;
       } else {
-        console.error('Failed to send order notification email', data?.message || 'No error message provided');
+        console.error('Failed to send order notification email', data?.message || 'No error message provided', data?.error_details || 'No error details provided');
         setEmailError(true);
         setIsSubmitting(false);
+        
+        // Show detailed error message from the server if available
+        if (data && data.error_details) {
+          toast.error(`Email error: ${data.error_details}`, { duration: 10000 });
+        }
+        
         return false;
       }
     } catch (error) {
@@ -133,10 +148,15 @@ const QRCodePayment = () => {
     }
   };
   
-  // Retry sending email if it failed
+  // Retry sending email if it failed - Enhanced with troubleshooting info
   const retryEmailSending = () => {
     if (customerDetails && planId) {
       toast.info("Retrying to send notification email...");
+      
+      // Show troubleshooting info in a toast
+      toast.info("If the issue persists, please contact us via Discord and mention the email error.", {
+        duration: 7000,
+      });
       
       sendOrderNotification(
         customerDetails, 
@@ -264,7 +284,7 @@ const QRCodePayment = () => {
   
   return (
     <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
-      {/* Logo Header - Updated with EnderHOST logo */}
+      {/* Logo Header - EnderHOST logo */}
       <header className="w-full bg-black/80 backdrop-blur-sm py-6 text-center shadow-md border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <img
@@ -288,20 +308,32 @@ const QRCodePayment = () => {
 
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
-          {/* Email notification error message */}
+          {/* Email notification error message - Enhanced with more info */}
           {emailError && (
             <div className="max-w-md mx-auto mb-6 bg-red-900/50 text-white p-4 rounded-lg border border-red-800 flex flex-col items-center">
               <p className="mb-3 text-center">
                 <span className="font-bold">Notice:</span> We received your order, but there was an issue sending the confirmation email. 
               </p>
-              <Button 
-                variant="outline" 
-                className="bg-transparent border-white text-white hover:bg-white/20"
-                onClick={retryEmailSending}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Retrying..." : "Retry Sending Email"}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="bg-transparent border-white text-white hover:bg-white/20"
+                  onClick={retryEmailSending}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Retrying..." : "Retry Sending Email"}
+                </Button>
+                <Button
+                  variant="outline" 
+                  className="bg-transparent border-green-500 text-green-400 hover:bg-green-500/20"
+                  onClick={() => setIsDiscordPopupOpen(true)}
+                >
+                  Contact Discord
+                </Button>
+              </div>
+              <p className="mt-2 text-xs text-gray-300 text-center">
+                This technical issue doesn't affect your order. Please proceed with payment and contact us via Discord.
+              </p>
             </div>
           )}
           

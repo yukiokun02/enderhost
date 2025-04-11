@@ -36,4 +36,15 @@ define('QR_IMAGE_PATH', '/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.p
 // Error Logging Configuration
 define('ERROR_LOG_PATH', __DIR__ . '/logs/enderhost_errors.log');
 define('ENABLE_ERROR_LOGGING', true);
+
+// Make sure the logs directory exists
+$log_dir = __DIR__ . '/logs';
+if (!is_dir($log_dir)) {
+    mkdir($log_dir, 0755, true);
+}
+
+// Set PHP error reporting settings to help with debugging
+ini_set('display_errors', 0);              // Don't display errors to users
+ini_set('log_errors', 1);                  // Log errors instead
+ini_set('error_log', ERROR_LOG_PATH);      // Use the same log file as our application logs
 ?>

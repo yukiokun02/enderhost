@@ -34,8 +34,8 @@ function logError($message, $type = 'ERROR') {
         // Write to log file
         file_put_contents(ERROR_LOG_PATH, $logEntry, FILE_APPEND);
         
-        // Debug: Output the log path for troubleshooting
-        error_log("Attempted to write to log: $logDir, success: " . (is_writable($logDir) ? 'Yes' : 'No'));
+        // Also log to PHP error log for server debugging
+        error_log("EnderHOST: $type - $message");
     }
 }
 
@@ -112,149 +112,158 @@ $subject = "New Minecraft Server Order - " . $server_name;
 $backup_cost = $additional_backups * 19;
 $port_cost = $additional_ports * 9;
 
-// Calculate base plan price with billing cycle
+// Calculate base plan price with billing cycle - properly handle 1-month pricing
 $base_plan_price = $billing_cycle === 1 ? round($plan_price * 1.25) : $plan_price * 3;
 
-// HTML email body - Simple table-based format for admin
+// HTML email body - Clean table-based format for admin
 $html_message = "
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset='utf-8'>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h2 { color: #333; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #f2f2f2; width: 40%; }
-        .section { margin-top: 20px; }
-        .important { font-weight: bold; }
+        body {font-family: Arial, sans-serif; line-height: 1.6; color: #333;}
+        table {width: 100%; border-collapse: collapse; margin: 20px 0;}
+        th {background-color: #f2f2f2; text-align: left; padding: 8px;}
+        td {padding: 8px; border-bottom: 1px solid #ddd;}
+        .header {background-color: #000; color: #fff; padding: 15px;}
+        .header h2 {margin: 0; color: #fff;}
+        .header span {color: #00C853;}
+        .total {font-weight: bold; font-size: 16px;}
+        .section {margin: 20px 0; border: 1px solid #ddd; padding: 15px;}
+        .section h3 {margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;}
     </style>
 </head>
 <body>
-    <div class='container'>
-        <h2>New Minecraft Server Order</h2>
-        
-        <div class='section'>
-            <h3>Order Details</h3>
-            <table>
-                <tr>
-                    <th>Order ID:</th>
-                    <td>{$order_id}</td>
-                </tr>
-                <tr>
-                    <th>Server Name:</th>
-                    <td>{$server_name}</td>
-                </tr>
-                <tr>
-                    <th>Plan:</th>
-                    <td>{$plan}</td>
-                </tr>
-                <tr>
-                    <th>Billing Cycle:</th>
-                    <td>{$billing_cycle_text}</td>
-                </tr>";
+    <div class='header'>
+        <h2>Ender<span>HOST</span> - New Order Received</h2>
+    </div>
+    
+    <div class='section'>
+        <h3>Order Information</h3>
+        <table>
+            <tr>
+                <th style='width: 30%'>Order ID</th>
+                <td><strong>{$order_id}</strong></td>
+            </tr>
+            <tr>
+                <th>Server Name</th>
+                <td>{$server_name}</td>
+            </tr>
+            <tr>
+                <th>Plan</th>
+                <td>{$plan}</td>
+            </tr>
+            <tr>
+                <th>Billing Cycle</th>
+                <td><strong>{$billing_cycle_text}</strong></td>
+            </tr>
+            <tr>
+                <th>Order Date</th>
+                <td>{$order_date}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class='section'>
+        <h3>Price Breakdown</h3>
+        <table>";
 
 // Add base price details based on billing cycle
 if ($billing_cycle === 1) {
     $html_message .= "
-                <tr>
-                    <th>Base Price:</th>
-                    <td>₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}</td>
-                </tr>";
+            <tr>
+                <th>Base Plan</th>
+                <td>₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}</td>
+            </tr>";
 } else {
     $html_message .= "
-                <tr>
-                    <th>Base Price:</th>
-                    <td>₹{$plan_price} × 3 months = ₹{$base_plan_price}</td>
-                </tr>";
+            <tr>
+                <th>Base Plan</th>
+                <td>₹{$plan_price} × 3 months = ₹{$base_plan_price}</td>
+            </tr>";
 }
 
 // Add add-ons only if they exist
 if ($additional_backups > 0) {
     $html_message .= "
-                <tr>
-                    <th>Additional Backups ({$additional_backups}):</th>
-                    <td>₹{$backup_cost}</td>
-                </tr>";
+            <tr>
+                <th>Additional Backups ({$additional_backups})</th>
+                <td>+ ₹{$backup_cost}</td>
+            </tr>";
 }
 
 if ($additional_ports > 0) {
     $html_message .= "
-                <tr>
-                    <th>Additional Ports ({$additional_ports}):</th>
-                    <td>₹{$port_cost}</td>
-                </tr>";
+            <tr>
+                <th>Additional Ports ({$additional_ports})</th>
+                <td>+ ₹{$port_cost}</td>
+            </tr>";
 }
 
 // Add discount information if applied
 if ($discount_code && $discount_amount) {
     $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
     $html_message .= "
-                <tr>
-                    <th>Discount Applied:</th>
-                    <td>Code: {$discount_code} - {$discount_display} off</td>
-                </tr>";
+            <tr>
+                <th>Discount</th>
+                <td style='color: green;'>Code: <strong>{$discount_code}</strong> (- {$discount_display})</td>
+            </tr>";
 }
 
 $html_message .= "
-                <tr>
-                    <th>Total Price:</th>
-                    <td class='important'>₹{$total_price}</td>
-                </tr>
-                <tr>
-                    <th>Order Date:</th>
-                    <td>{$order_date}</td>
-                </tr>
-            </table>
-        </div>
-        
-        <div class='section'>
-            <h3>Customer Information</h3>
-            <table>
-                <tr>
-                    <th>Name:</th>
-                    <td>{$customer_name}</td>
-                </tr>
-                <tr>
-                    <th>Email:</th>
-                    <td>{$customer_email}</td>
-                </tr>
-                <tr>
-                    <th>Phone:</th>
-                    <td>{$customer_phone}</td>
-                </tr>
-                <tr>
-                    <th>Discord Username:</th>
-                    <td>{$discord_username}</td>
-                </tr>
-            </table>
-        </div>
-        
-        <div class='section'>
-            <h3>Server Login Credentials</h3>
-            <table>
-                <tr>
-                    <th>Username:</th>
-                    <td>{$customer_email}</td>
-                </tr>
-                <tr>
-                    <th>Password:</th>
-                    <td>{$customer_password}</td>
-                </tr>
-            </table>
-            <p><i>Note: These credentials will be used for the customer's server control panel access.</i></p>
-        </div>
-        
-        <p class='important'>
-            Note: This is just a notification that the customer has reached the payment page. 
-            Await payment confirmation from Discord before setting up the server.
-        </p>
-        
-        <p style='font-size: 12px; color: #777; margin-top: 30px;'>
-            This is an automated message from the EnderHOST ordering system.<br>
-            &copy; " . date('Y') . " EnderHOST. All rights reserved.
-        </p>
+            <tr>
+                <th>Total Price</th>
+                <td class='total'>₹{$total_price}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class='section'>
+        <h3>Customer Information</h3>
+        <table>
+            <tr>
+                <th style='width: 30%'>Name</th>
+                <td>{$customer_name}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td><a href='mailto:{$customer_email}'>{$customer_email}</a></td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td>{$customer_phone}</td>
+            </tr>
+            <tr>
+                <th>Discord Username</th>
+                <td>{$discord_username}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class='section'>
+        <h3>Server Login Credentials</h3>
+        <table>
+            <tr>
+                <th style='width: 30%'>Username</th>
+                <td>{$customer_email}</td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>{$customer_password}</td>
+            </tr>
+        </table>
+        <p><em>Note: These credentials will be used for the customer's server control panel access.</em></p>
+    </div>
+    
+    <p style='background: #fff7e6; padding: 10px; border-left: 4px solid #ffa500;'>
+        <strong>Note:</strong> This is just a notification that the customer has reached the payment page. 
+        Await payment confirmation from Discord before setting up the server.
+    </p>
+    
+    <div style='margin-top: 30px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 12px; color: #777;'>
+        <p>This is an automated message from the EnderHOST ordering system.</p>
+        <p>&copy; " . date('Y') . " EnderHOST. All rights reserved.</p>
     </div>
 </body>
 </html>
@@ -314,6 +323,7 @@ Await payment confirmation from Discord before setting up the server.
 
 // Send email
 $success = false;
+$error_details = '';
 
 if (USE_SMTP) {
     // Check if PHPMailer is installed
@@ -334,7 +344,11 @@ if (USE_SMTP) {
     if ($phpmailer_missing) {
         logError("PHPMailer not properly installed. Please check the README.md file for installation instructions.");
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Email system not properly configured. Please contact the administrator.']);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Email system not properly configured. Please contact the administrator.',
+            'error' => 'PHPMailer files are missing'
+        ]);
         exit();
     }
     
@@ -343,17 +357,26 @@ if (USE_SMTP) {
     require_once __DIR__ . '/lib/PHPMailer/src/PHPMailer.php';
     require_once __DIR__ . '/lib/PHPMailer/src/SMTP.php';
     
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception;
+    use PHPMailer\PHPMailer\SMTP;
+    
     try {
         // Server settings
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        $mail->isSMTP();
-        $mail->SMTPDebug = 2; // Enable verbose debug output
-        $mail->Host = SMTP_HOST;
-        $mail->SMTPAuth = true;
-        $mail->Username = SMTP_USER;
-        $mail->Password = SMTP_PASS;
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = SMTP_PORT;
+        $mail = new PHPMailer(true);
+        $mail->SMTPDebug = 2;                        // Enable verbose debug output
+        $mail->Debugoutput = function($str, $level) { 
+            logError("PHPMailer Debug: $str", "MAIL_DEBUG"); 
+        };
+        
+        $mail->isSMTP();                             // Send using SMTP
+        $mail->Host = SMTP_HOST;                     // Set the SMTP server to send through
+        $mail->SMTPAuth = true;                      // Enable SMTP authentication
+        $mail->Username = SMTP_USER;                 // SMTP username
+        $mail->Password = SMTP_PASS;                 // SMTP password
+        $mail->SMTPSecure = 'tls';                   // Enable TLS encryption
+        $mail->Port = SMTP_PORT;                     // TCP port to connect to (usually 587 for TLS)
+        $mail->Timeout = 30;                         // Increase timeout for slow connections
         
         // Log SMTP settings for debugging
         logError("SMTP Settings - Host: " . SMTP_HOST . ", User: " . SMTP_USER . ", Port: " . SMTP_PORT, "DEBUG");
@@ -368,22 +391,23 @@ if (USE_SMTP) {
         $mail->Subject = $subject;
         $mail->Body = $html_message;
         $mail->AltBody = $text_message;
+        $mail->CharSet = 'UTF-8';
         
         // Log before sending
         logError("Attempting to send email to {$admin_email}...", "INFO");
         
-        // Capture SMTP debug output
-        ob_start();
-        $send_result = $mail->send();
-        $smtp_debug = ob_get_clean();
-        logError("SMTP Debug Output: " . $smtp_debug, "DEBUG");
-        
-        $success = true;
-        
-        // Log success
-        logError("Order notification email sent to {$admin_email} for order {$order_id}", "SUCCESS");
+        // Send the message
+        if ($mail->send()) {
+            logError("Email sent successfully", "SUCCESS");
+            $success = true;
+        } else {
+            logError("Email not sent: " . $mail->ErrorInfo, "ERROR");
+            $error_details = $mail->ErrorInfo;
+            $success = false;
+        }
     } catch (Exception $e) {
-        logError('Error sending email: ' . $mail->ErrorInfo);
+        logError('PHPMailer exception: ' . $e->getMessage(), "ERROR");
+        $error_details = $e->getMessage();
         $success = false;
     }
 } else {
@@ -393,13 +417,20 @@ if (USE_SMTP) {
     $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
     $headers .= "Reply-To: {$customer_email}\r\n";
     
-    $success = mail($admin_email, $subject, $html_message, $headers);
-    
-    // Log the attempt
-    if ($success) {
-        logError("Order notification email sent to {$admin_email} for order {$order_id} using mail()", "SUCCESS");
-    } else {
-        logError("Failed to send order notification email to {$admin_email} for order {$order_id} using mail()");
+    try {
+        $success = mail($admin_email, $subject, $html_message, $headers);
+        
+        // Log the attempt
+        if ($success) {
+            logError("Order notification email sent to {$admin_email} for order {$order_id} using mail()", "SUCCESS");
+        } else {
+            logError("Failed to send order notification email to {$admin_email} for order {$order_id} using mail()");
+            $error_details = 'PHP mail() function failed';
+        }
+    } catch (Exception $e) {
+        logError("Exception in mail() function: " . $e->getMessage());
+        $error_details = $e->getMessage();
+        $success = false;
     }
 }
 
@@ -420,7 +451,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
                 'footer' => ['text' => 'EnderHOST Order System']
             ]
         ]
-    };
+    ];
     
     // Add discount field if applicable
     if ($discount_code && $discount_amount) {
@@ -439,6 +470,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
     curl_setopt($discord_ch, CURLOPT_POST, 1);
     curl_setopt($discord_ch, CURLOPT_POSTFIELDS, $discord_payload);
     curl_setopt($discord_ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($discord_ch, CURLOPT_TIMEOUT, 10);
     $discord_response = curl_exec($discord_ch);
     $discord_status = curl_getinfo($discord_ch, CURLINFO_HTTP_CODE);
     curl_close($discord_ch);
@@ -452,9 +484,12 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
     logError("Discord webhook URL not configured in config.php", "WARNING");
 }
 
-// Return result as JSON
+// Return result as JSON with detailed error information
 echo json_encode([
     'success' => $success,
-    'message' => $success ? 'Order notification sent successfully.' : 'Failed to send order notification. Please contact support.',
-    'order_id' => $order_id
+    'message' => $success 
+        ? 'Order notification sent successfully.' 
+        : 'Failed to send order notification. Please contact support.',
+    'order_id' => $order_id,
+    'error_details' => $error_details
 ]);
