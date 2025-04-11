@@ -80,7 +80,7 @@ $discord_username = isset($data['discordUsername']) ? sanitize_input($data['disc
 $server_name = isset($data['serverName']) ? sanitize_input($data['serverName']) : 'Unknown';
 $plan = isset($data['plan']) ? sanitize_input($data['plan']) : 'Unknown';
 $plan_price = isset($data['basePlanPrice']) ? sanitize_input($data['basePlanPrice']) : 'Unknown';
-$billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3; // Default to 3 months if not specified
+$billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3; 
 $billing_cycle_text = $billing_cycle === 1 ? '1 Month' : '3 Months';
 $additional_backups = isset($data['additionalBackups']) ? (int)$data['additionalBackups'] : 0;
 $additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPorts'] : 0;
@@ -101,7 +101,7 @@ if (isset($data['discountApplied']) && $data['discountApplied']) {
 $order_id = "EH-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)) . "-" . date("Ymd");
 
 // Log order details
-logError("New order received - ID: $order_id, Plan: $plan, Total: ₹$total_price, Billing: $billing_cycle_text", "INFO");
+logError("New order received - ID: $order_id, Plan: $plan, Total: $total_price, Billing: $billing_cycle_text", "INFO");
 
 // Prepare email content
 $admin_email = ADMIN_EMAIL; // From config.php
@@ -124,7 +124,6 @@ $html_message = "
         table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
         th { background-color: #f2f2f2; width: 40%; }
-        h2 { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -156,14 +155,14 @@ if ($billing_cycle === 1) {
     $html_message .= "
         <tr>
             <th>Base Price</th>
-            <td>{$plan_price} × 1.25 (monthly rate) = {$monthly_price}</td>
+            <td>{$plan_price} x 1.25 (monthly rate) = {$monthly_price}</td>
         </tr>";
 } else {
     $three_month_price = $plan_price * 3;
     $html_message .= "
         <tr>
             <th>Base Price</th>
-            <td>{$plan_price} × 3 months = {$three_month_price}</td>
+            <td>{$plan_price} x 3 months = {$three_month_price}</td>
         </tr>";
 }
 
@@ -189,7 +188,7 @@ if ($discount_code && $discount_amount) {
     $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "{$discount_amount}";
     $html_message .= "
         <tr>
-            <th>Discount</th>
+            <th>Discount Applied</th>
             <td>Code: {$discount_code} - {$discount_display} off</td>
         </tr>";
 }
@@ -239,10 +238,8 @@ $html_message .= "
     
     <p>
         <b>Note:</b> This is just a notification that the customer has reached the payment page. 
-        Await payment confirmation from Discord before setting up the server.
+        Await payment confirmation before setting up the server.
     </p>
-    
-    <p>This is an automated message from the EnderHOST ordering system.</p>
 </body>
 </html>
 ";
@@ -259,9 +256,9 @@ Billing Cycle: {$billing_cycle_text}
 
 // Add billing details to plain text message
 if ($billing_cycle === 1) {
-    $text_message .= "Base Price: {$plan_price} × 1.25 (monthly rate) = " . round($plan_price * 1.25) . "\n";
+    $text_message .= "Base Price: {$plan_price} x 1.25 (monthly rate) = " . round($plan_price * 1.25) . "\n";
 } else {
-    $text_message .= "Base Price: {$plan_price} × 3 months = " . ($plan_price * 3) . "\n";
+    $text_message .= "Base Price: {$plan_price} x 3 months = " . ($plan_price * 3) . "\n";
 }
 
 if ($additional_backups > 0) {
@@ -293,7 +290,7 @@ Username: {$customer_email}
 Password: {$customer_password}
 
 Note: This is just a notification that the customer has reached the payment page. 
-Await payment confirmation from Discord before setting up the server.
+Await payment confirmation before setting up the server.
 ";
 
 // Send email
