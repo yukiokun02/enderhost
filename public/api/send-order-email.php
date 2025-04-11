@@ -115,111 +115,102 @@ $port_cost = $additional_ports * 9;
 // Calculate base plan price with billing cycle
 $base_plan_price = $billing_cycle === 1 ? round($plan_price * 1.25) : $plan_price * 3;
 
-// HTML email body
+// HTML email body - Simple table-based format for admin
 $html_message = "
 <!DOCTYPE html>
 <html>
 <head>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #000; color: #fff; padding: 15px; text-align: center; }
-        .header h1 { margin: 0; color: #fff; }
-        .header h1 span { color: #00C853; }
-        .content { padding: 20px; border: 1px solid #ddd; border-top: none; }
-        .order-details { background-color: #f9f9f9; padding: 15px; margin-bottom: 20px; }
-        .footer { font-size: 12px; text-align: center; margin-top: 30px; color: #777; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
-        .credentials { background-color: #f5f5f5; border-left: 4px solid #00C853; padding: 10px; margin: 15px 0; }
-        .discount { background-color: #e8f5e9; border-left: 4px solid #00C853; padding: 5px 10px; margin: 5px 0; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h2 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; width: 40%; }
+        .section { margin-top: 20px; }
+        .important { font-weight: bold; }
     </style>
 </head>
 <body>
     <div class='container'>
-        <div class='header'>
-            <h1>Ender<span>HOST</span> - New Order</h1>
-        </div>
-        <div class='content'>
-            <h2>New Minecraft Server Order Received</h2>
-            <p>A new server order has been placed. The customer has been directed to the payment page.</p>
-            
-            <div class='order-details'>
-                <h3>Order Details:</h3>
-                <table>
-                    <tr>
-                        <th>Order ID:</th>
-                        <td>{$order_id}</td>
-                    </tr>
-                    <tr>
-                        <th>Server Name:</th>
-                        <td>{$server_name}</td>
-                    </tr>
-                    <tr>
-                        <th>Plan:</th>
-                        <td>{$plan}</td>
-                    </tr>
-                    <tr>
-                        <th>Billing Cycle:</th>
-                        <td>{$billing_cycle_text}</td>
-                    </tr>";
+        <h2>New Minecraft Server Order</h2>
+        
+        <div class='section'>
+            <h3>Order Details</h3>
+            <table>
+                <tr>
+                    <th>Order ID:</th>
+                    <td>{$order_id}</td>
+                </tr>
+                <tr>
+                    <th>Server Name:</th>
+                    <td>{$server_name}</td>
+                </tr>
+                <tr>
+                    <th>Plan:</th>
+                    <td>{$plan}</td>
+                </tr>
+                <tr>
+                    <th>Billing Cycle:</th>
+                    <td>{$billing_cycle_text}</td>
+                </tr>";
 
-// Add base plan price with appropriate explanation based on billing cycle
+// Add base price details based on billing cycle
 if ($billing_cycle === 1) {
     $html_message .= "
-                    <tr>
-                        <th>Base Price:</th>
-                        <td>₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}</td>
-                    </tr>";
+                <tr>
+                    <th>Base Price:</th>
+                    <td>₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}</td>
+                </tr>";
 } else {
     $html_message .= "
-                    <tr>
-                        <th>Base Price:</th>
-                        <td>₹{$plan_price} × 3 months = ₹{$base_plan_price}</td>
-                    </tr>";
+                <tr>
+                    <th>Base Price:</th>
+                    <td>₹{$plan_price} × 3 months = ₹{$base_plan_price}</td>
+                </tr>";
 }
 
 // Add add-ons only if they exist
 if ($additional_backups > 0) {
     $html_message .= "
-                    <tr>
-                        <th>Additional Backups ({$additional_backups}):</th>
-                        <td>₹{$backup_cost}</td>
-                    </tr>";
+                <tr>
+                    <th>Additional Backups ({$additional_backups}):</th>
+                    <td>₹{$backup_cost}</td>
+                </tr>";
 }
 
 if ($additional_ports > 0) {
     $html_message .= "
-                    <tr>
-                        <th>Additional Ports ({$additional_ports}):</th>
-                        <td>₹{$port_cost}</td>
-                    </tr>";
+                <tr>
+                    <th>Additional Ports ({$additional_ports}):</th>
+                    <td>₹{$port_cost}</td>
+                </tr>";
 }
 
 // Add discount information if applied
 if ($discount_code && $discount_amount) {
     $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
     $html_message .= "
-                    <tr>
-                        <th>Discount:</th>
-                        <td class='discount'><strong>Code: {$discount_code}</strong> - {$discount_display} off</td>
-                    </tr>";
+                <tr>
+                    <th>Discount Applied:</th>
+                    <td>Code: {$discount_code} - {$discount_display} off</td>
+                </tr>";
 }
 
 $html_message .= "
-                    <tr>
-                        <th>Total Price:</th>
-                        <td>₹{$total_price}</td>
-                    </tr>
-                    <tr>
-                        <th>Order Date:</th>
-                        <td>{$order_date}</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <h3>Customer Information:</h3>
+                <tr>
+                    <th>Total Price:</th>
+                    <td class='important'>₹{$total_price}</td>
+                </tr>
+                <tr>
+                    <th>Order Date:</th>
+                    <td>{$order_date}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class='section'>
+            <h3>Customer Information</h3>
             <table>
                 <tr>
                     <th>Name:</th>
@@ -238,23 +229,32 @@ $html_message .= "
                     <td>{$discord_username}</td>
                 </tr>
             </table>
-            
-            <div class='credentials'>
-                <h3>Server Login Credentials:</h3>
-                <p><strong>Username:</strong> {$customer_email}</p>
-                <p><strong>Password:</strong> {$customer_password}</p>
-                <p><em>Note: These credentials will be used for the customer's server control panel access.</em></p>
-            </div>
-            
-            <p style='margin-top: 30px;'>
-                <b>Note:</b> This is just a notification that the customer has reached the payment page. 
-                Await payment confirmation from Discord before setting up the server.
-            </p>
         </div>
-        <div class='footer'>
-            <p>This is an automated message from the EnderHOST ordering system.</p>
-            <p>&copy; " . date('Y') . " EnderHOST. All rights reserved.</p>
+        
+        <div class='section'>
+            <h3>Server Login Credentials</h3>
+            <table>
+                <tr>
+                    <th>Username:</th>
+                    <td>{$customer_email}</td>
+                </tr>
+                <tr>
+                    <th>Password:</th>
+                    <td>{$customer_password}</td>
+                </tr>
+            </table>
+            <p><i>Note: These credentials will be used for the customer's server control panel access.</i></p>
         </div>
+        
+        <p class='important'>
+            Note: This is just a notification that the customer has reached the payment page. 
+            Await payment confirmation from Discord before setting up the server.
+        </p>
+        
+        <p style='font-size: 12px; color: #777; margin-top: 30px;'>
+            This is an automated message from the EnderHOST ordering system.<br>
+            &copy; " . date('Y') . " EnderHOST. All rights reserved.
+        </p>
     </div>
 </body>
 </html>
@@ -264,6 +264,7 @@ $html_message .= "
 $text_message = "
 NEW MINECRAFT SERVER ORDER
 
+ORDER DETAILS:
 Order ID: {$order_id}
 Server Name: {$server_name}
 Plan: {$plan}
@@ -288,7 +289,7 @@ if ($additional_ports > 0) {
 // Add discount info to plain text if applicable
 if ($discount_code && $discount_amount) {
     $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
-    $text_message .= "Discount: Code {$discount_code} - {$discount_display} off\n";
+    $text_message .= "Discount Applied: Code {$discount_code} - {$discount_display} off\n";
 }
 
 $text_message .= "
@@ -419,7 +420,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
                 'footer' => ['text' => 'EnderHOST Order System']
             ]
         ]
-    ];
+    };
     
     // Add discount field if applicable
     if ($discount_code && $discount_amount) {
@@ -457,4 +458,3 @@ echo json_encode([
     'message' => $success ? 'Order notification sent successfully.' : 'Failed to send order notification. Please contact support.',
     'order_id' => $order_id
 ]);
-
