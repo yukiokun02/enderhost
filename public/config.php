@@ -37,6 +37,9 @@ define('QR_IMAGE_PATH', '/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.p
 define('ERROR_LOG_PATH', __DIR__ . '/logs/enderhost_errors.log');
 define('ENABLE_ERROR_LOGGING', true);
 
+// Email Duplication Prevention
+define('EMAIL_DUPLICATE_PREVENTION', true); // Enable duplicate email prevention
+
 // Character Encoding - Added to prevent character encoding issues
 define('APP_CHARSET', 'UTF-8');
 

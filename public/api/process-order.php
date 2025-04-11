@@ -121,6 +121,26 @@ try {
     // Begin transaction
     $conn->beginTransaction();
     
+    // Check if this order has already been processed (prevent duplicates)
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM customers WHERE order_id = ?");
+    $stmt->execute([$order_id]);
+    $exists = (int)$stmt->fetchColumn();
+    
+    if ($exists > 0) {
+        // This is a duplicate submission, generate a new but recognizable ID for logging
+        $duplicate_id = $order_id . "-DUP-" . time();
+        logError("Duplicate order submission detected. Original ID: $order_id, Tagged as: $duplicate_id", "WARNING");
+        
+        // Return success but indicate it's a duplicate
+        echo json_encode([
+            'success' => true,
+            'message' => 'Order already processed',
+            'order_id' => $order_id,
+            'duplicate' => true
+        ]);
+        exit();
+    }
+    
     // Insert into customers table
     $stmt = $conn->prepare(
         "INSERT INTO customers (order_id, name, email, server_name, password, phone, order_date)
@@ -435,6 +455,10 @@ Note: This is a new order notification. Payment is still pending.
 // Send email
 $success = false;
 
+// Add an identifier to prevent duplicate emails
+$email_id = md5($order_id . $customer_email . time());
+$email_subject = "New Minecraft Server Order - " . $server_name . " [Ref: " . substr($email_id, 0, 8) . "]";
+
 if (USE_SMTP) {
     // Check if PHPMailer is installed
     $phpmailer_files = [
@@ -483,9 +507,13 @@ if (USE_SMTP) {
         
         // Content
         $mail->isHTML(true);
-        $mail->Subject = "New Minecraft Server Order - " . $server_name;
+        $mail->Subject = $email_subject;
         $mail->Body = $html_message;
         $mail->AltBody = $text_message;
+        
+        // Add Message-ID header to help prevent duplicate delivery
+        $mail->addCustomHeader('Message-ID', "<$email_id@enderhost.in>");
+        $mail->addCustomHeader('X-Order-ID', $order_id);
         
         // Log before sending
         logError("Attempting to send email to " . ADMIN_EMAIL . "...", "INFO");
@@ -505,8 +533,11 @@ if (USE_SMTP) {
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
     $headers .= "Reply-To: {$customer_email}\r\n";
+    // Add unique message ID to prevent duplicate emails
+    $headers .= "Message-ID: <$email_id@enderhost.in>\r\n";
+    $headers .= "X-Order-ID: $order_id\r\n";
     
-    $success = mail(ADMIN_EMAIL, "New Minecraft Server Order - " . $server_name, $html_message, $headers);
+    $success = mail(ADMIN_EMAIL, $email_subject, $html_message, $headers);
     
     // Log the attempt
     if ($success) {

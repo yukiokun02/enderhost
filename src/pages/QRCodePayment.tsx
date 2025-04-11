@@ -43,7 +43,7 @@ const QRCodePayment = () => {
 
   // Handle payment confirmation
   const handlePaymentComplete = async () => {
-    if (isPaymentProcessing) return;
+    if (isPaymentProcessing || hasNavigated) return;
     
     setIsPaymentProcessing(true);
     
@@ -55,17 +55,17 @@ const QRCodePayment = () => {
       // Simulating API delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      // Set flag to prevent duplicate navigation
+      setHasNavigated(true);
+      
       // Redirect to payment success page with order details
-      if (!hasNavigated) {
-        setHasNavigated(true);
-        navigate(`/payment-success.php?order=${orderDetails.order_id}`, {
-          state: {
-            order_id: orderDetails.order_id,
-            email: orderDetails.email,
-            serverName: orderDetails.serverName
-          }
-        });
-      }
+      navigate(`/payment-success.php?order=${orderDetails.order_id}`, {
+        state: {
+          order_id: orderDetails.order_id,
+          email: orderDetails.email,
+          serverName: orderDetails.serverName
+        }
+      });
     } catch (error) {
       console.error("Error confirming payment:", error);
       setIsPaymentProcessing(false);

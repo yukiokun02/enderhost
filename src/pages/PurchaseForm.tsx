@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
@@ -205,6 +204,7 @@ const PurchaseForm = () => {
   } | null>(null);
   const [isCheckingCode, setIsCheckingCode] = useState(false);
   const [checkedCodes, setCheckedCodes] = useState<string[]>([]);
+  const [isOrderSubmitted, setIsOrderSubmitted] = useState(false);
   
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -364,6 +364,11 @@ const PurchaseForm = () => {
       return;
     }
     
+    // Prevent duplicate submissions
+    if (isSubmitting || isOrderSubmitted) {
+      return;
+    }
+    
     setIsSubmitting(true);
     
     const totalPrice = calculateTotalPrice();
@@ -408,6 +413,9 @@ const PurchaseForm = () => {
       if (!response.ok || !responseData.success) {
         throw new Error(responseData.message || 'Error processing order');
       }
+      
+      // Mark as submitted to prevent duplicate submissions
+      setIsOrderSubmitted(true);
       
       // Navigate to payment page with order ID
       navigate("/payment", { 
