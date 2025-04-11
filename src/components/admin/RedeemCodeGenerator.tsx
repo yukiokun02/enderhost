@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KeyRound, X, Plus, Calendar, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,11 +35,11 @@ const RedeemCodeGenerator = ({ onClose }: RedeemCodeGeneratorProps) => {
   const [generatedCode, setGeneratedCode] = useState<string>("");
   const [codes, setCodes] = useState<RedeemCode[]>([]);
 
-  // Load existing codes on mount
-  useState(() => {
+  // Fixed: Use useEffect instead of useState for initialization
+  useEffect(() => {
     const storedCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
     setCodes(storedCodes);
-  });
+  }, []);
 
   const generateRandomCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -60,6 +60,19 @@ const RedeemCodeGenerator = ({ onClose }: RedeemCodeGeneratorProps) => {
       return;
     }
 
+    // Check if code already exists
+    const existingCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
+    const codeExists = existingCodes.some((c: RedeemCode) => c.code === generatedCode);
+    
+    if (codeExists) {
+      toast({
+        title: "Error",
+        description: "This code already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Calculate expiry date
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + expiryDays);
@@ -72,9 +85,6 @@ const RedeemCodeGenerator = ({ onClose }: RedeemCodeGeneratorProps) => {
       used: false,
       created: new Date().toISOString()
     };
-
-    // Get existing codes from localStorage
-    const existingCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
     
     // Add new code
     const updatedCodes = [...existingCodes, newCode];

@@ -13,8 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
 import DiscordPopup from "@/components/DiscordPopup";
 
@@ -206,6 +204,7 @@ const PurchaseForm = () => {
     type: 'percent' | 'fixed';
   } | null>(null);
   const [isCheckingCode, setIsCheckingCode] = useState(false);
+  const [checkedCodes, setCheckedCodes] = useState<string[]>([]);
   
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -252,12 +251,18 @@ const PurchaseForm = () => {
       }
     }
     
-    return totalPrice;
+    return Math.round(totalPrice);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Reset validation if redeem code changes
+    if (name === 'redeemCode') {
+      setIsRedeemCodeValid(null);
+      setRedeemCodeDiscount(null);
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -270,23 +275,40 @@ const PurchaseForm = () => {
   };
 
   const validateRedeemCode = async () => {
-    if (!formData.redeemCode.trim()) {
+    const code = formData.redeemCode.trim();
+    
+    if (!code) {
       setIsRedeemCodeValid(null);
       setRedeemCodeDiscount(null);
+      return;
+    }
+    
+    // Don't recheck the same code if it was invalid
+    if (checkedCodes.includes(code) && !isRedeemCodeValid) {
+      toast({
+        title: "Invalid code",
+        description: "This code is invalid, already used, or expired",
+        variant: "destructive",
+      });
       return;
     }
     
     setIsCheckingCode(true);
     
     try {
-      // In a real app, this would be an API call to validate the code
-      // For now, we'll simulate a check with localStorage
+      // Get codes from localStorage
       const storedCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
-      const codeFound = storedCodes.find((code: any) => 
-        code.code === formData.redeemCode && 
-        !code.used &&
-        new Date() < new Date(code.expiryDate)
+      
+      console.log("All stored codes:", storedCodes);
+      
+      // Find the specific code
+      const codeFound = storedCodes.find((c: any) => 
+        c.code === code && 
+        !c.used &&
+        new Date() < new Date(c.expiryDate)
       );
+      
+      console.log("Code found:", codeFound);
       
       if (codeFound) {
         setIsRedeemCodeValid(true);
@@ -294,6 +316,7 @@ const PurchaseForm = () => {
           amount: codeFound.discountAmount,
           type: codeFound.discountType,
         });
+        
         toast({
           title: "Redeem code applied!",
           description: codeFound.discountType === 'percent' ? 
@@ -304,6 +327,8 @@ const PurchaseForm = () => {
       } else {
         setIsRedeemCodeValid(false);
         setRedeemCodeDiscount(null);
+        setCheckedCodes(prev => [...prev, code]);
+        
         toast({
           title: "Invalid code",
           description: "This code is invalid, already used, or expired",
@@ -649,7 +674,7 @@ const PurchaseForm = () => {
                   </Select>
                 </div>
 
-                {/* Redeem Code Section */}
+                {/* Redeem Code Section - Updated implementation */}
                 <div className="space-y-2">
                   <label
                     htmlFor="redeemCode"
@@ -666,7 +691,7 @@ const PurchaseForm = () => {
                         placeholder="Enter your redeem code"
                         value={formData.redeemCode}
                         onChange={handleChange}
-                        className="bg-black/70 border-white/10 text-white placeholder:text-gray-500 pr-8"
+                        className="bg-black/70 border-white/10 text-white placeholder:text-gray-500 pr-8 uppercase"
                       />
                       {isRedeemCodeValid !== null && (
                         <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
