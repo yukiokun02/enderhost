@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Blocks, Cube } from "lucide-react";
+import { Blocks, Box } from "lucide-react";
 
 export default function LoadingIndicator() {
   return (
@@ -30,7 +30,7 @@ export default function LoadingIndicator() {
             <div className="w-16 h-16 relative">
               {/* Main cube */}
               <div className="absolute top-0 left-0 w-full h-full">
-                <Cube className="w-16 h-16 text-minecraft-secondary" strokeWidth={1.5} />
+                <Box className="w-16 h-16 text-minecraft-secondary" strokeWidth={1.5} />
               </div>
               
               {/* Spinning border */}
