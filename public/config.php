@@ -39,4 +39,10 @@ define('ENABLE_ERROR_LOGGING', true);
 
 // Character Encoding - Added to prevent character encoding issues
 define('APP_CHARSET', 'UTF-8');
+
+// Ensure log directory exists
+$logDir = __DIR__ . '/logs';
+if (!is_dir($logDir)) {
+    mkdir($logDir, 0755, true);
+}
 ?>

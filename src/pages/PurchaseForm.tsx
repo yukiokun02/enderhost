@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
@@ -12,9 +11,9 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import DiscordPopup from "@/components/DiscordPopup";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 const allPlans = [
   // Vanilla plans
@@ -352,7 +351,7 @@ const PurchaseForm = () => {
     return null;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
@@ -381,17 +380,59 @@ const PurchaseForm = () => {
       localStorage.setItem('redeemCodes', JSON.stringify(updatedCodes));
     }
     
-    navigate("/payment", { 
-      state: {
-        ...formData,
-        totalPrice,
-        billingCycle,
-        discountApplied: isRedeemCodeValid && redeemCodeDiscount ? {
-          code: formData.redeemCode,
-          ...redeemCodeDiscount
-        } : null
+    // Data to send to the server
+    const orderData = {
+      ...formData,
+      totalPrice,
+      billingCycle,
+      basePlanPrice: selectedPlan?.price || 0,
+      discountApplied: isRedeemCodeValid && redeemCodeDiscount ? {
+        code: formData.redeemCode,
+        ...redeemCodeDiscount
+      } : null
+    };
+    
+    try {
+      // Send data to our API
+      const response = await fetch('/api/process-order.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+      });
+      
+      const responseData = await response.json();
+      
+      if (!response.ok || !responseData.success) {
+        throw new Error(responseData.message || 'Error processing order');
       }
-    });
+      
+      // Navigate to payment page with order ID
+      navigate("/payment", { 
+        state: {
+          order_id: responseData.order_id,
+          email: formData.email,
+          totalPrice,
+          serverName: formData.serverName
+        }
+      });
+      
+      toast({
+        title: "Order submitted successfully!",
+        description: "Your order has been received. Proceeding to payment.",
+      });
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      
+      toast({
+        title: "Error submitting order",
+        description: "There was a problem processing your order. Please try again.",
+        variant: "destructive",
+      });
+      
+      setIsSubmitting(false);
+    }
   };
 
   const getPlanPrice = (originalPrice: number) => {
@@ -815,106 +856,4 @@ const PurchaseForm = () => {
                     <div className="bg-black/70 border border-white/10 rounded-md p-4 space-y-4">
                       <h3 className="font-medium text-white">Additional Options</h3>
                       
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/90">
-                          Additional Cloud Backups (₹19 each)
-                        </label>
-                        <Select
-                          name="additionalBackups"
-                          value={formData.additionalBackups}
-                          onValueChange={(value) => handleSelectChange("additionalBackups", value)}
-                        >
-                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
-                            <SelectValue placeholder="Select number of additional backups" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">No additional backups</SelectItem>
-                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
-                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
-                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
-                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
-                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/90">
-                          Additional Ports (₹9 each)
-                        </label>
-                        <Select
-                          name="additionalPorts"
-                          value={formData.additionalPorts}
-                          onValueChange={(value) => handleSelectChange("additionalPorts", value)}
-                        >
-                          <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
-                            <SelectValue placeholder="Select number of additional ports" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">No additional ports</SelectItem>
-                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
-                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
-                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
-                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
-                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <Button
-                  type="submit"
-                  className="w-full py-6 mt-6 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(94,66,227,0.3)] button-texture"
-                  disabled={isSubmitting}
-                >
-                  <span>Proceed to Payment</span>
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </form>
-            </div>
-
-            <div className="mt-8 text-center text-gray-500 text-sm">
-              <p>
-                By proceeding, you agree to our{" "}
-                <Link
-                  to="/terms-of-service"
-                  className="text-minecraft-secondary hover:underline"
-                >
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  to="/refund-policy"
-                  className="text-minecraft-secondary hover:underline"
-                >
-                  Refund Policy
-                </Link>
-                .
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm relative z-10">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <p className="text-gray-400 text-sm">
-              Copyright © {new Date().getFullYear()} EnderHOST<sup className="text-xs">®</sup>. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-      
-      {/* Discord Popup */}
-      <DiscordPopup 
-        isOpen={isDiscordPopupOpen} 
-        onClose={() => setIsDiscordPopupOpen(false)} 
-      />
-    </div>
-  );
-};
-
-export default PurchaseForm;
+                      <div className="space-
