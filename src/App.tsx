@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,7 +37,7 @@ const AppInitializer = () => {
   return null;
 };
 
-// Modified AnimatedRoutes component to prevent excessive history updates
+// AnimatedRoutes component with key changes to ensure loading between routes
 const AnimatedRoutes = () => {
   const location = useLocation();
   

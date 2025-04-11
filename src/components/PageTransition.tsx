@@ -1,17 +1,34 @@
 
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ReactNode, useState, useEffect } from 'react';
+import LoadingIndicator from './LoadingIndicator';
 
 interface PageTransitionProps {
   children: ReactNode;
 }
 
 const PageTransition = ({ children }: PageTransitionProps) => {
-  // Use simpler animation settings to prevent excessive state updates
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Simulate loading for smoother transitions
+  useEffect(() => {
+    setIsLoading(true);
+    
+    // Minimum loading time to show animation (600-1400ms)
+    const minLoadTime = Math.random() * 800 + 600;
+    
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, minLoadTime);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Page transition variants
   const pageVariants = {
     initial: {
       opacity: 0,
-      y: 10,
+      y: 20,
     },
     in: {
       opacity: 1,
@@ -19,27 +36,33 @@ const PageTransition = ({ children }: PageTransitionProps) => {
     },
     out: {
       opacity: 0,
-      y: -10,
+      y: -20,
     },
   };
 
   const pageTransition = {
     type: 'tween',
     ease: 'easeInOut',
-    duration: 0.3,
+    duration: 0.4,
   };
 
   return (
-    <motion.div
-      initial="initial"
-      animate="in"
-      exit="out"
-      variants={pageVariants}
-      transition={pageTransition}
-      className="min-h-screen"
-    >
-      {children}
-    </motion.div>
+    <>
+      <AnimatePresence mode="wait">
+        {isLoading && <LoadingIndicator />}
+      </AnimatePresence>
+      
+      <motion.div
+        initial="initial"
+        animate={isLoading ? "initial" : "in"}
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="min-h-screen"
+      >
+        {children}
+      </motion.div>
+    </>
   );
 };
 
