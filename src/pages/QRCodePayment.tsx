@@ -154,7 +154,7 @@ const QRCodePayment = () => {
               disabled={isPaymentProcessing}
             >
               {isPaymentProcessing ? (
-                <LoadingIndicator className="h-5 w-5" />
+                <LoadingIndicator />
               ) : (
                 "I've Completed the Payment"
               )}
