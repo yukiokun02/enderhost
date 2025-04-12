@@ -32,8 +32,14 @@ import {
   Edit2, 
   Save,
   File,
-  FileCog
+  FileCog,
+  AlertCircle
 } from "lucide-react";
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from "@/components/ui/alert";
 
 interface FileItem {
   name: string;
@@ -53,6 +59,7 @@ const FileExplorer = () => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newFileName, setNewFileName] = useState("");
   const [isBuildRunning, setIsBuildRunning] = useState(false);
+  const [showSetupInfo, setShowSetupInfo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -67,13 +74,22 @@ const FileExplorer = () => {
     }
     
     fetchFiles();
+    
+    // Show setup info after a short delay
+    const timer = setTimeout(() => {
+      setShowSetupInfo(true);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
   }, [currentPath]);
 
   const fetchFiles = async () => {
     setIsLoading(true);
     try {
-      // This is a mock implementation, in production this would call an API endpoint
-      // that communicates with the server to list files
+      // This would be an API call to your backend in production
+      // Example: const response = await fetch('/api/files?path=' + encodeURIComponent(currentPath));
+      
+      // For demo purposes, we're using more comprehensive mock data
       setTimeout(() => {
         let mockFiles: FileItem[] = [];
         
@@ -81,25 +97,79 @@ const FileExplorer = () => {
           mockFiles = [
             { name: "src", path: "/src", type: "directory" },
             { name: "public", path: "/public", type: "directory" },
+            { name: "node_modules", path: "/node_modules", type: "directory" },
             { name: "index.html", path: "/index.html", type: "file", extension: "html", size: 2048, lastModified: Date.now() - 86400000 },
             { name: "package.json", path: "/package.json", type: "file", extension: "json", size: 1024, lastModified: Date.now() - 172800000 },
+            { name: "tsconfig.json", path: "/tsconfig.json", type: "file", extension: "json", size: 512, lastModified: Date.now() - 259200000 },
+            { name: "vite.config.ts", path: "/vite.config.ts", type: "file", extension: "ts", size: 768, lastModified: Date.now() - 345600000 },
+            { name: "tailwind.config.ts", path: "/tailwind.config.ts", type: "file", extension: "ts", size: 890, lastModified: Date.now() - 432000000 },
+            { name: ".gitignore", path: "/.gitignore", type: "file", extension: "", size: 374, lastModified: Date.now() - 518400000 },
           ];
         } else if (currentPath === "/src") {
           mockFiles = [
             { name: "components", path: "/src/components", type: "directory" },
             { name: "pages", path: "/src/pages", type: "directory" },
+            { name: "hooks", path: "/src/hooks", type: "directory" },
+            { name: "lib", path: "/src/lib", type: "directory" },
             { name: "App.tsx", path: "/src/App.tsx", type: "file", extension: "tsx", size: 3072, lastModified: Date.now() - 259200000 },
+            { name: "main.tsx", path: "/src/main.tsx", type: "file", extension: "tsx", size: 1024, lastModified: Date.now() - 604800000 },
+            { name: "index.css", path: "/src/index.css", type: "file", extension: "css", size: 4096, lastModified: Date.now() - 691200000 },
+            { name: "vite-env.d.ts", path: "/src/vite-env.d.ts", type: "file", extension: "ts", size: 128, lastModified: Date.now() - 777600000 },
+          ];
+        } else if (currentPath === "/src/pages") {
+          mockFiles = [
+            { name: "Index.tsx", path: "/src/pages/Index.tsx", type: "file", extension: "tsx", size: 8192, lastModified: Date.now() - 864000000 },
+            { name: "AdminDashboard.tsx", path: "/src/pages/AdminDashboard.tsx", type: "file", extension: "tsx", size: 12288, lastModified: Date.now() - 950400000 },
+            { name: "AdminLogin.tsx", path: "/src/pages/AdminLogin.tsx", type: "file", extension: "tsx", size: 6144, lastModified: Date.now() - 1036800000 },
+            { name: "NotFound.tsx", path: "/src/pages/NotFound.tsx", type: "file", extension: "tsx", size: 2048, lastModified: Date.now() - 1123200000 },
+            { name: "PurchaseForm.tsx", path: "/src/pages/PurchaseForm.tsx", type: "file", extension: "tsx", size: 10240, lastModified: Date.now() - 1209600000 },
+            { name: "PrivacyPolicy.tsx", path: "/src/pages/PrivacyPolicy.tsx", type: "file", extension: "tsx", size: 15360, lastModified: Date.now() - 1296000000 },
+            { name: "TermsOfService.tsx", path: "/src/pages/TermsOfService.tsx", type: "file", extension: "tsx", size: 20480, lastModified: Date.now() - 1382400000 },
+          ];
+        } else if (currentPath === "/src/components") {
+          mockFiles = [
+            { name: "ui", path: "/src/components/ui", type: "directory" },
+            { name: "admin", path: "/src/components/admin", type: "directory" },
+            { name: "Navigation.tsx", path: "/src/components/Navigation.tsx", type: "file", extension: "tsx", size: 7168, lastModified: Date.now() - 1468800000 },
+            { name: "Hero.tsx", path: "/src/components/Hero.tsx", type: "file", extension: "tsx", size: 5120, lastModified: Date.now() - 1555200000 },
+            { name: "Features.tsx", path: "/src/components/Features.tsx", type: "file", extension: "tsx", size: 9216, lastModified: Date.now() - 1641600000 },
+            { name: "Pricing.tsx", path: "/src/components/Pricing.tsx", type: "file", extension: "tsx", size: 12288, lastModified: Date.now() - 1728000000 },
+            { name: "Footer.tsx", path: "/src/components/Footer.tsx", type: "file", extension: "tsx", size: 4096, lastModified: Date.now() - 1814400000 },
           ];
         } else if (currentPath === "/public") {
           mockFiles = [
+            { name: "api", path: "/public/api", type: "directory" },
             { name: "lovable-uploads", path: "/public/lovable-uploads", type: "directory" },
-            { name: "favicon.ico", path: "/public/favicon.ico", type: "file", extension: "ico", size: 4096, lastModified: Date.now() - 345600000 },
-            { name: "og-image.png", path: "/public/og-image.png", type: "file", extension: "png", size: 51200, lastModified: Date.now() - 432000000 },
+            { name: "sql", path: "/public/sql", type: "directory" },
+            { name: "favicon.ico", path: "/public/favicon.ico", type: "file", extension: "ico", size: 4096, lastModified: Date.now() - 1900800000 },
+            { name: "og-image.png", path: "/public/og-image.png", type: "file", extension: "png", size: 153600, lastModified: Date.now() - 1987200000 },
+            { name: "config.php", path: "/public/config.php", type: "file", extension: "php", size: 1024, lastModified: Date.now() - 2073600000 },
+            { name: "placeholder.svg", path: "/public/placeholder.svg", type: "file", extension: "svg", size: 512, lastModified: Date.now() - 2160000000 },
           ];
         } else if (currentPath === "/public/lovable-uploads") {
           mockFiles = [
-            { name: "50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png", path: "/public/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png", type: "file", extension: "png", size: 153600, lastModified: Date.now() - 518400000 },
-            { name: "45df2984-1b34-4b54-9443-638b349c655b.png", path: "/public/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png", type: "file", extension: "png", size: 122880, lastModified: Date.now() - 604800000 },
+            { name: "50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png", path: "/public/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png", type: "file", extension: "png", size: 153600, lastModified: Date.now() - 2246400000 },
+            { name: "45df2984-1b34-4b54-9443-638b349c655b.png", path: "/public/lovable-uploads/45df2984-1b34-4b54-9443-638b349c655b.png", type: "file", extension: "png", size: 122880, lastModified: Date.now() - 2332800000 },
+            { name: "32ae7d2d-65eb-4b47-9c06-c61d76c82313.png", path: "/public/lovable-uploads/32ae7d2d-65eb-4b47-9c06-c61d76c82313.png", type: "file", extension: "png", size: 204800, lastModified: Date.now() - 2419200000 },
+            { name: "42f68d43-0471-44a4-a49f-19b186484ba1.png", path: "/public/lovable-uploads/42f68d43-0471-44a4-a49f-19b186484ba1.png", type: "file", extension: "png", size: 179200, lastModified: Date.now() - 2505600000 },
+            { name: "44889fa3-d6ca-425a-a292-3b162ddf7f6b.png", path: "/public/lovable-uploads/44889fa3-d6ca-425a-a292-3b162ddf7f6b.png", type: "file", extension: "png", size: 163840, lastModified: Date.now() - 2592000000 },
+          ];
+        } else if (currentPath === "/node_modules") {
+          mockFiles = [
+            { name: "react", path: "/node_modules/react", type: "directory" },
+            { name: "react-dom", path: "/node_modules/react-dom", type: "directory" },
+            { name: "tailwindcss", path: "/node_modules/tailwindcss", type: "directory" },
+            { name: "vite", path: "/node_modules/vite", type: "directory" },
+            { name: "typescript", path: "/node_modules/typescript", type: "directory" },
+            { name: ".package-lock.json", path: "/node_modules/.package-lock.json", type: "file", extension: "json", size: 10485760, lastModified: Date.now() - 2678400000 },
+          ];
+        } else {
+          // For all other directories, generate generic files
+          mockFiles = [
+            { name: "index.ts", path: `${currentPath}/index.ts`, type: "file", extension: "ts", size: 1024, lastModified: Date.now() - 2764800000 },
+            { name: "types.ts", path: `${currentPath}/types.ts`, type: "file", extension: "ts", size: 512, lastModified: Date.now() - 2851200000 },
+            { name: "utils.ts", path: `${currentPath}/utils.ts`, type: "file", extension: "ts", size: 768, lastModified: Date.now() - 2937600000 },
+            { name: "constants.ts", path: `${currentPath}/constants.ts`, type: "file", extension: "ts", size: 256, lastModified: Date.now() - 3024000000 },
           ];
         }
         
@@ -358,6 +428,26 @@ const FileExplorer = () => {
           Changes will be applied after you run a build.
         </p>
       </div>
+      
+      {showSetupInfo && (
+        <Alert variant="warning" className="bg-yellow-900/20 border-yellow-600/50 text-yellow-200">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Important Setup Information</AlertTitle>
+          <AlertDescription>
+            <p className="mb-2">This is currently a demonstration using mock data. For a VPS deployment, you'll need:</p>
+            <ol className="list-decimal pl-5 space-y-1">
+              <li>A PHP or Node.js backend API to handle file operations</li>
+              <li>Proper file permissions for the web server user</li>
+              <li>Security measures to prevent unauthorized access</li>
+              <li>A process manager like PM2 to run the build command</li>
+            </ol>
+            <p className="mt-2">
+              When deployed to your VPS, modify this component to use your actual API endpoints 
+              instead of the mock data shown here.
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="bg-black/40 border border-white/10 rounded-lg backdrop-blur-sm overflow-hidden">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
