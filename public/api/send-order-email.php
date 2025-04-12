@@ -100,7 +100,7 @@ if (isset($data['discountApplied']) && $data['discountApplied']) {
 $order_id = "EH-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)) . "-" . date("Ymd");
 
 // Log order details
-logError("New order received - ID: $order_id, Plan: $plan, Total: ₹$total_price", "INFO");
+logError("New order received - ID: $order_id, Plan: $plan, Total: Rs.$total_price", "INFO");
 
 // Prepare email content
 $admin_email = ADMIN_EMAIL; // From config.php
@@ -157,7 +157,7 @@ $html_message = "
                     </tr>
                     <tr>
                         <th>Base Price:</th>
-                        <td>₹{$plan_price}</td>
+                        <td>Rs.{$plan_price}</td>
                     </tr>";
 
 // Add add-ons only if they exist
@@ -165,7 +165,7 @@ if ($additional_backups > 0) {
     $html_message .= "
                     <tr>
                         <th>Additional Backups ({$additional_backups}):</th>
-                        <td>₹{$backup_cost}</td>
+                        <td>Rs.{$backup_cost}</td>
                     </tr>";
 }
 
@@ -173,13 +173,13 @@ if ($additional_ports > 0) {
     $html_message .= "
                     <tr>
                         <th>Additional Ports ({$additional_ports}):</th>
-                        <td>₹{$port_cost}</td>
+                        <td>Rs.{$port_cost}</td>
                     </tr>";
 }
 
 // Add discount information if applied
 if ($discount_code && $discount_amount) {
-    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
+    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "Rs.{$discount_amount}";
     $html_message .= "
                     <tr>
                         <th>Discount:</th>
@@ -190,7 +190,7 @@ if ($discount_code && $discount_amount) {
 $html_message .= "
                     <tr>
                         <th>Total Price:</th>
-                        <td>₹{$total_price}</td>
+                        <td>Rs.{$total_price}</td>
                     </tr>
                     <tr>
                         <th>Order Date:</th>
@@ -247,26 +247,26 @@ NEW MINECRAFT SERVER ORDER
 Order ID: {$order_id}
 Server Name: {$server_name}
 Plan: {$plan}
-Base Price: ₹{$plan_price}
+Base Price: Rs.{$plan_price}
 ";
 
 // Add add-on details to plain text message
 if ($additional_backups > 0) {
-    $text_message .= "Additional Backups ({$additional_backups}): ₹{$backup_cost}\n";
+    $text_message .= "Additional Backups ({$additional_backups}): Rs.{$backup_cost}\n";
 }
 
 if ($additional_ports > 0) {
-    $text_message .= "Additional Ports ({$additional_ports}): ₹{$port_cost}\n";
+    $text_message .= "Additional Ports ({$additional_ports}): Rs.{$port_cost}\n";
 }
 
 // Add discount info to plain text if applicable
 if ($discount_code && $discount_amount) {
-    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
+    $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "Rs.{$discount_amount}";
     $text_message .= "Discount: Code {$discount_code} - {$discount_display} off\n";
 }
 
 $text_message .= "
-Total Price: ₹{$total_price}
+Total Price: Rs.{$total_price}
 Order Date: {$order_date}
 
 CUSTOMER INFORMATION:
@@ -383,7 +383,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
         'embeds' => [
             [
                 'title' => "New Minecraft Server Order - {$plan}",
-                'description' => "Customer: {$customer_name}\nServer: {$server_name}\nTotal Price: ₹{$total_price}",
+                'description' => "Customer: {$customer_name}\nServer: {$server_name}\nTotal Price: Rs.{$total_price}",
                 'color' => 3066993, // Green color
                 'fields' => [
                     ['name' => 'Order ID', 'value' => $order_id, 'inline' => true],
@@ -397,7 +397,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
     
     // Add discount field if applicable
     if ($discount_code && $discount_amount) {
-        $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "₹{$discount_amount}";
+        $discount_display = $discount_type === 'percent' ? "{$discount_amount}%" : "Rs.{$discount_amount}";
         $discord_message['embeds'][0]['fields'][] = [
             'name' => 'Discount Applied',
             'value' => "Code: {$discount_code} ({$discount_display})",
