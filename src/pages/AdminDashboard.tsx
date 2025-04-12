@@ -9,6 +9,7 @@ import {
   KeyRound,
   Activity,
   Home,
+  FolderTree
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -23,6 +24,7 @@ import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
 import RedeemCodeManager from "@/components/admin/RedeemCodeManager";
 import ActivityLog from "@/components/admin/ActivityLog";
 import SiteNav from "@/components/admin/SiteNav";
+import FileExplorer from "@/components/admin/FileExplorer";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -137,6 +139,17 @@ const AdminDashboard = () => {
               <Home className="mr-2 h-4 w-4" />
               Site Navigation
             </Button>
+            
+            {isAdmin && (
+              <Button
+                variant={activeTab === "fileExplorer" ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => handleTabChange("fileExplorer")}
+              >
+                <FolderTree className="mr-2 h-4 w-4" />
+                File Explorer
+              </Button>
+            )}
           </nav>
         </div>
         
@@ -171,6 +184,7 @@ const AdminDashboard = () => {
             {activeTab === "redeemCodes" && "Redeem Codes"}
             {activeTab === "changePassword" && "Change Password"}
             {activeTab === "siteNav" && "Site Navigation"}
+            {activeTab === "fileExplorer" && "File Explorer"}
           </h1>
         </header>
         
@@ -180,6 +194,7 @@ const AdminDashboard = () => {
           {activeTab === "redeemCodes" && <RedeemCodeManager />}
           {activeTab === "changePassword" && <ChangePasswordForm />}
           {activeTab === "siteNav" && <SiteNav />}
+          {activeTab === "fileExplorer" && <FileExplorer />}
         </main>
       </div>
     </div>
