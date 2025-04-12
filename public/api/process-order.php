@@ -55,6 +55,19 @@ function sanitize_input($data) {
 logError("Request method: " . $_SERVER['REQUEST_METHOD'], "DEBUG");
 logError("Request content type: " . (isset($_SERVER["CONTENT_TYPE"]) ? $_SERVER["CONTENT_TYPE"] : "Not set"), "DEBUG");
 
+// Check PHP version and extensions
+logError("PHP Version: " . phpversion(), "INFO");
+logError("Loaded Extensions: " . implode(", ", get_loaded_extensions()), "DEBUG");
+
+// Database connectivity check
+try {
+    $test_conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . APP_CHARSET, DB_USER, DB_PASS);
+    $test_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    logError("Database connection test successful", "INFO");
+} catch(PDOException $e) {
+    logError("Database connectivity test failed: " . $e->getMessage(), "CRITICAL");
+}
+
 // Ensure Content-Type is application/json and request method is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -78,9 +91,10 @@ $data = json_decode($json_data, true);
 
 // Check if data was provided and properly decoded
 if (!$data) {
+    $json_error = json_last_error_msg();
     http_response_code(400);
-    logError("Invalid JSON data: " . $json_data);
-    echo json_encode(['success' => false, 'message' => 'Invalid JSON data']);
+    logError("Invalid JSON data: " . $json_data . " - Error: " . $json_error);
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON data: ' . $json_error]);
     exit();
 }
 
@@ -96,6 +110,8 @@ $billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3;
 $additional_backups = isset($data['additionalBackups']) ? (int)$data['additionalBackups'] : 0;
 $additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPorts'] : 0;
 $total_price = isset($data['totalPrice']) ? (float)$data['totalPrice'] : 0;
+
+logError("Extracted information - Server: $server_name, Email: $customer_email, Plan: $plan", "DEBUG");
 
 // Extract discount data if available
 $discount_code = null;
@@ -140,6 +156,27 @@ try {
     // Begin transaction
     $conn->beginTransaction();
     
+    // Check if email already exists (prevent duplicate orders)
+    if (defined('EMAIL_DUPLICATE_PREVENTION') && EMAIL_DUPLICATE_PREVENTION) {
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM customers WHERE email = ? AND order_date > DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        $stmt->execute([$customer_email]);
+        $existing_orders = (int)$stmt->fetchColumn();
+        
+        if ($existing_orders > 0) {
+            // This is a duplicate submission from the same email within the hour
+            logError("Duplicate order from email $customer_email detected", "WARNING");
+            
+            // Return success but indicate it's a duplicate
+            echo json_encode([
+                'success' => true,
+                'message' => 'Order already processed',
+                'order_id' => $order_id,
+                'duplicate' => true
+            ]);
+            exit();
+        }
+    }
+    
     // Check if this order has already been processed (prevent duplicates)
     $stmt = $conn->prepare("SELECT COUNT(*) FROM customers WHERE order_id = ?");
     $stmt->execute([$order_id]);
@@ -166,10 +203,11 @@ try {
         if ($tableCheck->rowCount() === 0) {
             throw new Exception("Required database tables don't exist. Please run database_setup.sql first.");
         }
+        logError("Database tables check: tables exist", "DEBUG");
     } catch (Exception $e) {
         logError("Database structure check failed: " . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Database not properly set up']);
+        echo json_encode(['success' => false, 'message' => 'Database not properly set up: ' . $e->getMessage()]);
         exit();
     }
     
@@ -301,7 +339,7 @@ try {
     
     logError("Database error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to save order to database: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
     exit();
 }
 
@@ -496,6 +534,10 @@ $success = false;
 $email_id = md5($order_id . $customer_email . time());
 $email_subject = "New Minecraft Server Order - " . $server_name . " [Ref: " . substr($email_id, 0, 8) . "]";
 
+// Flag to track if we've attempted native PHP mail as fallback
+$tried_native_mail = false;
+
+// First try PHPMailer if enabled
 if (USE_SMTP) {
     // Check if PHPMailer is installed
     $phpmailer_files = [
@@ -523,6 +565,7 @@ if (USE_SMTP) {
         $headers .= "X-Order-ID: $order_id\r\n";
         
         $success = mail(ADMIN_EMAIL, $email_subject, $html_message, $headers);
+        $tried_native_mail = true;
         
         // Log the attempt
         if ($success) {
@@ -575,26 +618,29 @@ if (USE_SMTP) {
         } catch (Exception $e) {
             logError('Error sending email via PHPMailer: ' . $mail->ErrorInfo);
             
-            // Fall back to PHP mail() function
-            $headers = "MIME-Version: 1.0\r\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-            $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
-            $headers .= "Reply-To: {$customer_email}\r\n";
-            $headers .= "Message-ID: <$email_id@enderhost.in>\r\n";
-            $headers .= "X-Order-ID: $order_id\r\n";
-            
-            $success = mail(ADMIN_EMAIL, $email_subject, $html_message, $headers);
-            
-            // Log the attempt
-            if ($success) {
-                logError("Order notification email sent to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback after PHPMailer failure", "SUCCESS");
-            } else {
-                logError("Failed to send order notification email to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback after PHPMailer failure");
+            // Only fall back to PHP mail() function if we haven't tried it yet
+            if (!$tried_native_mail) {
+                $headers = "MIME-Version: 1.0\r\n";
+                $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+                $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
+                $headers .= "Reply-To: {$customer_email}\r\n";
+                $headers .= "Message-ID: <$email_id@enderhost.in>\r\n";
+                $headers .= "X-Order-ID: $order_id\r\n";
+                
+                $success = mail(ADMIN_EMAIL, $email_subject, $html_message, $headers);
+                $tried_native_mail = true;
+                
+                // Log the attempt
+                if ($success) {
+                    logError("Order notification email sent to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback after PHPMailer failure", "SUCCESS");
+                } else {
+                    logError("Failed to send order notification email to " . ADMIN_EMAIL . " for order {$order_id} using mail() fallback after PHPMailer failure");
+                }
             }
         }
     }
 } else {
-    // Use PHP mail() function
+    // Use PHP mail() function if SMTP is disabled
     $headers = "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     $headers .= "From: EnderHOST Notifications <" . SMTP_FROM_EMAIL . ">\r\n";
@@ -604,6 +650,7 @@ if (USE_SMTP) {
     $headers .= "X-Order-ID: $order_id\r\n";
     
     $success = mail(ADMIN_EMAIL, $email_subject, $html_message, $headers);
+    $tried_native_mail = true;
     
     // Log the attempt
     if ($success) {
@@ -660,7 +707,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
     }
 }
 
-// Return result as JSON
+// Return result as JSON - even if email sending failed, the order was processed correctly
 echo json_encode([
     'success' => true,
     'message' => 'Order processed successfully',

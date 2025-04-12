@@ -36,7 +36,7 @@ define('QR_IMAGE_PATH', '/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.p
 // Error Logging Configuration
 define('ERROR_LOG_PATH', __DIR__ . '/logs/enderhost_errors.log');
 define('ENABLE_ERROR_LOGGING', true);
-define('DEBUG_MODE', true); // Enable detailed error messages for troubleshooting
+define('DEBUG_MODE', true); // Keep debug mode on while troubleshooting
 
 // Email Duplication Prevention
 define('EMAIL_DUPLICATE_PREVENTION', true); // Enable duplicate email prevention
@@ -52,4 +52,12 @@ $logDir = __DIR__ . '/logs';
 if (!is_dir($logDir)) {
     mkdir($logDir, 0755, true);
 }
-?>
+
+// Enhanced error handling for production
+if (DEBUG_MODE) {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
+}

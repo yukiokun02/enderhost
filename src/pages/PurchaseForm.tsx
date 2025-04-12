@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
@@ -401,12 +402,23 @@ const PurchaseForm = () => {
     try {
       console.log("Sending order data:", orderData);
       
-      // Get the current host to construct the API URL
-      const baseUrl = window.location.origin;
-      const apiUrl = `${baseUrl}/api/process-order.php`;
+      // Determine API URL properly based on environment
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      const port = window.location.port ? `:${window.location.port}` : '';
+      
+      // For production (no port) or when using a custom domain
+      let apiUrl;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        apiUrl = `${protocol}//${hostname}${port}/api/process-order.php`;
+      } else {
+        // For production environment
+        apiUrl = `${protocol}//${hostname}/api/process-order.php`;
+      }
+      
       console.log("Sending order to API URL:", apiUrl);
       
-      // Send data to our API
+      // Send data to our API with better error handling
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -425,7 +437,7 @@ const PurchaseForm = () => {
         responseData = JSON.parse(responseText);
       } catch (parseError) {
         console.error("Error parsing JSON response:", parseError);
-        throw new Error("Invalid response format from server");
+        throw new Error(`Server returned invalid response format: ${responseText.substring(0, 100)}...`);
       }
       
       if (!response.ok || !responseData.success) {
@@ -451,12 +463,17 @@ const PurchaseForm = () => {
         title: "Order submitted successfully!",
         description: "Your order has been received. Proceeding to payment.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting order:", error);
+      
+      let errorMessage = "There was a problem processing your order. Please try again.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       
       toast({
         title: "Error submitting order",
-        description: "There was a problem processing your order. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       
