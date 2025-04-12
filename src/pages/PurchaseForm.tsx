@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import DiscordPopup from "@/components/DiscordPopup";
-import LoadingIndicator from "@/components/LoadingIndicator";
 
 const allPlans = [
   // Vanilla plans
@@ -205,7 +205,6 @@ const PurchaseForm = () => {
   } | null>(null);
   const [isCheckingCode, setIsCheckingCode] = useState(false);
   const [checkedCodes, setCheckedCodes] = useState<string[]>([]);
-  const [isOrderSubmitted, setIsOrderSubmitted] = useState(false);
   
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -353,7 +352,7 @@ const PurchaseForm = () => {
     return null;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
@@ -362,11 +361,6 @@ const PurchaseForm = () => {
         description: "Please fill in all required fields",
         variant: "destructive",
       });
-      return;
-    }
-    
-    // Prevent duplicate submissions
-    if (isSubmitting || isOrderSubmitted) {
       return;
     }
     
@@ -387,98 +381,17 @@ const PurchaseForm = () => {
       localStorage.setItem('redeemCodes', JSON.stringify(updatedCodes));
     }
     
-    // Data to send to the server
-    const orderData = {
-      ...formData,
-      totalPrice,
-      billingCycle,
-      basePlanPrice: selectedPlan?.price || 0,
-      discountApplied: isRedeemCodeValid && redeemCodeDiscount ? {
-        code: formData.redeemCode,
-        ...redeemCodeDiscount
-      } : null
-    };
-    
-    try {
-      console.log("Sending order data:", orderData);
-      
-      // Determine API URL properly based on environment
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
-      const port = window.location.port ? `:${window.location.port}` : '';
-      
-      // For production (no port) or when using a custom domain
-      let apiUrl;
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        apiUrl = `${protocol}//${hostname}${port}/api/process-order.php`;
-      } else {
-        // For production environment
-        apiUrl = `${protocol}//${hostname}/api/process-order.php`;
+    navigate("/payment", { 
+      state: {
+        ...formData,
+        totalPrice,
+        billingCycle,
+        discountApplied: isRedeemCodeValid && redeemCodeDiscount ? {
+          code: formData.redeemCode,
+          ...redeemCodeDiscount
+        } : null
       }
-      
-      console.log("Sending order to API URL:", apiUrl);
-      
-      // Send data to our API with better error handling
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData)
-      });
-      
-      console.log("API response status:", response.status);
-      const responseText = await response.text();
-      console.log("API response text:", responseText);
-      
-      // Try to parse the response as JSON
-      let responseData;
-      try {
-        responseData = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Error parsing JSON response:", parseError);
-        throw new Error(`Server returned invalid response format: ${responseText.substring(0, 100)}...`);
-      }
-      
-      if (!response.ok || !responseData.success) {
-        throw new Error(responseData.message || 'Error processing order');
-      }
-      
-      console.log("Order processed successfully:", responseData);
-      
-      // Mark as submitted to prevent duplicate submissions
-      setIsOrderSubmitted(true);
-      
-      // Navigate to payment page with order ID
-      navigate("/payment", { 
-        state: {
-          order_id: responseData.order_id,
-          email: formData.email,
-          totalPrice,
-          serverName: formData.serverName
-        }
-      });
-      
-      toast({
-        title: "Order submitted successfully!",
-        description: "Your order has been received. Proceeding to payment.",
-      });
-    } catch (error: any) {
-      console.error("Error submitting order:", error);
-      
-      let errorMessage = "There was a problem processing your order. Please try again.";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
-      toast({
-        title: "Error submitting order",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      
-      setIsSubmitting(false);
-    }
+    });
   };
 
   const getPlanPrice = (originalPrice: number) => {
@@ -903,91 +816,103 @@ const PurchaseForm = () => {
                       <h3 className="font-medium text-white">Additional Options</h3>
                       
                       <div className="space-y-2">
-                        <label htmlFor="additionalBackups" className="text-sm font-medium text-white/90">
-                          Additional Backups (₹19 each)
+                        <label className="text-sm font-medium text-white/90">
+                          Additional Cloud Backups (₹19 each)
                         </label>
                         <Select
                           name="additionalBackups"
-                          onValueChange={(value) => handleSelectChange("additionalBackups", value)}
                           value={formData.additionalBackups}
+                          onValueChange={(value) => handleSelectChange("additionalBackups", value)}
                         >
                           <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
-                            <SelectValue placeholder="Select number of backups" />
+                            <SelectValue placeholder="Select number of additional backups" />
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">None</SelectItem>
-                            <SelectItem value="1">1 additional backup</SelectItem>
-                            <SelectItem value="2">2 additional backups</SelectItem>
-                            <SelectItem value="3">3 additional backups</SelectItem>
-                            <SelectItem value="4">4 additional backups</SelectItem>
-                            <SelectItem value="5">5 additional backups</SelectItem>
+                            <SelectItem value="0">No additional backups</SelectItem>
+                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
+                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
+                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
+                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
+                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       
                       <div className="space-y-2">
-                        <label htmlFor="additionalPorts" className="text-sm font-medium text-white/90">
+                        <label className="text-sm font-medium text-white/90">
                           Additional Ports (₹9 each)
                         </label>
                         <Select
                           name="additionalPorts"
-                          onValueChange={(value) => handleSelectChange("additionalPorts", value)}
                           value={formData.additionalPorts}
+                          onValueChange={(value) => handleSelectChange("additionalPorts", value)}
                         >
                           <SelectTrigger className="w-full bg-black/70 border-white/10 text-white">
-                            <SelectValue placeholder="Select number of ports" />
+                            <SelectValue placeholder="Select number of additional ports" />
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">None</SelectItem>
-                            <SelectItem value="1">1 additional port</SelectItem>
-                            <SelectItem value="2">2 additional ports</SelectItem>
-                            <SelectItem value="3">3 additional ports</SelectItem>
-                            <SelectItem value="4">4 additional ports</SelectItem>
-                            <SelectItem value="5">5 additional ports</SelectItem>
+                            <SelectItem value="0">No additional ports</SelectItem>
+                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
+                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
+                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
+                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
+                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
-                    
-                    <Button
-                      type="submit"
-                      className="w-full bg-minecraft-secondary hover:bg-minecraft-primary transition-all duration-300"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <div className="flex items-center gap-2">
-                          <LoadingIndicator />
-                          <span>Processing...</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-2">
-                          <span>Checkout</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </div>
-                      )}
-                    </Button>
                   </>
                 )}
-                
-                {!selectedPlan && (
-                  <div className="text-center text-white/70 py-4 border border-dashed border-white/20 rounded-md">
-                    Please select a plan to continue
-                  </div>
-                )}
+
+                <Button
+                  type="submit"
+                  className="w-full py-6 mt-6 bg-gradient-to-r from-minecraft-primary to-minecraft-secondary hover:from-minecraft-primary/90 hover:to-minecraft-secondary/90 text-white font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(94,66,227,0.3)] button-texture"
+                  disabled={isSubmitting}
+                >
+                  <span>Proceed to Payment</span>
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
               </form>
+            </div>
+
+            <div className="mt-8 text-center text-gray-500 text-sm">
+              <p>
+                By proceeding, you agree to our{" "}
+                <Link
+                  to="/terms-of-service"
+                  className="text-minecraft-secondary hover:underline"
+                >
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/refund-policy"
+                  className="text-minecraft-secondary hover:underline"
+                >
+                  Refund Policy
+                </Link>
+                .
+              </p>
             </div>
           </div>
         </div>
       </main>
+
+      <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm relative z-10">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-gray-400 text-sm">
+              Copyright © {new Date().getFullYear()} EnderHOST<sup className="text-xs">®</sup>. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
       
-      {isDiscordPopupOpen && (
-        <DiscordPopup 
-          isOpen={isDiscordPopupOpen} 
-          onClose={() => setIsDiscordPopupOpen(false)} 
-        />
-      )}
-      
-      {isSubmitting && <LoadingIndicator />}
+      {/* Discord Popup */}
+      <DiscordPopup 
+        isOpen={isDiscordPopupOpen} 
+        onClose={() => setIsDiscordPopupOpen(false)} 
+      />
     </div>
   );
 };

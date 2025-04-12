@@ -1,14 +1,10 @@
 
 -- EnderHOST Database Setup Script
 
--- Create database with proper charset if it doesn't exist
-CREATE DATABASE IF NOT EXISTS enderdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE enderdb;
-
 -- Drop existing tables if they exist
+DROP TABLE IF EXISTS customers;
 DROP TABLE IF EXISTS server_configs;
 DROP TABLE IF EXISTS order_details;
-DROP TABLE IF EXISTS customers;
 
 -- Create customers table
 CREATE TABLE customers (
@@ -22,7 +18,7 @@ CREATE TABLE customers (
     order_date DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 -- Create order_details table
 CREATE TABLE order_details (
@@ -38,12 +34,8 @@ CREATE TABLE order_details (
     payment_id VARCHAR(255),
     payment_date DATETIME,
     discord_username VARCHAR(255),
-    billing_cycle INT DEFAULT 3 COMMENT '1 for monthly, 3 for quarterly',
-    discount_code VARCHAR(255),
-    discount_amount DECIMAL(10, 2),
-    discount_type VARCHAR(20),
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 -- Create a table for server configurations
 CREATE TABLE server_configs (
@@ -61,7 +53,7 @@ CREATE TABLE server_configs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 -- Create an index on email for faster lookups
 CREATE INDEX idx_customer_email ON customers(email);
