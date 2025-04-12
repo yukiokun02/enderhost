@@ -1,4 +1,5 @@
 
+
 # EnderHOST File Explorer Setup Guide
 
 This is a step-by-step guide to set up the file explorer feature on your VPS.
@@ -35,28 +36,50 @@ This is a step-by-step guide to set up the file explorer feature on your VPS.
 
 4. **Set Up Authentication (IMPORTANT)**:
    
-   You have two authentication options:
+   You need to create and configure an admin token that works as a secret password between your frontend and backend:
    
-   **Option 1: Use Admin Token (Recommended)**
+   **Step 1: Generate a Secure Random Token**
+   ```bash
+   # Run this on your server to generate a secure token
+   openssl rand -hex 32
+   # Example output: 5f2b5cdbe5784b29a7b551379dfdcc1c9eec091ec549e8c5f576b266790c4315
+   ```
+   
+   **Step 2: Configure the Token in the Backend**
    - Edit the `public/api/file-explorer/index.php` file
    - Find the `isAdminUser()` function
-   - Replace `'YOUR_SECURE_ADMIN_TOKEN_HERE'` with a secure random string (your admin token)
-   - Set this same token in your admin login process:
-     ```javascript
-     // This happens automatically in loginAdmin() function in adminAuth.ts
-     localStorage.setItem('adminToken', 'YOUR_SECURE_ADMIN_TOKEN_HERE');
-     ```
-   - OR set it as an environment variable on your server:
-     ```bash
-     # Add to your server environment
-     export ENDERHOST_ADMIN_TOKEN="YOUR_SECURE_ADMIN_TOKEN_HERE"
-     
-     # Make it persist by adding to your .bashrc or similar file
-     echo 'export ENDERHOST_ADMIN_TOKEN="YOUR_SECURE_ADMIN_TOKEN_HERE"' >> ~/.bashrc
-     ```
+   - Find the line with `$validToken = 'YOUR_SECURE_ADMIN_TOKEN_HERE';`
+   - Replace `'YOUR_SECURE_ADMIN_TOKEN_HERE'` with your generated token:
+   ```php
+   $validToken = '5f2b5cdbe5784b29a7b551379dfdcc1c9eec091ec549e8c5f576b266790c4315'; // Use your actual generated token
+   ```
 
-   **Option 2: Use PHP Session**
-   - If you're using PHP sessions for authentication elsewhere in your app:
+   **Step 3: Configure the Token in the Frontend** (choose ONE option)
+   
+   **Option A: Direct in Code** (easier but less secure)
+   - Edit the `src/lib/adminAuth.ts` file
+   - Find the `loginAdmin` function
+   - Add this line right before the `return { success: true };` statement:
+   ```javascript
+   localStorage.setItem('adminToken', '5f2b5cdbe5784b29a7b551379dfdcc1c9eec091ec549e8c5f576b266790c4315'); // Use your same token
+   ```
+
+   **Option B: Environment Variable** (more secure, recommended)
+   - Add the token to your server environment:
+   ```bash
+   # Add to your server environment
+   export ENDERHOST_ADMIN_TOKEN="5f2b5cdbe5784b29a7b551379dfdcc1c9eec091ec549e8c5f576b266790c4315"
+   
+   # Make it persist by adding to your .bashrc or similar file
+   echo 'export ENDERHOST_ADMIN_TOKEN="5f2b5cdbe5784b29a7b551379dfdcc1c9eec091ec549e8c5f576b266790c4315"' >> ~/.bashrc
+   ```
+   - Important: Restart your web server after setting environment variables:
+   ```bash
+   sudo systemctl restart nginx  # Or apache2, depending on your setup
+   ```
+
+   **Alternative: PHP Session Authentication**
+   - If you prefer to use PHP sessions instead of token-based auth:
    - Make sure the session is started and `$_SESSION['user_group']` is set to 'admin'
    - Example PHP login code:
      ```php
@@ -97,7 +120,11 @@ If you're experiencing issues with the file explorer:
 
 3. **Debugging Tips**:
    - Try direct access to the API to test: `/api/file-explorer/index.php?action=list&path=/`
-   - Check if correct admin token is being sent from frontend
+   - Check if correct admin token is being sent from frontend by:
+     - Opening browser developer tools (F12)
+     - Going to Network tab
+     - Clicking on a file explorer request
+     - Checking if X-Admin-Token header is present
    - Temporarily increase PHP error reporting level in the file explorer script by changing:
      ```php
      ini_set('display_errors', 1); // Change from 0 to 1
@@ -108,3 +135,4 @@ If you're experiencing issues with the file explorer:
    - Make sure the web server user (www-data) has write permissions on those directories
    - Try running: `sudo chown -R www-data:www-data /var/www/yourdomain` again
    - Check if SELinux or AppArmor is blocking operations with: `sudo getenforce` (if "Enforcing", consider setting to "Permissive")
+
