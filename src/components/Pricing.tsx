@@ -250,7 +250,6 @@ const planCategories = [
 ];
 
 export default function Pricing() {
-  const [isMonthlyBilling, setIsMonthlyBilling] = useState(false);
   
   const getFeatureIcon = (feature: string) => {
     if (feature.includes("RAM")) return <Gauge className="w-5 h-5 flex-shrink-0" />;
@@ -259,12 +258,6 @@ export default function Pricing() {
     if (feature.includes("Bandwidth")) return <Signal className="w-5 h-5 flex-shrink-0" />;
     if (feature.includes("Backup")) return <Cloud className="w-5 h-5 flex-shrink-0" />;
     return <Check className="w-5 h-5 flex-shrink-0" />;
-  };
-  
-  const getPlanPrice = (originalPrice: number) => {
-    return isMonthlyBilling 
-      ? Math.round(originalPrice * 1.25) 
-      : originalPrice;
   };
 
   return (
@@ -300,44 +293,6 @@ export default function Pricing() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-lg hover:border-minecraft-secondary/50 transition-all duration-300 w-28 justify-center">
               <Signal className="w-3.5 h-3.5 text-minecraft-secondary" />
               <span className="text-xs font-medium text-white">20-60ms</span>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-center mb-6 max-w-sm mx-auto">
-            <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1">
-              <button
-                onClick={() => setIsMonthlyBilling(true)}
-                className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
-                  isMonthlyBilling 
-                    ? "" 
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                {isMonthlyBilling && (
-                  <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
-                )}
-                <span className="relative block text-sm">1 Month</span>
-                <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  Standard Plan
-                </span>
-              </button>
-              
-              <button
-                onClick={() => setIsMonthlyBilling(false)}
-                className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
-                  !isMonthlyBilling 
-                    ? "" 
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                {!isMonthlyBilling && (
-                  <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
-                )}
-                <span className="relative block text-sm">3 Months</span>
-                <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                  25% Off
-                </span>
-              </button>
             </div>
           </div>
         </div>
@@ -415,12 +370,8 @@ export default function Pricing() {
                     
                     <div className="flex items-baseline mb-4 relative z-10">
                       <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
-                      <span className="text-3xl font-bold text-white">{getPlanPrice(plan.price)}</span>
-                      <span className="text-white/70 ml-1">
-                        {isMonthlyBilling 
-                          ? '/month' 
-                          : '/month × 3'}
-                      </span>
+                      <span className="text-3xl font-bold text-white">{plan.price}</span>
+                      <span className="text-white/70 ml-1">/month</span>
                     </div>
                     
                     <ul className="space-y-3 mb-6 relative z-10">
@@ -434,7 +385,6 @@ export default function Pricing() {
                     
                     <Link 
                       to={`/purchase?plan=${planIdMap[plan.name]}`}
-                      state={{ isMonthlyBilling }}
                       className="relative z-10 block"
                     >
                       <Button

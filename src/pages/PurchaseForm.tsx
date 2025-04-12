@@ -197,7 +197,6 @@ const PurchaseForm = () => {
   const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<typeof allPlans[0] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMonthlyBilling, setIsMonthlyBilling] = useState(false);
   const [isRedeemCodeValid, setIsRedeemCodeValid] = useState<boolean | null>(null);
   const [redeemCodeDiscount, setRedeemCodeDiscount] = useState<{
     amount: number;
@@ -209,34 +208,20 @@ const PurchaseForm = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const planFromUrl = queryParams.get('plan');
-    const billingFromState = location.state?.isMonthlyBilling;
-    
-    // Set billing cycle from state if available
-    if (billingFromState !== undefined) {
-      setIsMonthlyBilling(billingFromState);
-    }
     
     if (planFromUrl) {
       setFormData(prev => ({ ...prev, plan: planFromUrl }));
       const plan = allPlans.find(p => p.id === planFromUrl);
       setSelectedPlan(plan || null);
     }
-  }, [location.search, location.state]);
+  }, [location.search]);
   
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
     
     let basePrice = selectedPlan.price;
     
-    // If 3-month billing, multiply base price by 3 to show total cost
-    if (!isMonthlyBilling) {
-      basePrice = basePrice * 3;
-    } else {
-      // For monthly billing, apply 25% markup
-      basePrice = Math.round(basePrice * 1.25);
-    }
-    
-    // Add additional costs - these are always the same regardless of billing cycle
+    // Add additional costs
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
     
@@ -367,7 +352,6 @@ const PurchaseForm = () => {
     setIsSubmitting(true);
     
     const totalPrice = calculateTotalPrice();
-    const billingCycle = isMonthlyBilling ? 1 : 3;
     
     // If a valid redeem code was used, mark it as used
     if (isRedeemCodeValid && formData.redeemCode) {
@@ -385,28 +369,13 @@ const PurchaseForm = () => {
       state: {
         ...formData,
         totalPrice,
-        billingCycle,
+        billingCycle: 1,
         discountApplied: isRedeemCodeValid && redeemCodeDiscount ? {
           code: formData.redeemCode,
           ...redeemCodeDiscount
         } : null
       }
     });
-  };
-
-  const getPlanPrice = (originalPrice: number) => {
-    // For monthly billing, return the plan's monthly price with markup
-    // For 3-month billing, return the total cost for 3 months
-    return isMonthlyBilling 
-      ? Math.round(originalPrice * 1.25) 
-      : originalPrice * 3;
-  };
-
-  // Get the unit price (monthly price) for display purposes
-  const getUnitPrice = (originalPrice: number) => {
-    return isMonthlyBilling 
-      ? Math.round(originalPrice * 1.25)  // Apply 25% markup for monthly billing display
-      : originalPrice;
   };
 
   return (
@@ -482,44 +451,6 @@ const PurchaseForm = () => {
             </div>
 
             <div className="bg-black/50 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-sm shadow-xl">
-              <div className="flex items-center justify-center mb-8">
-                <div className="flex w-full bg-black/40 rounded-lg border border-white/10 p-1">
-                  <button
-                    onClick={() => setIsMonthlyBilling(true)}
-                    className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
-                      isMonthlyBilling 
-                        ? "" 
-                        : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    {isMonthlyBilling && (
-                      <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
-                    )}
-                    <span className="relative block text-sm">1 Month</span>
-                    <span className={`relative text-xs ${isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                      Standard Plan
-                    </span>
-                  </button>
-                  
-                  <button
-                    onClick={() => setIsMonthlyBilling(false)}
-                    className={`relative flex-1 py-1.5 px-3 rounded-md transition-all duration-300 ${
-                      !isMonthlyBilling 
-                        ? "" 
-                        : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    {!isMonthlyBilling && (
-                      <div className="absolute inset-0 bg-minecraft-secondary rounded-md transition-transform duration-300 ease-in-out" />
-                    )}
-                    <span className="relative block text-sm">3 Months</span>
-                    <span className={`relative text-xs ${!isMonthlyBilling ? "text-white/80" : "text-gray-500"}`}>
-                      25% Off
-                    </span>
-                  </button>
-                </div>
-              </div>
-
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label
@@ -653,28 +584,28 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{isMonthlyBilling ? getUnitPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
+                          {plan.name} - ₹{plan.price}/month
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{isMonthlyBilling ? getUnitPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
+                          {plan.name} - ₹{plan.price}/month
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{isMonthlyBilling ? getUnitPrice(plan.price) + '/month' : (plan.price * 3) + ' for 3 months'}
+                          {plan.name} - ₹{plan.price}/month
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Redeem Code Section - Updated implementation */}
+                {/* Redeem Code Section */}
                 <div className="space-y-2">
                   <label
                     htmlFor="redeemCode"
@@ -758,17 +689,10 @@ const PurchaseForm = () => {
                       {/* Price breakdown section */}
                       <div className="mt-4 pt-3 border-t border-white/10">
                         <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
-                          {isMonthlyBilling ? (
-                            <div className="flex justify-between text-white">
-                              <span>Monthly price:</span>
-                              <span>₹{getUnitPrice(selectedPlan.price)}</span>
-                            </div>
-                          ) : (
-                            <div className="flex justify-between text-white">
-                              <span>Base plan price:</span>
-                              <span>₹{getUnitPrice(selectedPlan.price)} × 3 months</span>
-                            </div>
-                          )}
+                          <div className="flex justify-between text-white">
+                            <span>Monthly price:</span>
+                            <span>₹{selectedPlan.price}</span>
+                          </div>
                           
                           {parseInt(formData.additionalBackups) > 0 && (
                             <div className="flex justify-between text-white">
@@ -797,19 +721,10 @@ const PurchaseForm = () => {
                           
                           <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
                             <span>Total price:</span>
-                            <span>
-                              ₹{calculateTotalPrice()}
-                              {isMonthlyBilling ? '/month' : ' for 3 months'}
-                            </span>
+                            <span>₹{calculateTotalPrice()}/month</span>
                           </div>
                         </div>
                       </div>
-                      
-                      {isMonthlyBilling && (
-                        <div className="text-xs text-minecraft-secondary text-right">
-                          Switch to 3 months billing and save 25%
-                        </div>
-                      )}
                     </div>
                     
                     <div className="bg-black/70 border border-white/10 rounded-md p-4 space-y-4">
