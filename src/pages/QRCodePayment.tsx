@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink, Mail } from "lucide-react";
@@ -96,7 +97,7 @@ const QRCodePayment = () => {
           additionalPorts: details.additionalPorts || 0,
           totalPrice: totalPrice,
           orderDate: new Date().toISOString(),
-          billingCycle: billingCycle,
+          billingCycle: 1, // Always monthly billing
           discountApplied: discountApplied
         }),
       });
@@ -180,7 +181,7 @@ const QRCodePayment = () => {
       setCustomerDetails(details);
       setAdditionalBackups(parseInt(additionalBackups) || 0);
       setAdditionalPorts(parseInt(additionalPorts) || 0);
-      setBillingCycle(cycle || 3);
+      setBillingCycle(cycle || 1); // Default to monthly billing
       setDiscountApplied(discountApplied || null);
       
       // Set total price directly from state if available
@@ -189,10 +190,9 @@ const QRCodePayment = () => {
       } else {
         // Calculate from components
         const basePrice = planPrices[plan] || 0;
-        const baseTotalPrice = (cycle === 1) ? basePrice * 1.25 : basePrice * 3;
         const backupCost = (parseInt(additionalBackups) || 0) * 19;
         const portCost = (parseInt(additionalPorts) || 0) * 9;
-        setTotalPrice(Math.round(baseTotalPrice) + backupCost + portCost);
+        setTotalPrice(Math.round(basePrice + backupCost + portCost));
       }
       
       // Check if we've already sent an email for this order using sessionStorage
@@ -258,7 +258,6 @@ const QRCodePayment = () => {
   
   // Calculate price breakdowns
   const basePlanPrice = planPrices[planId] || 0;
-  const totalBasePlanPrice = billingCycle === 1 ? Math.round(basePlanPrice * 1.25) : basePlanPrice * 3;
   const backupsCost = additionalBackups * 19;
   const portsCost = additionalPorts * 9;
   
@@ -360,17 +359,10 @@ const QRCodePayment = () => {
                 <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
                   <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
                   <div className="space-y-1 text-sm mb-3">
-                    {billingCycle === 1 ? (
-                      <div className="flex justify-between">
-                        <span className="text-gray-300">Base Plan:</span>
-                        <span className="text-gray-300">₹{totalBasePlanPrice}/month</span>
-                      </div>
-                    ) : (
-                      <div className="flex justify-between">
-                        <span className="text-gray-300">Base Plan:</span>
-                        <span className="text-gray-300">₹{basePlanPrice} × 3 months</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Base Plan:</span>
+                      <span className="text-gray-300">₹{basePlanPrice}/month</span>
+                    </div>
                     
                     {additionalBackups > 0 && (
                       <div className="flex justify-between">
