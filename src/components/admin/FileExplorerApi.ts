@@ -130,7 +130,7 @@ export const runBuild = async (): Promise<boolean> => {
         toast({
           title: "Build completed with errors",
           description: "There were some issues during the build process",
-          variant: "warning"
+          variant: "destructive" // Changed from "warning" to "destructive" to match available variant types
         });
         return false;
       }
