@@ -81,8 +81,6 @@ $discord_username = isset($data['discordUsername']) ? sanitize_input($data['disc
 $server_name = isset($data['serverName']) ? sanitize_input($data['serverName']) : 'Unknown';
 $plan = isset($data['plan']) ? sanitize_input($data['plan']) : 'Unknown';
 $plan_price = isset($data['basePlanPrice']) ? sanitize_input($data['basePlanPrice']) : 'Unknown';
-$billing_cycle = isset($data['billingCycle']) ? (int)$data['billingCycle'] : 3; // Default to 3 months if not specified
-$billing_cycle_text = $billing_cycle === 1 ? '1 Month' : '3 Months';
 $additional_backups = isset($data['additionalBackups']) ? (int)$data['additionalBackups'] : 0;
 $additional_ports = isset($data['additionalPorts']) ? (int)$data['additionalPorts'] : 0;
 $total_price = isset($data['totalPrice']) ? sanitize_input($data['totalPrice']) : $plan_price;
@@ -102,7 +100,7 @@ if (isset($data['discountApplied']) && $data['discountApplied']) {
 $order_id = "EH-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)) . "-" . date("Ymd");
 
 // Log order details
-logError("New order received - ID: $order_id, Plan: $plan, Total: ₹$total_price, Billing: $billing_cycle_text", "INFO");
+logError("New order received - ID: $order_id, Plan: $plan, Total: ₹$total_price", "INFO");
 
 // Prepare email content
 $admin_email = ADMIN_EMAIL; // From config.php
@@ -111,9 +109,6 @@ $subject = "New Minecraft Server Order - " . $server_name;
 // Calculate add-on prices
 $backup_cost = $additional_backups * 19;
 $port_cost = $additional_ports * 9;
-
-// Calculate base plan price with billing cycle
-$base_plan_price = $billing_cycle === 1 ? round($plan_price * 1.25) : $plan_price * 3;
 
 // HTML email body
 $html_message = "
@@ -161,24 +156,9 @@ $html_message = "
                         <td>{$plan}</td>
                     </tr>
                     <tr>
-                        <th>Billing Cycle:</th>
-                        <td>{$billing_cycle_text}</td>
-                    </tr>";
-
-// Add base plan price with appropriate explanation based on billing cycle
-if ($billing_cycle === 1) {
-    $html_message .= "
-                    <tr>
                         <th>Base Price:</th>
-                        <td>₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}</td>
+                        <td>₹{$plan_price}</td>
                     </tr>";
-} else {
-    $html_message .= "
-                    <tr>
-                        <th>Base Price:</th>
-                        <td>₹{$plan_price} × 3 months = ₹{$base_plan_price}</td>
-                    </tr>";
-}
 
 // Add add-ons only if they exist
 if ($additional_backups > 0) {
@@ -267,16 +247,10 @@ NEW MINECRAFT SERVER ORDER
 Order ID: {$order_id}
 Server Name: {$server_name}
 Plan: {$plan}
-Billing Cycle: {$billing_cycle_text}
+Base Price: ₹{$plan_price}
 ";
 
-// Add billing details to plain text message
-if ($billing_cycle === 1) {
-    $text_message .= "Base Price: ₹{$plan_price} × 1.25 (monthly rate) = ₹{$base_plan_price}\n";
-} else {
-    $text_message .= "Base Price: ₹{$plan_price} × 3 months = ₹{$base_plan_price}\n";
-}
-
+// Add add-on details to plain text message
 if ($additional_backups > 0) {
     $text_message .= "Additional Backups ({$additional_backups}): ₹{$backup_cost}\n";
 }
@@ -409,7 +383,7 @@ if (!empty(DISCORD_WEBHOOK_URL)) {
         'embeds' => [
             [
                 'title' => "New Minecraft Server Order - {$plan}",
-                'description' => "Customer: {$customer_name}\nServer: {$server_name}\nBilling: {$billing_cycle_text}\nTotal Price: ₹{$total_price}",
+                'description' => "Customer: {$customer_name}\nServer: {$server_name}\nTotal Price: ₹{$total_price}",
                 'color' => 3066993, // Green color
                 'fields' => [
                     ['name' => 'Order ID', 'value' => $order_id, 'inline' => true],
@@ -457,4 +431,3 @@ echo json_encode([
     'message' => $success ? 'Order notification sent successfully.' : 'Failed to send order notification. Please contact support.',
     'order_id' => $order_id
 ]);
-
