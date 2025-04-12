@@ -1,37 +1,28 @@
 
 # EnderHOST File Explorer Setup Guide
 
-This document explains how to properly set up the file explorer functionality when deploying the EnderHOST website on your VPS.
-
-## Overview
-
-The file explorer component in the admin dashboard needs a backend API to work with your server's actual file system. This guide will help you set up that API.
+This guide provides the essential steps needed to make the file explorer component work on your VPS.
 
 ## Prerequisites
 
 - VPS with Ubuntu/Debian
-- PHP 8.3 or Node.js (v18 or newer)
+- PHP 8.x or Node.js (v18+)
 - Nginx or Apache web server
-- Proper file system permissions
 
 ## Setup Instructions
 
-### 1. Choose Your Backend Implementation
+Follow these steps to enable the file explorer functionality:
 
-You have two main options for implementing the file explorer backend:
+### 1. Choose Your Backend Implementation
 
 #### Option A: PHP Backend (Simpler)
 
-1. **Create the API directory:**
-
+1. Create the API directory:
 ```bash
 mkdir -p /var/www/enderhost/public/api/file-explorer
 ```
 
-2. **Create the main API file:**
-
-Create a file at `/var/www/enderhost/public/api/file-explorer/index.php`:
-
+2. Create the main API file `/var/www/enderhost/public/api/file-explorer/index.php`:
 ```php
 <?php
 // Set headers to allow API requests
@@ -40,15 +31,15 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, DELETE, PUT');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Security: Only allow access to admin users (implement your auth check)
-require_once('../auth.php');
+// Security: Only allow access to admin users
+// Implement your authentication check here
 if (!isAdminUser()) {
     http_response_code(403);
     echo json_encode(['error' => 'Access denied']);
     exit;
 }
 
-// Get the requested action
+// Get the requested action and path
 $action = $_GET['action'] ?? '';
 $path = $_GET['path'] ?? '/';
 
@@ -79,7 +70,7 @@ switch ($action) {
                 'path' => $relativePath,
                 'type' => is_dir($filePath) ? 'directory' : 'file',
                 'size' => is_file($filePath) ? filesize($filePath) : null,
-                'lastModified' => filemtime($filePath) * 1000, // Convert to milliseconds for JS
+                'lastModified' => filemtime($filePath) * 1000,
                 'extension' => is_file($filePath) ? pathinfo($file, PATHINFO_EXTENSION) : null
             ];
         }
@@ -157,9 +148,7 @@ switch ($action) {
 
 // Helper function for recursive directory deletion
 function deleteDirectory($dir) {
-    if (!is_dir($dir)) {
-        return false;
-    }
+    if (!is_dir($dir)) return false;
     
     $files = array_diff(scandir($dir), ['.', '..']);
     foreach ($files as $file) {
@@ -173,269 +162,22 @@ function deleteDirectory($dir) {
 // Helper function for authentication (implement this)
 function isAdminUser() {
     // Implement your auth logic here
-    // Example: check session, JWT token, etc.
-    // For now, we'll assume the user is authenticated
+    // For now, we'll return true (REPLACE THIS WITH ACTUAL AUTH CHECK)
     return true;
 }
 ?>
 ```
 
-3. **Create authentication helper:**
+### 2. Update the File Explorer Component
 
-Create a file at `/var/www/enderhost/public/api/auth.php`:
-
-```php
-<?php
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Check if user is authenticated and has admin privileges
-function isAdminUser() {
-    // If session exists and user is admin
-    if (isset($_SESSION['isLoggedIn']) && 
-        isset($_SESSION['userId']) && 
-        isset($_SESSION['userGroup']) && 
-        $_SESSION['isLoggedIn'] === true && 
-        $_SESSION['userGroup'] === 'admin') {
-        return true;
-    }
-    
-    // Alternatively, check via JWT token in Authorization header
-    $headers = getallheaders();
-    if (isset($headers['Authorization'])) {
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
-        // Verify JWT token (requires a JWT library)
-        // return verifyAdminToken($token);
-    }
-    
-    return false;
-}
-?>
-```
-
-#### Option B: Node.js Backend (More Flexible)
-
-1. **Create a file explorer API folder:**
-
-```bash
-mkdir -p /var/www/enderhost/server/api
-```
-
-2. **Create a file explorer API file:**
-
-Create a file at `/var/www/enderhost/server/api/file-explorer.js`:
-
-```javascript
-const express = require('express');
-const fs = require('fs').promises;
-const path = require('path');
-const multer = require('multer');
-const { exec } = require('child_process');
-const cors = require('cors');
-
-const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
-
-// Base path for file operations - set this to your project root
-const BASE_PATH = path.resolve('/var/www/enderhost');
-
-// Middleware to verify admin access
-const verifyAdmin = (req, res, next) => {
-    // Implement your authentication logic here
-    // Example: check session, JWT token, etc.
-    if (req.session?.user?.group === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ error: 'Access denied' });
-    }
-};
-
-// Middleware to sanitize and validate path
-const validatePath = (req, res, next) => {
-    try {
-        const requestPath = req.query.path || '/';
-        const fullPath = path.resolve(path.join(BASE_PATH, requestPath));
-        
-        // Security check to prevent directory traversal
-        if (!fullPath.startsWith(BASE_PATH)) {
-            return res.status(403).json({ error: 'Access denied - path outside base directory' });
-        }
-        
-        req.fullPath = fullPath;
-        req.relativePath = requestPath;
-        next();
-    } catch (error) {
-        res.status(400).json({ error: 'Invalid path' });
-    }
-};
-
-// List files and directories
-router.get('/list', verifyAdmin, validatePath, async (req, res) => {
-    try {
-        const entries = await fs.readdir(req.fullPath, { withFileTypes: true });
-        
-        const files = await Promise.all(entries.map(async (entry) => {
-            const filePath = path.join(req.fullPath, entry.name);
-            const stats = await fs.stat(filePath);
-            const relativePath = path.join(req.relativePath, entry.name).replace(/\\/g, '/');
-            
-            return {
-                name: entry.name,
-                path: relativePath,
-                type: entry.isDirectory() ? 'directory' : 'file',
-                size: entry.isFile() ? stats.size : null,
-                lastModified: stats.mtimeMs,
-                extension: entry.isFile() ? path.extname(entry.name).slice(1) : null
-            };
-        }));
-        
-        res.json(files);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Rename file or directory
-router.post('/rename', verifyAdmin, validatePath, async (req, res) => {
-    try {
-        const { newName } = req.body;
-        if (!newName) {
-            return res.status(400).json({ error: 'New name is required' });
-        }
-        
-        const newPath = path.join(path.dirname(req.fullPath), newName);
-        await fs.rename(req.fullPath, newPath);
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Delete file or directory
-router.delete('/delete', verifyAdmin, validatePath, async (req, res) => {
-    try {
-        const stats = await fs.stat(req.fullPath);
-        
-        if (stats.isDirectory()) {
-            // Recursive delete
-            await fs.rm(req.fullPath, { recursive: true, force: true });
-        } else {
-            await fs.unlink(req.fullPath);
-        }
-        
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Upload file
-router.post('/upload', verifyAdmin, validatePath, upload.single('file'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
-        }
-        
-        const { originalname, path: tempPath } = req.file;
-        const targetPath = path.join(req.fullPath, originalname);
-        
-        await fs.rename(tempPath, targetPath);
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Run build command
-router.post('/build', verifyAdmin, (req, res) => {
-    exec('cd ' + BASE_PATH + ' && npm run build', (error, stdout, stderr) => {
-        if (error) {
-            return res.status(500).json({ 
-                error: 'Build failed', 
-                output: stderr 
-            });
-        }
-        
-        res.json({ 
-            success: true, 
-            output: stdout 
-        });
-    });
-});
-
-module.exports = router;
-
-// Example usage in main Express app:
-/*
-const express = require('express');
-const app = express();
-const fileExplorerRouter = require('./api/file-explorer');
-
-app.use(express.json());
-app.use(cors());
-app.use('/api/file-explorer', fileExplorerRouter);
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
-*/
-```
-
-3. **Create a main server file:**
-
-Create a file at `/var/www/enderhost/server/index.js`:
-
-```javascript
-const express = require('express');
-const cors = require('cors');
-const session = require('express-session');
-const fileExplorerRouter = require('./api/file-explorer');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(session({
-    secret: 'your-secure-session-secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
-
-// Routes
-app.use('/api/file-explorer', fileExplorerRouter);
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-```
-
-4. **Install required packages:**
-
-```bash
-cd /var/www/enderhost/server
-npm init -y
-npm install express cors multer express-session
-```
-
-### 2. Update Frontend to Use Real API
-
-Update the `FileExplorer.tsx` component to connect to your backend API instead of using mock data:
-
-1. Open `src/components/admin/FileExplorer.tsx`
-2. Replace the mock data functions with real API calls:
+Open `src/components/admin/FileExplorer.tsx` and replace the mock data functions with real API calls:
 
 ```typescript
-// Example fetch function to replace mock data
+// Example of how to update the fetchFiles function
 const fetchFiles = async () => {
   setIsLoading(true);
   try {
-    const response = await fetch(`/api/file-explorer/list?path=${encodeURIComponent(currentPath)}`);
+    const response = await fetch(`/api/file-explorer/index.php?action=list&path=${encodeURIComponent(currentPath)}`);
     if (!response.ok) {
       throw new Error('Failed to fetch files');
     }
@@ -454,50 +196,28 @@ const fetchFiles = async () => {
     setIsLoading(false);
   }
 };
-```
 
-3. Update all other file operations (upload, delete, rename, build) to use the real API endpoints
+// Similarly update handleUpload, handleDelete, handleRename, and runBuild functions
+```
 
 ### 3. Configure Web Server
 
-#### For PHP Backend:
-
 Add this to your Nginx configuration:
 
 ```nginx
+# For PHP Backend
 location ~ ^/api/file-explorer/.*\.php$ {
-    include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-    include fastcgi_params;
-    
-    # Security headers
-    add_header X-Content-Type-Options "nosniff";
-    add_header X-Frame-Options "DENY";
+  include snippets/fastcgi-php.conf;
+  fastcgi_pass unix:/var/run/php/php8.1-fpm.sock; # Update version as needed
+  fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  include fastcgi_params;
 }
 ```
 
-#### For Node.js Backend:
-
-Add this to your Nginx configuration:
-
-```nginx
-location /api/file-explorer {
-    proxy_pass http://localhost:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-}
-```
-
-### 4. Set Up File Permissions
-
-1. **Set proper permissions for the web server user:**
+### 4. Set File Permissions
 
 ```bash
-# For PHP/Nginx
+# Set proper permissions for the web server user
 sudo chown -R www-data:www-data /var/www/enderhost
 sudo find /var/www/enderhost -type d -exec chmod 755 {} \;
 sudo find /var/www/enderhost -type f -exec chmod 644 {} \;
@@ -507,65 +227,22 @@ sudo chmod -R 775 /var/www/enderhost/public/lovable-uploads
 sudo chmod -R 775 /var/www/enderhost/dist
 ```
 
-2. **Create a log directory:**
+### 5. Security Considerations
 
+1. Implement proper authentication to protect your file explorer
+2. Keep your file explorer behind admin authentication
+3. Consider limiting access to specific directories only
+4. Use HTTPS to encrypt all traffic
+
+### 6. Testing Your Implementation
+
+1. Log in to your admin dashboard
+2. Navigate to the File Explorer
+3. Try basic operations: list files, upload a file, rename a file, delete a file
+4. Check server logs if you encounter issues:
 ```bash
-sudo mkdir -p /var/www/enderhost/logs
-sudo chown www-data:www-data /var/www/enderhost/logs
-sudo chmod 755 /var/www/enderhost/logs
-```
-
-### 5. Set Up Process Manager (for Node.js backend)
-
-If you're using the Node.js backend, set up PM2 to keep it running:
-
-```bash
-# Install PM2
-sudo npm install -g pm2
-
-# Start the server
-cd /var/www/enderhost/server
-pm2 start index.js --name "enderhost-file-api"
-
-# Make PM2 start on boot
-pm2 startup
-pm2 save
-```
-
-## Security Considerations
-
-1. **Always authenticate users**: Only allow admin users to access the file explorer API
-2. **Validate and sanitize paths**: Prevent directory traversal attacks
-3. **Restrict access to sensitive files**: Limit which directories can be accessed
-4. **Use HTTPS**: Encrypt all traffic between the client and server
-5. **Implement rate limiting**: Prevent abuse of the API
-
-## Troubleshooting
-
-### Common Issues:
-
-1. **Permission Denied**: Check file permissions for the web server user
-2. **404 Not Found**: Verify API paths and Nginx configuration
-3. **500 Internal Server Error**: Check server logs for PHP errors
-4. **Build Command Fails**: Ensure Node.js is installed and npm is in PATH
-
-### Check Logs:
-
-```bash
-# Nginx logs
 sudo tail -f /var/log/nginx/error.log
-
-# PHP logs
-sudo tail -f /var/log/php8.3-fpm.log
-
-# Node.js logs
-pm2 logs enderhost-file-api
+sudo tail -f /var/log/php8.1-fpm.log
 ```
 
-## Final Steps
-
-1. **Test thoroughly**: Verify all file operations work properly
-2. **Monitor performance**: Watch for any slow operations
-3. **Set up regular backups**: Keep your files safe
-
-For any issues, refer to the full documentation or contact support.
+For any issues, check your server logs and verify API endpoints are correctly configured.
