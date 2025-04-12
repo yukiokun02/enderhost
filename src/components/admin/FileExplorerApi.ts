@@ -13,10 +13,16 @@ export interface FileItem {
 
 export const fetchFiles = async (currentPath: string): Promise<FileItem[]> => {
   try {
-    const response = await fetch(`/api/file-explorer/index.php?action=list&path=${encodeURIComponent(currentPath)}`);
+    const response = await fetch(`/api/file-explorer/index.php?action=list&path=${encodeURIComponent(currentPath)}`, {
+      headers: {
+        'X-Admin-Token': localStorage.getItem('adminToken') || '',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
+    });
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch files: ${response.status}`);
+      const errorData = await response.text();
+      throw new Error(`Failed to fetch files: ${response.status} - ${errorData}`);
     }
     
     const data = await response.json();
@@ -26,10 +32,10 @@ export const fetchFiles = async (currentPath: string): Promise<FileItem[]> => {
     console.error("Error fetching files:", error);
     toast({
       title: "Error",
-      description: "Failed to fetch files",
+      description: "Failed to fetch files. Check console for details.",
       variant: "destructive"
     });
-    throw error;
+    return [];
   }
 };
 
@@ -40,11 +46,20 @@ export const uploadFile = async (currentPath: string, file: File): Promise<boole
     
     const response = await fetch(`/api/file-explorer/index.php?action=upload&path=${encodeURIComponent(currentPath)}`, {
       method: 'POST',
+      headers: {
+        'X-Admin-Token': localStorage.getItem('adminToken') || ''
+      },
       body: formData
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to upload file: ${response.status}`);
+      const errorData = await response.text();
+      throw new Error(`Failed to upload file: ${response.status} - ${errorData}`);
+    }
+    
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error || 'Unknown upload error');
     }
     
     logUserActivity(`Uploaded file: ${file.name} to ${currentPath}`);
@@ -53,7 +68,7 @@ export const uploadFile = async (currentPath: string, file: File): Promise<boole
     console.error("Error uploading file:", error);
     toast({
       title: "Upload failed",
-      description: "There was an error uploading the file",
+      description: error instanceof Error ? error.message : "There was an error uploading the file",
       variant: "destructive"
     });
     return false;
@@ -63,20 +78,29 @@ export const uploadFile = async (currentPath: string, file: File): Promise<boole
 export const deleteFile = async (file: FileItem): Promise<boolean> => {
   try {
     const response = await fetch(`/api/file-explorer/index.php?action=delete&path=${encodeURIComponent(file.path)}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'X-Admin-Token': localStorage.getItem('adminToken') || ''
+      }
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to delete file: ${response.status}`);
+      const errorData = await response.text();
+      throw new Error(`Failed to delete file: ${response.status} - ${errorData}`);
     }
     
-    logUserActivity(`Deleted file: ${file.name} from ${file.path.substring(0, file.path.lastIndexOf('/'))}`);
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error || 'Unknown delete error');
+    }
+    
+    logUserActivity(`Deleted file: ${file.name} from ${file.path.substring(0, file.path.lastIndexOf('/') || 0)}`);
     return true;
   } catch (error) {
     console.error("Error deleting file:", error);
     toast({
       title: "Delete failed",
-      description: "There was an error deleting the file",
+      description: error instanceof Error ? error.message : "There was an error deleting the file",
       variant: "destructive"
     });
     return false;
@@ -90,11 +114,20 @@ export const renameFile = async (file: FileItem, newName: string): Promise<boole
     
     const response = await fetch(`/api/file-explorer/index.php?action=rename&path=${encodeURIComponent(file.path)}`, {
       method: 'POST',
+      headers: {
+        'X-Admin-Token': localStorage.getItem('adminToken') || ''
+      },
       body: formData
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to rename file: ${response.status}`);
+      const errorData = await response.text();
+      throw new Error(`Failed to rename file: ${response.status} - ${errorData}`);
+    }
+    
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error || 'Unknown rename error');
     }
     
     logUserActivity(`Renamed file: ${file.name} to ${newName}`);
@@ -103,7 +136,7 @@ export const renameFile = async (file: FileItem, newName: string): Promise<boole
     console.error("Error renaming file:", error);
     toast({
       title: "Rename failed",
-      description: "There was an error renaming the file",
+      description: error instanceof Error ? error.message : "There was an error renaming the file",
       variant: "destructive"
     });
     return false;
@@ -113,11 +146,15 @@ export const renameFile = async (file: FileItem, newName: string): Promise<boole
 export const runBuild = async (): Promise<boolean> => {
   try {
     const response = await fetch(`/api/file-explorer/index.php?action=build`, {
-      method: 'POST'
+      method: 'POST',
+      headers: {
+        'X-Admin-Token': localStorage.getItem('adminToken') || ''
+      }
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to run build: ${response.status}`);
+      const errorData = await response.text();
+      throw new Error(`Failed to run build: ${response.status} - ${errorData}`);
     }
     
     const data = await response.json();
@@ -141,7 +178,7 @@ export const runBuild = async (): Promise<boolean> => {
     console.error("Error during build:", error);
     toast({
       title: "Build failed",
-      description: "There was an error updating the website",
+      description: error instanceof Error ? error.message : "There was an error updating the website",
       variant: "destructive"
     });
     return false;

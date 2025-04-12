@@ -1,61 +1,74 @@
 
 # EnderHOST File Explorer Setup Guide
 
-This guide will help you set up the file explorer functionality on your VPS, focusing only on what needs to be configured.
+This is a step-by-step guide to set up the file explorer feature on your VPS.
 
-## Required VPS Setup Steps
+## Quick Setup Instructions
 
-1. **File Structure Setup**:
+1. **Set Proper File Permissions**:
    ```bash
-   # Create the API directory for the file explorer
-   mkdir -p /var/www/enderhost/public/api/file-explorer
+   # Set owner to web server user
+   sudo chown -R www-data:www-data /var/www/yourdomain
+   
+   # Set correct permissions for directories
+   sudo find /var/www/yourdomain -type d -exec chmod 755 {} \;
+   
+   # Set correct permissions for files
+   sudo find /var/www/yourdomain -type f -exec chmod 644 {} \;
+   
+   # Make specific upload directories writable
+   sudo chmod -R 775 /var/www/yourdomain/public/lovable-uploads
+   sudo chmod -R 775 /var/www/yourdomain/dist
    ```
 
-2. **File Permissions**:
+2. **Configure PHP File Explorer Backend**:
+   - The PHP file `/public/api/file-explorer/index.php` is already included in the project.
+   - You need to ensure the file is executable and has the correct permissions:
    ```bash
-   # Set proper permissions for the web server user
-   sudo chown -R www-data:www-data /var/www/enderhost
-   sudo find /var/www/enderhost -type d -exec chmod 755 {} \;
-   sudo find /var/www/enderhost -type f -exec chmod 644 {} \;
-
-   # Allow write permissions for specific directories
-   sudo chmod -R 775 /var/www/enderhost/public/lovable-uploads
-   sudo chmod -R 775 /var/www/enderhost/dist
+   sudo chmod 755 /var/www/yourdomain/public/api/file-explorer/index.php
    ```
+   
+3. **Update Base Path in the PHP File**:
+   - Open `/public/api/file-explorer/index.php`
+   - Find the line with `$basePath = realpath($_SERVER['DOCUMENT_ROOT'] . '/..');`
+   - If needed, adjust this path to point to your actual project root
 
-3. **PHP Setup** (if using PHP):
+4. **Set Up Authentication**:
+   - The file explorer requires authentication to work.
+   - The current implementation checks for:
+     - An admin token in the HTTP header `X-Admin-Token`
+     - OR a PHP session with `user_group` set to 'admin'
+   - You should update the `isAdminUser()` function with your actual authentication logic.
+
+5. **Create Log Directory**:
    ```bash
-   # Install PHP if not already installed
-   sudo apt update
-   sudo apt install php php-fpm
+   sudo mkdir -p /var/www/yourdomain/public/api/file-explorer/logs
+   sudo chown www-data:www-data /var/www/yourdomain/public/api/file-explorer/logs
    ```
 
-4. **Authentication Setup**: 
-   Edit the `public/api/file-explorer/index.php` file to use your preferred authentication method. The current implementation provides a placeholder for checking admin sessions or using a token.
+6. **Testing the Implementation**:
+   - Log in to your admin dashboard
+   - Navigate to the File Explorer tab
+   - Try basic operations: list files, upload a file, rename a file, delete a file
 
-5. **Update Base Path**:
-   In `public/api/file-explorer/index.php`, update the `$basePath` variable to match your actual project root:
-   ```php
-   $basePath = realpath('/var/www/enderhost'); // Change to your project path
+## Troubleshooting
+
+If you're experiencing issues with the file explorer:
+
+1. **Check Error Logs**:
+   ```bash
+   sudo tail -f /var/log/nginx/error.log
+   sudo tail -f /var/log/php*.log
+   sudo cat /var/www/yourdomain/public/api/file-explorer/file_explorer_errors.log
    ```
 
-## Testing the Implementation
+2. **Common Issues and Solutions**:
+   - **Files not showing/changes not saved**: Check file permissions
+   - **Access denied errors**: Check authentication configuration
+   - **Upload failures**: Check directory permissions and PHP upload limits
+   - **Build not working**: Ensure npm is installed and the build script path is correct
 
-After setting up everything:
-
-1. Log in to your admin dashboard
-2. Navigate to the File Explorer
-3. Try basic operations: list files, upload a file, rename a file, delete a file
-
-If you encounter issues, check your server logs:
-```bash
-sudo tail -f /var/log/nginx/error.log
-sudo tail -f /var/log/php8.1-fpm.log  # Adjust version as needed
-```
-
-## Security Recommendations
-
-1. Always access the file explorer through secure HTTPS
-2. Implement proper authentication for the admin area
-3. Restrict file operations to safe directories only
-4. Consider implementing additional request validation
+3. **Debugging Tips**:
+   - Try direct access to the API to test: `/api/file-explorer/index.php?action=list&path=/`
+   - Check if correct admin token is being sent from frontend
+   - Temporarily increase PHP error reporting level in the file explorer script
