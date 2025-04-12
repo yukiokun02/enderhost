@@ -29,9 +29,17 @@ function isAdminUser() {
     if (isset($_SERVER['HTTP_X_ADMIN_TOKEN'])) {
         $token = $_SERVER['HTTP_X_ADMIN_TOKEN'];
         
-        // In a real implementation, verify this token against your database
-        // For now, we'll use a simple check
-        if (!empty($token)) {
+        // Get the configured admin token from a secure location
+        // IMPORTANT: Update this with your actual admin token
+        $validToken = getenv('ENDERHOST_ADMIN_TOKEN');
+        if (empty($validToken)) {
+            // Fallback to a default token if environment variable is not set
+            // CHANGE THIS to a secure random string in production!
+            $validToken = 'YOUR_SECURE_ADMIN_TOKEN_HERE';
+        }
+        
+        // Check if the provided token matches the valid token
+        if (!empty($token) && $token === $validToken) {
             return true;
         }
     }
