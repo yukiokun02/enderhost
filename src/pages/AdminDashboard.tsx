@@ -9,7 +9,6 @@ import {
   KeyRound,
   Activity,
   Home,
-  FolderTree,
   ChevronLeft,
   ChevronRight,
   Menu
@@ -27,7 +26,6 @@ import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
 import RedeemCodeManager from "@/components/admin/RedeemCodeManager";
 import ActivityLog from "@/components/admin/ActivityLog";
 import SiteNav from "@/components/admin/SiteNav";
-import FileExplorer from "@/components/admin/FileExplorer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const AdminDashboard = () => {
@@ -107,8 +105,7 @@ const AdminDashboard = () => {
     { id: "users", label: "User Management", icon: <UserCog className="h-4 w-4" /> },
     { id: "redeemCodes", label: "Redeem Codes", icon: <KeyRound className="h-4 w-4" /> },
     { id: "changePassword", label: "Change Password", icon: <Lock className="h-4 w-4" /> },
-    { id: "siteNav", label: "Site Navigation", icon: <Home className="h-4 w-4" /> },
-    ...(isAdmin ? [{ id: "fileExplorer", label: "File Explorer", icon: <FolderTree className="h-4 w-4" /> }] : [])
+    { id: "siteNav", label: "Site Navigation", icon: <Home className="h-4 w-4" /> }
   ];
 
   return (
@@ -218,7 +215,6 @@ const AdminDashboard = () => {
             {activeTab === "redeemCodes" && "Redeem Codes"}
             {activeTab === "changePassword" && "Change Password"}
             {activeTab === "siteNav" && "Site Navigation"}
-            {activeTab === "fileExplorer" && "File Explorer"}
           </h1>
           
           <Button 
@@ -237,7 +233,6 @@ const AdminDashboard = () => {
           {activeTab === "redeemCodes" && <RedeemCodeManager />}
           {activeTab === "changePassword" && <ChangePasswordForm />}
           {activeTab === "siteNav" && <SiteNav />}
-          {activeTab === "fileExplorer" && <FileExplorer />}
         </main>
       </div>
     </div>
