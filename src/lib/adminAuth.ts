@@ -1,3 +1,4 @@
+
 import { toast } from "@/components/ui/use-toast";
 
 export interface AdminUser {
@@ -28,9 +29,8 @@ interface ActivityLogEntry {
 }
 
 const ADMIN_SESSION_KEY = 'adminSession';
-const ADMIN_USERS_KEY = 'adminUsers';
-const ACTIVITY_LOG_KEY = 'activityLog';
 const SESSION_TIMEOUT = 1600; // 1600 seconds = ~26.6 minutes
+const API_BASE_URL = '/api';
 
 // Check if admin session is valid
 export function checkAdminSession(): boolean {
@@ -75,18 +75,22 @@ export function updateLastActivity(): void {
 // Initialize default admin user if none exists
 export function initializeAdminUsers(): void {
   try {
-    const existingUsers = localStorage.getItem(ADMIN_USERS_KEY);
-    if (!existingUsers || JSON.parse(existingUsers).length === 0) {
-      const defaultAdmin: AdminUser = {
-        id: generateId(),
-        username: 'admin',
-        password: 'admin123',
-        group: 'admin',
-        createdAt: Date.now()
-      };
-      
-      localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify([defaultAdmin]));
-    }
+    // Make a request to the server to ensure default user exists
+    fetch(`${API_BASE_URL}/admin/init-users.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data.success) {
+        console.error("Error initializing admin users:", data.message);
+      }
+    })
+    .catch(error => {
+      console.error("Error initializing admin users:", error);
+    });
   } catch (error) {
     console.error("Error initializing admin users:", error);
   }
@@ -98,46 +102,48 @@ export function logUserActivity(action: string): void {
     const session = getCurrentAdmin();
     if (!session) return;
     
-    const activityLogs: ActivityLogEntry[] = JSON.parse(localStorage.getItem(ACTIVITY_LOG_KEY) || '[]');
-    
-    const newEntry: ActivityLogEntry = {
-      id: generateId(),
-      userId: session.userId,
-      username: session.username,
-      action: action,
-      timestamp: Date.now(),
-    };
-    
-    // Add to beginning to keep newest first
-    activityLogs.unshift(newEntry);
-    
-    // Keep only the last 1000 entries to avoid localStorage overflow
-    const trimmedLogs = activityLogs.slice(0, 1000);
-    localStorage.setItem(ACTIVITY_LOG_KEY, JSON.stringify(trimmedLogs));
+    fetch(`${API_BASE_URL}/admin/log-activity.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: session.userId,
+        username: session.username,
+        action: action,
+        timestamp: Date.now(),
+      })
+    })
+    .catch(error => {
+      console.error("Error logging activity:", error);
+    });
   } catch (error) {
     console.error("Error logging user activity:", error);
   }
 }
 
 // Get activity logs
-export function getActivityLogs(limit?: number, userId?: string): ActivityLogEntry[] {
-  try {
-    const activityLogs: ActivityLogEntry[] = JSON.parse(localStorage.getItem(ACTIVITY_LOG_KEY) || '[]');
-    
-    let filteredLogs = activityLogs;
-    if (userId) {
-      filteredLogs = activityLogs.filter(log => log.userId === userId);
+export function getActivityLogs(limit?: number, userId?: string): Promise<ActivityLogEntry[]> {
+  return new Promise((resolve) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (limit) queryParams.append('limit', limit.toString());
+      if (userId) queryParams.append('userId', userId);
+      
+      fetch(`${API_BASE_URL}/admin/get-logs.php?${queryParams.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+          resolve(data.logs || []);
+        })
+        .catch(error => {
+          console.error("Error getting activity logs:", error);
+          resolve([]);
+        });
+    } catch (error) {
+      console.error("Error getting activity logs:", error);
+      resolve([]);
     }
-    
-    if (limit && limit > 0) {
-      return filteredLogs.slice(0, limit);
-    }
-    
-    return filteredLogs;
-  } catch (error) {
-    console.error("Error getting activity logs:", error);
-    return [];
-  }
+  });
 }
 
 // Login admin user
@@ -145,19 +151,26 @@ export async function loginAdmin(username: string, password: string): Promise<{s
   try {
     initializeAdminUsers(); // Ensure we have at least a default admin
     
-    const adminUsers: AdminUser[] = JSON.parse(localStorage.getItem(ADMIN_USERS_KEY) || '[]');
+    const response = await fetch(`${API_BASE_URL}/admin/login.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
     
-    const foundUser = adminUsers.find(
-      (user) => user.username === username && user.password === password
-    );
-
-    if (foundUser) {
+    const data = await response.json();
+    
+    if (data.success) {
       // Create admin session with activity tracking
       const session: AdminSession = {
         isLoggedIn: true,
-        userId: foundUser.id,
-        username: foundUser.username,
-        group: foundUser.group,
+        userId: data.user.id,
+        username: data.user.username,
+        group: data.user.group,
         timestamp: Date.now(),
         lastActivity: Math.floor(Date.now() / 1000) // Current time in seconds
       };
@@ -171,7 +184,7 @@ export async function loginAdmin(username: string, password: string): Promise<{s
     } else {
       return { 
         success: false, 
-        message: "Invalid username or password"
+        message: data.message || "Invalid username or password"
       };
     }
   } catch (error) {
@@ -220,11 +233,11 @@ export function isAdminGroup(): boolean {
 }
 
 // Create a new admin user (only admin group can do this)
-export function createAdminUser(
+export async function createAdminUser(
   username: string, 
   password: string, 
   group: 'admin' | 'member'
-): {success: boolean; message: string} {
+): Promise<{success: boolean; message: string}> {
   try {
     if (!isAdminGroup()) {
       return {
@@ -233,37 +246,43 @@ export function createAdminUser(
       };
     }
     
-    const adminUsers: AdminUser[] = JSON.parse(localStorage.getItem(ADMIN_USERS_KEY) || '[]');
-    
-    // Check if username already exists
-    if (adminUsers.some(user => user.username === username)) {
+    const currentAdmin = getCurrentAdmin();
+    if (!currentAdmin) {
       return {
         success: false,
-        message: "Username already exists"
+        message: "Not authenticated"
       };
     }
     
-    const currentAdmin = getCurrentAdmin();
+    const response = await fetch(`${API_BASE_URL}/admin/create-user.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        password,
+        group,
+        createdBy: currentAdmin.username,
+      }),
+    });
     
-    const newUser: AdminUser = {
-      id: generateId(),
-      username,
-      password,
-      group,
-      createdBy: currentAdmin?.username,
-      createdAt: Date.now()
-    };
+    const data = await response.json();
     
-    adminUsers.push(newUser);
-    localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(adminUsers));
-    
-    // Log this activity
-    logUserActivity(`Created new user: ${username}`);
-    
-    return {
-      success: true,
-      message: "User created successfully"
-    };
+    if (data.success) {
+      // Log this activity
+      logUserActivity(`Created new user: ${username}`);
+      
+      return {
+        success: true,
+        message: "User created successfully"
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || "Failed to create user"
+      };
+    }
   } catch (error) {
     console.error("Error creating admin user:", error);
     return {
@@ -274,28 +293,16 @@ export function createAdminUser(
 }
 
 // Change password (own password or any user if admin)
-export function changePassword(
+export async function changePassword(
   userId: string, 
   newPassword: string
-): {success: boolean; message: string} {
+): Promise<{success: boolean; message: string}> {
   try {
     const currentAdmin = getCurrentAdmin();
     if (!currentAdmin) {
       return {
         success: false,
         message: "Not authenticated"
-      };
-    }
-    
-    const adminUsers: AdminUser[] = JSON.parse(localStorage.getItem(ADMIN_USERS_KEY) || '[]');
-    
-    // Find the user to update
-    const userIndex = adminUsers.findIndex(user => user.id === userId);
-    
-    if (userIndex === -1) {
-      return {
-        success: false,
-        message: "User not found"
       };
     }
     
@@ -310,18 +317,35 @@ export function changePassword(
       };
     }
     
-    // Update the password
-    adminUsers[userIndex].password = newPassword;
-    localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(adminUsers));
+    const response = await fetch(`${API_BASE_URL}/admin/change-password.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        newPassword,
+        currentUserId: currentAdmin.userId,
+        isAdmin: isAdminChangingOthers
+      }),
+    });
     
-    // Log this activity
-    const targetUsername = adminUsers[userIndex].username;
-    logUserActivity(isOwnPassword ? "Changed own password" : `Changed password for user: ${targetUsername}`);
+    const data = await response.json();
     
-    return {
-      success: true,
-      message: "Password changed successfully"
-    };
+    if (data.success) {
+      // Log this activity
+      logUserActivity(isOwnPassword ? "Changed own password" : `Changed password for user: ${data.username}`);
+      
+      return {
+        success: true,
+        message: "Password changed successfully"
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || "Failed to change password"
+      };
+    }
   } catch (error) {
     console.error("Error changing password:", error);
     return {
@@ -332,7 +356,7 @@ export function changePassword(
 }
 
 // Get all admin users (only admin group can do this)
-export function getAllAdminUsers(): AdminUser[] | null {
+export async function getAllAdminUsers(): Promise<AdminUser[] | null> {
   try {
     if (!isAdminGroup()) {
       toast({
@@ -343,20 +367,31 @@ export function getAllAdminUsers(): AdminUser[] | null {
       return null;
     }
     
-    const adminUsers: AdminUser[] = JSON.parse(localStorage.getItem(ADMIN_USERS_KEY) || '[]');
+    const response = await fetch(`${API_BASE_URL}/admin/get-users.php`);
+    const data = await response.json();
     
-    // Return users without password for security
-    return adminUsers.map(user => ({
-      ...user,
-      password: '********' // Mask passwords
-    }));
+    if (data.success) {
+      return data.users;
+    } else {
+      toast({
+        title: "Error",
+        description: data.message || "Failed to get users",
+        variant: "destructive"
+      });
+      return null;
+    }
   } catch (error) {
     console.error("Error getting admin users:", error);
+    toast({
+      title: "Error",
+      description: "Failed to get users",
+      variant: "destructive"
+    });
     return null;
   }
 }
 
 // Helper function to generate a unique ID
-function generateId(): string {
+export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }

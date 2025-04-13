@@ -1,0 +1,9 @@
+
+# Deny access to all files
+<FilesMatch "\.json$">
+  Order Deny,Allow
+  Deny from all
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
