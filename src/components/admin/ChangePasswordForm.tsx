@@ -41,6 +41,7 @@ const ChangePasswordForm = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
     const admin = isAdminGroup();
@@ -49,10 +50,7 @@ const ChangePasswordForm = () => {
     
     // Load all users for admin, or just current user for members
     if (admin) {
-      const adminUsers = getAllAdminUsers();
-      if (adminUsers) {
-        setUsers(adminUsers);
-      }
+      loadUsers();
     } else {
       const user = getCurrentAdmin();
       if (user) {
@@ -65,6 +63,22 @@ const ChangePasswordForm = () => {
     }
   }, []);
   
+  const loadUsers = async () => {
+    try {
+      const adminUsers = await getAllAdminUsers();
+      if (adminUsers) {
+        setUsers(adminUsers);
+      }
+    } catch (error) {
+      console.error("Error loading users:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load users",
+        variant: "destructive",
+      });
+    }
+  };
+  
   const handleOpenDialog = (user: any) => {
     setSelectedUser(user);
     setNewPassword("");
@@ -72,7 +86,7 @@ const ChangePasswordForm = () => {
     setIsDialogOpen(true);
   };
   
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (!newPassword || !confirmPassword) {
       toast({
         title: "Validation Error",
@@ -91,20 +105,33 @@ const ChangePasswordForm = () => {
       return;
     }
     
-    const result = changePassword(selectedUser.id, newPassword);
+    setIsLoading(true);
     
-    if (result.success) {
-      toast({
-        title: "Password Changed",
-        description: "The password has been updated successfully",
-      });
-      setIsDialogOpen(false);
-    } else {
+    try {
+      const result = await changePassword(selectedUser.id, newPassword);
+      
+      if (result.success) {
+        toast({
+          title: "Password Changed",
+          description: "The password has been updated successfully",
+        });
+        setIsDialogOpen(false);
+      } else {
+        toast({
+          title: "Error",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
       toast({
         title: "Error",
-        description: result.message,
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -218,9 +245,10 @@ const ChangePasswordForm = () => {
             <Button 
               onClick={handleChangePassword}
               className="bg-minecraft-primary hover:bg-minecraft-primary/90"
+              disabled={isLoading}
             >
               <Check className="mr-2 h-4 w-4" />
-              Update Password
+              {isLoading ? "Updating..." : "Update Password"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -46,6 +46,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [newUser, setNewUser] = useState({
     username: "",
     password: "",
@@ -57,14 +58,23 @@ const UserManagement = () => {
     setIsAdmin(isAdminGroup());
   }, []);
   
-  const loadUsers = () => {
-    const adminUsers = getAllAdminUsers();
-    if (adminUsers) {
-      setUsers(adminUsers);
+  const loadUsers = async () => {
+    try {
+      const adminUsers = await getAllAdminUsers();
+      if (adminUsers) {
+        setUsers(adminUsers);
+      }
+    } catch (error) {
+      console.error("Error loading users:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load users",
+        variant: "destructive",
+      });
     }
   };
   
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (!newUser.username || !newUser.password) {
       toast({
         title: "Validation Error",
@@ -74,30 +84,43 @@ const UserManagement = () => {
       return;
     }
     
-    const result = createAdminUser(
-      newUser.username,
-      newUser.password,
-      newUser.group
-    );
+    setIsSubmitting(true);
     
-    if (result.success) {
-      toast({
-        title: "User Added",
-        description: "New user has been created successfully",
-      });
-      setIsAddUserOpen(false);
-      setNewUser({
-        username: "",
-        password: "",
-        group: "member",
-      });
-      loadUsers();
-    } else {
+    try {
+      const result = await createAdminUser(
+        newUser.username,
+        newUser.password,
+        newUser.group
+      );
+      
+      if (result.success) {
+        toast({
+          title: "User Added",
+          description: "New user has been created successfully",
+        });
+        setIsAddUserOpen(false);
+        setNewUser({
+          username: "",
+          password: "",
+          group: "member",
+        });
+        await loadUsers();
+      } else {
+        toast({
+          title: "Error",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding user:", error);
       toast({
         title: "Error",
-        description: result.message,
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -232,9 +255,10 @@ const UserManagement = () => {
             <Button 
               onClick={handleAddUser}
               className="bg-minecraft-primary hover:bg-minecraft-primary/90"
+              disabled={isSubmitting}
             >
               <Check className="mr-2 h-4 w-4" />
-              Create User
+              {isSubmitting ? "Creating..." : "Create User"}
             </Button>
           </DialogFooter>
         </DialogContent>
