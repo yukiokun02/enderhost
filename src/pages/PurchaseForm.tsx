@@ -178,6 +178,8 @@ const allPlans = [
   },
 ];
 
+const API_BASE_URL = '/api';
+
 const PurchaseForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -281,32 +283,31 @@ const PurchaseForm = () => {
     setIsCheckingCode(true);
     
     try {
-      // Get codes from localStorage
-      const storedCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
+      // Call the API to validate the code
+      const response = await fetch(`${API_BASE_URL}/redeem/validate-code.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      });
       
-      console.log("All stored codes:", storedCodes);
+      const data = await response.json();
       
-      // Find the specific code
-      const codeFound = storedCodes.find((c: any) => 
-        c.code === code && 
-        !c.used &&
-        new Date() < new Date(c.expiryDate)
-      );
+      console.log("API validation response:", data);
       
-      console.log("Code found:", codeFound);
-      
-      if (codeFound) {
+      if (data.success) {
         setIsRedeemCodeValid(true);
         setRedeemCodeDiscount({
-          amount: codeFound.discountAmount,
-          type: codeFound.discountType,
+          amount: data.discountAmount,
+          type: data.discountType,
         });
         
         toast({
           title: "Redeem code applied!",
-          description: codeFound.discountType === 'percent' ? 
-            `You got a ${codeFound.discountAmount}% discount` : 
-            `You got ₹${codeFound.discountAmount} off`,
+          description: data.discountType === 'percent' ? 
+            `You got a ${data.discountAmount}% discount` : 
+            `You got ₹${data.discountAmount} off`,
           variant: "default",
         });
       } else {
@@ -316,13 +317,18 @@ const PurchaseForm = () => {
         
         toast({
           title: "Invalid code",
-          description: "This code is invalid, already used, or expired",
+          description: data.message || "This code is invalid, already used, or expired",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Error validating code:", error);
       setIsRedeemCodeValid(false);
+      toast({
+        title: "Error",
+        description: "Failed to validate redeem code",
+        variant: "destructive",
+      });
     } finally {
       setIsCheckingCode(false);
     }
@@ -337,7 +343,7 @@ const PurchaseForm = () => {
     return null;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
@@ -355,14 +361,19 @@ const PurchaseForm = () => {
     
     // If a valid redeem code was used, mark it as used
     if (isRedeemCodeValid && formData.redeemCode) {
-      const storedCodes = JSON.parse(localStorage.getItem('redeemCodes') || '[]');
-      const updatedCodes = storedCodes.map((code: any) => {
-        if (code.code === formData.redeemCode) {
-          return { ...code, used: true };
-        }
-        return code;
-      });
-      localStorage.setItem('redeemCodes', JSON.stringify(updatedCodes));
+      try {
+        await fetch(`${API_BASE_URL}/redeem/mark-used.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code: formData.redeemCode
+          }),
+        });
+      } catch (error) {
+        console.error("Error marking code as used:", error);
+      }
     }
     
     navigate("/payment", { 
