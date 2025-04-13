@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { generateId } from "@/lib/adminAuth";
 
 interface RedeemCode {
   code: string;
@@ -98,7 +97,7 @@ const RedeemCodeManager = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          code: generatedCode,
+          code: generatedCode.toUpperCase(),
           discountAmount,
           discountType,
           expiryDate: expiryDate.toISOString(),

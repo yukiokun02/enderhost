@@ -1,6 +1,8 @@
 
 <?php
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
 
 // Set error reporting
 ini_set('display_errors', 0);
@@ -31,9 +33,9 @@ if (empty($data['code']) || !isset($data['discountAmount']) || empty($data['disc
 // Load existing codes
 $codes = file_exists($codesFile) ? json_decode(file_get_contents($codesFile), true) : [];
 
-// Check if code already exists
+// Check if code already exists (case insensitive comparison)
 foreach ($codes as $existingCode) {
-    if ($existingCode['code'] === $data['code']) {
+    if (strtoupper($existingCode['code']) === strtoupper($data['code'])) {
         echo json_encode([
             'success' => false,
             'message' => 'This code already exists'
@@ -44,7 +46,7 @@ foreach ($codes as $existingCode) {
 
 // Create new redeem code
 $newCode = [
-    'code' => $data['code'],
+    'code' => strtoupper($data['code']), // Store as uppercase for consistency
     'discountAmount' => $data['discountAmount'],
     'discountType' => $data['discountType'],
     'expiryDate' => $data['expiryDate'],
