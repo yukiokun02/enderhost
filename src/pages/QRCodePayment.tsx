@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink, Mail } from "lucide-react";
@@ -7,16 +6,11 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import DiscordPopup from "@/components/DiscordPopup";
 
-// Static QR code path from config
 const PAYMENT_QR_CODE = "/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png";
-
-// UPI ID
 const UPI_ID = "mail.enderhost@okhdfcbank";
-
-// Email address
 const SUPPORT_EMAIL = "mail@enderhost.in";
+const INR_TO_USD = 83;
 
-// Plan display names
 const planNames: Record<string, string> = {
   "getting-woods": "Getting Woods",
   "getting-an-upgrade": "Getting an Upgrade",
@@ -31,7 +25,6 @@ const planNames: Record<string, string> = {
   "sky-is-the-limit": "Sky is the Limit"
 };
 
-// Base plan prices
 const planPrices: Record<string, number> = {
   "getting-woods": 149,
   "getting-an-upgrade": 339,
@@ -64,14 +57,11 @@ const QRCodePayment = () => {
     amount: number;
     type: 'percent' | 'fixed';
   } | null>(null);
-  
-  // Generate a unique order identifier based on form data
+
   const generateOrderIdentifier = (details: any, plan: string): string => {
-    // Create a string that uniquely identifies this order
     return `${details.email}-${plan}-${details.serverName}-${new Date().toDateString()}`;
   };
-  
-  // Email sending function - Updated to include discount information
+
   const sendOrderNotification = async (details: any, plan: string, totalPrice: number) => {
     if (isSubmitting) return false;
     
@@ -97,7 +87,7 @@ const QRCodePayment = () => {
           additionalPorts: details.additionalPorts || 0,
           totalPrice: totalPrice,
           orderDate: new Date().toISOString(),
-          billingCycle: 1, // Always monthly billing
+          billingCycle: 1,
           discountApplied: discountApplied
         }),
       });
@@ -114,7 +104,6 @@ const QRCodePayment = () => {
       
       if (response.ok && data && data.success) {
         console.log('Order notification email sent successfully', data);
-        // Store order ID if returned from API
         if (data.order_id) {
           sessionStorage.setItem('enderhost_order_id', data.order_id);
         }
@@ -133,8 +122,7 @@ const QRCodePayment = () => {
       return false;
     }
   };
-  
-  // Retry sending email if it failed
+
   const retryEmailSending = () => {
     if (customerDetails && planId) {
       toast.info("Retrying to send notification email...");
@@ -147,7 +135,6 @@ const QRCodePayment = () => {
         if (success) {
           setEmailSent(true);
           setEmailError(false);
-          // Mark this order as having sent an email
           if (customerDetails) {
             const orderIdentifier = generateOrderIdentifier(customerDetails, planId);
             sessionStorage.setItem(`email_sent_${orderIdentifier}`, 'true');
@@ -163,9 +150,8 @@ const QRCodePayment = () => {
       });
     }
   };
-  
+
   useEffect(() => {
-    // Get state passed from purchase form
     if (location.state) {
       const { 
         plan, 
@@ -181,25 +167,21 @@ const QRCodePayment = () => {
       setCustomerDetails(details);
       setAdditionalBackups(parseInt(additionalBackups) || 0);
       setAdditionalPorts(parseInt(additionalPorts) || 0);
-      setBillingCycle(cycle || 1); // Default to monthly billing
+      setBillingCycle(cycle || 1);
       setDiscountApplied(discountApplied || null);
       
-      // Set total price directly from state if available
       if (totalPrice) {
         setTotalPrice(totalPrice);
       } else {
-        // Calculate from components
         const basePrice = planPrices[plan] || 0;
         const backupCost = (parseInt(additionalBackups) || 0) * 19;
         const portCost = (parseInt(additionalPorts) || 0) * 9;
         setTotalPrice(Math.round(basePrice + backupCost + portCost));
       }
       
-      // Check if we've already sent an email for this order using sessionStorage
       const orderIdentifier = generateOrderIdentifier(details, plan);
       const alreadySentEmail = sessionStorage.getItem(`email_sent_${orderIdentifier}`);
       
-      // Only send email if we haven't sent one already for this order
       if (!alreadySentEmail && details) {
         const finalTotalPrice = totalPrice || (planPrices[plan] + (parseInt(additionalBackups) || 0) * 19 + (parseInt(additionalPorts) || 0) * 9);
         
@@ -210,7 +192,6 @@ const QRCodePayment = () => {
         ).then(success => {
           if (success) {
             setEmailSent(true);
-            // Mark this order as having sent an email
             sessionStorage.setItem(`email_sent_${orderIdentifier}`, 'true');
             toast.success("Your order details have been sent to our team!", {
               duration: 5000,
@@ -223,26 +204,24 @@ const QRCodePayment = () => {
           }
         });
       } else if (alreadySentEmail) {
-        // If we've already sent an email, update the state to reflect that
         setEmailSent(true);
         console.log("Email already sent for this order, not sending duplicate");
       }
     } else {
-      // If no state is passed, redirect to purchase form
       navigate("/purchase");
     }
   }, [location, navigate]);
-  
+
   const copyUpiId = () => {
     navigator.clipboard.writeText(UPI_ID);
     toast.success("UPI ID copied to clipboard!");
   };
-  
+
   const copyEmail = () => {
     navigator.clipboard.writeText(SUPPORT_EMAIL);
     toast.success("Email address copied to clipboard!");
   };
-  
+
   if (!planId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -255,15 +234,14 @@ const QRCodePayment = () => {
       </div>
     );
   }
-  
-  // Calculate price breakdowns
+
   const basePlanPrice = planPrices[planId] || 0;
   const backupsCost = additionalBackups * 19;
   const portsCost = additionalPorts * 9;
-  
+  const usdTotalPrice = (totalPrice / INR_TO_USD).toFixed(2);
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0f0f13] bg-gradient-to-b from-black to-[#0f0f13]">
-      {/* Logo Header - Updated with EnderHOST logo */}
       <header className="w-full bg-black/80 backdrop-blur-sm py-6 text-center shadow-md border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <img
@@ -274,7 +252,7 @@ const QRCodePayment = () => {
           <h1 className="text-3xl ml-4 font-bold text-gray-100">Ender<span className="text-minecraft-secondary">HOST</span></h1>
         </div>
       </header>
-      
+
       <Button
         variant="ghost"
         size="sm"
@@ -287,7 +265,6 @@ const QRCodePayment = () => {
 
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
-          {/* Email notification error message */}
           {emailError && (
             <div className="max-w-md mx-auto mb-6 bg-red-900/50 text-white p-4 rounded-lg border border-red-800 flex flex-col items-center">
               <p className="mb-3 text-center">
@@ -305,7 +282,6 @@ const QRCodePayment = () => {
           )}
           
           <div className="max-w-md mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl shadow-lg overflow-hidden">
-            {/* QR Code Section */}
             <div className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-2 text-white">
                 {planNames[planId]} Plan
@@ -314,7 +290,6 @@ const QRCodePayment = () => {
                 Scan the QR code below to make your payment
               </p>
               
-              {/* Centered QR code display - Updated with new QR code */}
               <div className="mb-6 bg-white mx-auto p-4 rounded-lg w-64 h-64 flex items-center justify-center">
                 <img
                   src={PAYMENT_QR_CODE}
@@ -361,24 +336,38 @@ const QRCodePayment = () => {
                   <div className="space-y-1 text-sm mb-3">
                     <div className="flex justify-between">
                       <span className="text-gray-300">Base Plan:</span>
-                      <span className="text-gray-300">₹{basePlanPrice}/month</span>
+                      <span className="text-gray-300">
+                        ₹{basePlanPrice}/month
+                        <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
+                          ($ {(basePlanPrice / INR_TO_USD).toFixed(2)})
+                        </span>
+                      </span>
                     </div>
                     
                     {additionalBackups > 0 && (
                       <div className="flex justify-between">
                         <span className="text-gray-300">Additional Backups ({additionalBackups}):</span>
-                        <span className="text-gray-300">+₹{backupsCost}</span>
+                        <span className="text-gray-300">
+                          +₹{backupsCost}
+                          <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
+                            ($ {(backupsCost / INR_TO_USD).toFixed(2)})
+                          </span>
+                        </span>
                       </div>
                     )}
                     
                     {additionalPorts > 0 && (
                       <div className="flex justify-between">
                         <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
-                        <span className="text-gray-300">+₹{portsCost}</span>
+                        <span className="text-gray-300">
+                          +₹{portsCost}
+                          <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
+                            ($ {(portsCost / INR_TO_USD).toFixed(2)})
+                          </span>
+                        </span>
                       </div>
                     )}
                     
-                    {/* Show discount information if a redeem code was applied */}
                     {discountApplied && (
                       <div className="flex justify-between text-green-400 font-medium">
                         <span>Discount ({discountApplied.code}):</span>
@@ -392,12 +381,16 @@ const QRCodePayment = () => {
                     
                     <div className="border-t border-gray-700 mt-2 pt-2 flex justify-between font-medium">
                       <span className="text-white">Total price:</span>
-                      <span className="text-white">₹{totalPrice.toLocaleString()}.00</span>
+                      <span className="text-white">
+                        ₹{totalPrice.toLocaleString()}.00
+                        <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-base align-middle font-bold">
+                          ($ {usdTotalPrice})
+                        </span>
+                      </span>
                     </div>
                   </div>
                 </div>
                 
-                {/* Server Login Info */}
                 <div className="text-left bg-blue-900/30 p-4 rounded-lg border border-blue-800">
                   <h3 className="text-sm font-medium text-blue-300 mb-2">Server Login Information</h3>
                   <p className="text-xs text-gray-300">
@@ -412,11 +405,9 @@ const QRCodePayment = () => {
               </p>
             </div>
             
-            {/* Instructions - Enhanced visibility */}
             <div className="bg-minecraft-accent/10 p-6 border-t border-gray-800">
               <h3 className="font-bold text-white mb-4 text-lg">After Payment:</h3>
               
-              {/* Highlighted instructions box with better styling */}
               <div className="bg-gradient-to-r from-minecraft-secondary/20 to-minecraft-secondary/10 p-5 rounded-lg border-2 border-minecraft-secondary/50 mb-6 shadow-[0_0_15px_rgba(0,200,83,0.15)]">
                 <ol className="list-decimal list-inside space-y-3 text-gray-200">
                   <li>Take a screenshot of your payment confirmation</li>
@@ -427,7 +418,6 @@ const QRCodePayment = () => {
                   <li>Our team will set up your server and provide access details</li>
                 </ol>
                 
-                {/* Contact options with Discord popup and email */}
                 <div className="mt-6 space-y-3">
                   <Button
                     onClick={() => setIsDiscordPopupOpen(true)}
@@ -460,7 +450,6 @@ const QRCodePayment = () => {
                 </p>
               </div>
               
-              {/* Refund Policy Dialog */}
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="link" className="mt-4 text-gray-400 hover:text-minecraft-secondary">
@@ -490,8 +479,7 @@ const QRCodePayment = () => {
           </div>
         </div>
       </main>
-      
-      {/* Simplified footer - copyright only */}
+
       <footer className="bg-black/50 border-t border-white/10 backdrop-blur-sm py-6">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-400 text-sm">
@@ -500,7 +488,6 @@ const QRCodePayment = () => {
         </div>
       </footer>
 
-      {/* Discord Popup */}
       <DiscordPopup 
         isOpen={isDiscordPopupOpen} 
         onClose={() => setIsDiscordPopupOpen(false)} 

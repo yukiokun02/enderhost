@@ -1,4 +1,3 @@
-
 import { Check, ChevronDown, ChevronUp, Cpu, Cloud, HardDrive, Gauge, Signal, Users, FlagTriangleRight, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -249,6 +248,8 @@ const planCategories = [
   }
 ];
 
+const INR_TO_USD = 83;
+
 export default function Pricing() {
   
   const getFeatureIcon = (feature: string) => {
@@ -301,7 +302,9 @@ export default function Pricing() {
           {planCategories.map((category) => (
             <div key={category.id} className={`rounded-3xl overflow-hidden relative`}>
               <div className={`p-8 ${category.color} bg-opacity-20`} 
-                   style={{backgroundImage: `linear-gradient(to right, ${category.gradient})`}}>
+                   style={{ 
+                     backgroundImage: `linear-gradient(to right, ${category.gradient})`
+                   }}>
                 <h3 className="flex items-center gap-2">
                   <span className={`text-2xl font-bold ${category.textColor}`}>{category.name}</span>
                 </h3>
@@ -309,94 +312,100 @@ export default function Pricing() {
               </div>
               
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(category.plans.length, 4)} gap-4 p-4 bg-black/50 backdrop-blur-sm`}>
-                {category.plans.map((plan) => (
-                  <div 
-                    key={plan.name}
-                    className={`relative rounded-xl p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(94,66,227,0.3)] overflow-hidden ${
-                      plan.mostPopular
-                        ? "border-2 border-opacity-50 shadow-lg"
-                        : "border border-white/10"
-                    }`}
-                    style={{
-                      borderColor: plan.mostPopular ? (category.textColor.includes('blue') ? '#3B82F6' : 
-                                                      category.textColor.includes('red') ? '#EF4444' : 
-                                                      '#10B981') : 'rgba(255,255,255,0.1)',
-                      backgroundColor: plan.mostPopular ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)'
-                    }}
-                  >
-                    {minecraftItems[plan.icon] && (
-                      <div className="absolute inset-0 pointer-events-none flex items-center justify-end overflow-hidden">
-                        <div 
-                          className="w-[90%] h-[90%]"
-                          style={{
-                            position: 'relative',
-                            transform: "rotate(10deg) translate(15%, -5%)",
-                          }}
-                          aria-hidden="true"
-                        >
-                          <div 
-                            className="absolute inset-0"
-                            style={{
-                              background: `radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%)`,
-                              transform: 'scale(1.2)',
-                              zIndex: 0
-                            }}
-                          />
-                          <img 
-                            src={minecraftItems[plan.icon]} 
-                            alt="" 
-                            className="w-full h-full object-contain opacity-[0.3]"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    
-                    {plan.mostPopular && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <div className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg">
-                          MOST POPULAR
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center justify-between mb-2 relative z-10">
-                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10">
-                        <Users className="w-3.5 h-3.5" />
-                        <span className="text-sm text-white/80">{plan.players}</span>
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-xl font-bold mb-2 text-white relative z-10">{plan.name}</h3>
-                    
-                    <div className="flex items-baseline mb-4 relative z-10">
-                      <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
-                      <span className="text-3xl font-bold text-white">{plan.price}</span>
-                      <span className="text-white/70 ml-1">/month</span>
-                    </div>
-                    
-                    <ul className="space-y-3 mb-6 relative z-10">
-                      {plan.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2 text-sm">
-                          {getFeatureIcon(feature)}
-                          <span className="text-white/80">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <Link 
-                      to={`/purchase?plan=${planIdMap[plan.name]}`}
-                      className="relative z-10 block"
+                {category.plans.map((plan) => {
+                  const usdPrice = (plan.price / INR_TO_USD).toFixed(2);
+                  return (
+                    <div 
+                      key={plan.name}
+                      className={`relative rounded-xl p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(94,66,227,0.3)] overflow-hidden ${
+                        plan.mostPopular
+                          ? "border-2 border-opacity-50 shadow-lg"
+                          : "border border-white/10"
+                      }`}
+                      style={{
+                        borderColor: plan.mostPopular ? (category.textColor.includes('blue') ? '#3B82F6' : 
+                                                          category.textColor.includes('red') ? '#EF4444' : 
+                                                          '#10B981') : 'rgba(255,255,255,0.1)',
+                        backgroundColor: plan.mostPopular ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)'
+                      }}
                     >
-                      <Button
-                        className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
-                          ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105`}
-                        variant="minecraft"
+                      {minecraftItems[plan.icon] && (
+                        <div className="absolute inset-0 pointer-events-none flex items-center justify-end overflow-hidden">
+                          <div 
+                            className="w-[90%] h-[90%]"
+                            style={{
+                              position: 'relative',
+                              transform: "rotate(10deg) translate(15%, -5%)",
+                            }}
+                            aria-hidden="true"
+                          >
+                            <div 
+                              className="absolute inset-0"
+                              style={{
+                                background: `radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%)`,
+                                transform: 'scale(1.2)',
+                                zIndex: 0
+                              }}
+                            />
+                            <img 
+                              src={minecraftItems[plan.icon]} 
+                              alt="" 
+                              className="w-full h-full object-contain opacity-[0.3]"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {plan.mostPopular && (
+                        <div className="absolute top-2 right-2 z-10">
+                          <div className="bg-gradient-to-r from-minecraft-primary to-minecraft-secondary text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg">
+                            MOST POPULAR
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between mb-2 relative z-10">
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10">
+                          <Users className="w-3.5 h-3.5" />
+                          <span className="text-sm text-white/80">{plan.players}</span>
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-xl font-bold mb-2 text-white relative z-10">{plan.name}</h3>
+                      
+                      <div className="flex items-baseline mb-4 relative z-10 gap-2">
+                        <IndianRupee className="w-4 h-4 text-white/70 mr-0.5" />
+                        <span className="text-3xl font-bold text-white">{plan.price}</span>
+                        <span className="text-white/70 ml-1">/month</span>
+                        <span className="ml-3 text-base font-medium text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded-md flex items-center" title="Approximate cost in USD">
+                          (<span className="ml-0.5 mr-1">$</span>{usdPrice})
+                        </span>
+                      </div>
+                      
+                      <ul className="space-y-3 mb-6 relative z-10">
+                        {plan.features.map((feature) => (
+                          <li key={feature} className="flex items-center gap-2 text-sm">
+                            {getFeatureIcon(feature)}
+                            <span className="text-white/80">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <Link 
+                        to={`/purchase?plan=${planIdMap[plan.name]}`}
+                        className="relative z-10 block"
                       >
-                        Buy Now
-                      </Button>
-                    </Link>
-                  </div>
-                ))}
+                        <Button
+                          className={`w-full py-5 font-medium flex items-center justify-center gap-2 transition-all duration-300 
+                            ${itemButtonColors[plan.icon] || category.buttonColor} hover:scale-105`}
+                          variant="minecraft"
+                        >
+                          Buy Now
+                        </Button>
+                      </Link>
+                    </div>
+                  );
+                })}
               </div>
               
               <div className="px-8 py-4 bg-black/70 border-t border-white/10">

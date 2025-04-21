@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
@@ -179,6 +178,7 @@ const allPlans = [
 ];
 
 const API_BASE_URL = '/api';
+const INR_TO_USD = 83; // 1 USD = ₹83
 
 const PurchaseForm = () => {
   const navigate = useNavigate();
@@ -239,6 +239,11 @@ const PurchaseForm = () => {
     }
     
     return Math.round(totalPrice);
+  };
+
+  const calculateTotalUSD = () => {
+    const inr = calculateTotalPrice();
+    return (inr / INR_TO_USD).toFixed(2);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -702,7 +707,11 @@ const PurchaseForm = () => {
                         <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
                           <div className="flex justify-between text-white">
                             <span>Monthly price:</span>
-                            <span>₹{selectedPlan.price}</span>
+                            <span>₹{calculateTotalPrice()}/month&nbsp;
+                              <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded-md text-base align-middle" title="Approximate cost in USD">
+                                ($ {calculateTotalUSD()})
+                              </span>
+                            </span>
                           </div>
                           
                           {parseInt(formData.additionalBackups) > 0 && (
