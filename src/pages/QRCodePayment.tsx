@@ -3,7 +3,15 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Copy, ExternalLink, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import DiscordPopup from "@/components/DiscordPopup";
 
 const PAYMENT_QR_CODE = "/lovable-uploads/50fc961d-b5d5-493d-ab69-e4be0c7f1c90.png";
@@ -17,12 +25,12 @@ const planNames: Record<string, string> = {
   "stone-age": "Stone Age",
   "acquire-hardware": "Acquire Hardware",
   "isnt-it-iron-pick": "Isn't It Iron Pick?",
-  "diamonds": "Diamonds",
+  diamonds: "Diamonds",
   "ice-bucket-challenge": "Ice Bucket Challenge",
   "we-need-to-go-deeper": "We Need to Go Deeper",
   "hidden-in-the-depths": "Hidden in the Depths",
   "the-end": "The End",
-  "sky-is-the-limit": "Sky is the Limit"
+  "sky-is-the-limit": "Sky is the Limit",
 };
 
 const planPrices: Record<string, number> = {
@@ -31,12 +39,12 @@ const planPrices: Record<string, number> = {
   "stone-age": 529,
   "acquire-hardware": 699,
   "isnt-it-iron-pick": 859,
-  "diamonds": 1029,
+  diamonds: 1029,
   "ice-bucket-challenge": 1399,
   "we-need-to-go-deeper": 1699,
   "hidden-in-the-depths": 2119,
   "the-end": 2899,
-  "sky-is-the-limit": 3399
+  "sky-is-the-limit": 3399,
 };
 
 const QRCodePayment = () => {
@@ -227,9 +235,7 @@ const QRCodePayment = () => {
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <p className="text-white mb-4">Invalid plan selected or QR code not found.</p>
-          <Button onClick={() => navigate("/purchase")}>
-            Return to Purchase Form
-          </Button>
+          <Button onClick={() => navigate("/purchase")}>Return to Purchase Form</Button>
         </div>
       </div>
     );
@@ -252,7 +258,9 @@ const QRCodePayment = () => {
             alt="Ender Host Logo"
             className="h-16"
           />
-          <h1 className="text-3xl ml-4 font-bold text-gray-100">Ender<span className="text-minecraft-secondary">HOST</span></h1>
+          <h1 className="text-3xl ml-4 font-bold text-gray-100">
+            Ender<span className="text-minecraft-secondary">HOST</span>
+          </h1>
         </div>
       </header>
 
@@ -286,12 +294,8 @@ const QRCodePayment = () => {
           
           <div className="max-w-md mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl shadow-lg overflow-hidden">
             <div className="p-8 text-center">
-              <h2 className="text-2xl font-bold mb-2 text-white">
-                {planNames[planId]} Plan
-              </h2>
-              <p className="text-sm text-gray-400 mb-6">
-                Scan the QR code below to make your payment
-              </p>
+              <h2 className="text-2xl font-bold mb-2 text-white">{planNames[planId]} Plan</h2>
+              <p className="text-sm text-gray-400 mb-6">Scan the QR code below to make your payment</p>
               <div className="mb-6 flex flex-col gap-3 items-center justify-center bg-white mx-auto p-4 rounded-lg w-64 h-auto">
                 <img
                   src={PAYMENT_QR_CODE}
@@ -302,18 +306,19 @@ const QRCodePayment = () => {
                   href="https://www.paypal.com/paypalme/TanumoyMaity11?v=1&utm_source=unp&utm_medium=email&utm_campaign=RT000481&utm_unptid=efe5e861-1e64-11f0-8f3c-f92b756e43a6&ppid=RT000481&cnac=IN&rsta=en_GB%28en-IN%29&cust=3ER7BYTW5RDBL&unptid=efe5e861-1e64-11f0-8f3c-f92b756e43a6&calc=1889953fc8849&unp_tpcid=ppme-social-business-profile-created&page=main%3Aemail%3ART000481&pgrp=main%3Aemail&e=cl&mchn=em&s=ci&mail=sys&appVersion=1.324.0&tenant_name=PAYPAL&xt=145585%2C154413%2C104038&link_ref=paypalme_tanumoymaity11"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center mt-2 gap-3 font-semibold py-3 px-5 rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 border-b-2 border-blue-700 shadow-lg outline-none transition-all focus:ring-2"
+                  className="w-full flex items-center justify-center mt-2 gap-2 font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 border-b-2 border-blue-700 shadow-lg outline-none transition-all focus:ring-2 py-2 px-5"
                   style={{
                     fontSize: "1.14rem",
                     letterSpacing: "0.03em",
+                    minHeight: "2.5rem",
                   }}
                 >
-                  <img 
-                    src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
-                    alt="PayPal" 
-                    className="w-5 h-5 mr-1"
+                  <img
+                    src="/lovable-uploads/3d565ca5-bc33-4a00-8030-d329cf4c98e7.png"
+                    alt="PayPal"
+                    className="w-6 h-6"
                   />
-                  Pay with PayPal (for International customers)
+                  Pay with PayPal
                 </a>
               </div>
               
@@ -469,10 +474,7 @@ const QRCodePayment = () => {
         </div>
       </footer>
 
-      <DiscordPopup 
-        isOpen={isDiscordPopupOpen} 
-        onClose={() => setIsDiscordPopupOpen(false)} 
-      />
+      <DiscordPopup isOpen={isDiscordPopupOpen} onClose={() => setIsDiscordPopupOpen(false)} />
     </div>
   );
 };
