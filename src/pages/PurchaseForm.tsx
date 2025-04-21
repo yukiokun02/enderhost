@@ -246,6 +246,10 @@ const PurchaseForm = () => {
     return (inr / INR_TO_USD).toFixed(2);
   };
 
+  const convertToUSD = (inrAmount: number) => {
+    return (inrAmount / INR_TO_USD).toFixed(2);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -600,21 +604,21 @@ const PurchaseForm = () => {
                       <div className="p-1 text-xs uppercase text-white/50 font-medium">PLAY VANILLA</div>
                       {allPlans.filter(p => p.category === "PLAY VANILLA").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{plan.price}/month
+                          {plan.name} - ₹{plan.price}/month (${convertToUSD(plan.price)})
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">PLAY WITH MODPACKS</div>
                       {allPlans.filter(p => p.category === "PLAY WITH MODPACKS").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{plan.price}/month
+                          {plan.name} - ₹{plan.price}/month (${convertToUSD(plan.price)})
                         </SelectItem>
                       ))}
                       
                       <div className="p-1 mt-2 text-xs uppercase text-white/50 font-medium">COMMUNITY SERVERS</div>
                       {allPlans.filter(p => p.category === "START A COMMUNITY SERVER").map((plan) => (
                         <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ₹{plan.price}/month
+                          {plan.name} - ₹{plan.price}/month (${convertToUSD(plan.price)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -702,16 +706,12 @@ const PurchaseForm = () => {
                         )}
                       </div>
 
-                      {/* Price breakdown section */}
+                      {/* Price breakdown section - Updated with correct USD display */}
                       <div className="mt-4 pt-3 border-t border-white/10">
                         <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
                           <div className="flex justify-between text-white">
                             <span>Monthly price:</span>
-                            <span>₹{calculateTotalPrice()}/month&nbsp;
-                              <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded-md text-base align-middle" title="Approximate cost in USD">
-                                ($ {calculateTotalUSD()})
-                              </span>
-                            </span>
+                            <span>₹{selectedPlan.price}/month</span>
                           </div>
                           
                           {parseInt(formData.additionalBackups) > 0 && (
@@ -741,7 +741,10 @@ const PurchaseForm = () => {
                           
                           <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
                             <span>Total price:</span>
-                            <span>₹{calculateTotalPrice()}/month</span>
+                            <div className="flex flex-col items-end">
+                              <span>₹{calculateTotalPrice()}/month</span>
+                              <span className="text-cyan-200 text-sm">(${calculateTotalUSD()}/month)</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -752,7 +755,7 @@ const PurchaseForm = () => {
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Cloud Backups (₹19 each)
+                          Additional Cloud Backups (₹19 each / $${convertToUSD(19)} each)
                         </label>
                         <Select
                           name="additionalBackups"
@@ -764,18 +767,18 @@ const PurchaseForm = () => {
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
                             <SelectItem value="0">No additional backups</SelectItem>
-                            <SelectItem value="1">1 additional backup (+₹19)</SelectItem>
-                            <SelectItem value="2">2 additional backups (+₹38)</SelectItem>
-                            <SelectItem value="3">3 additional backups (+₹57)</SelectItem>
-                            <SelectItem value="4">4 additional backups (+₹76)</SelectItem>
-                            <SelectItem value="5">5 additional backups (+₹95)</SelectItem>
+                            <SelectItem value="1">1 additional backup (+₹19 / +$${convertToUSD(19)})</SelectItem>
+                            <SelectItem value="2">2 additional backups (+₹38 / +$${convertToUSD(38)})</SelectItem>
+                            <SelectItem value="3">3 additional backups (+₹57 / +$${convertToUSD(57)})</SelectItem>
+                            <SelectItem value="4">4 additional backups (+₹76 / +$${convertToUSD(76)})</SelectItem>
+                            <SelectItem value="5">5 additional backups (+₹95 / +$${convertToUSD(95)})</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Ports (₹9 each)
+                          Additional Ports (₹9 each / $${convertToUSD(9)} each)
                         </label>
                         <Select
                           name="additionalPorts"
@@ -787,11 +790,11 @@ const PurchaseForm = () => {
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
                             <SelectItem value="0">No additional ports</SelectItem>
-                            <SelectItem value="1">1 additional port (+₹9)</SelectItem>
-                            <SelectItem value="2">2 additional ports (+₹18)</SelectItem>
-                            <SelectItem value="3">3 additional ports (+₹27)</SelectItem>
-                            <SelectItem value="4">4 additional ports (+₹36)</SelectItem>
-                            <SelectItem value="5">5 additional ports (+₹45)</SelectItem>
+                            <SelectItem value="1">1 additional port (+₹9 / +$${convertToUSD(9)})</SelectItem>
+                            <SelectItem value="2">2 additional ports (+₹18 / +$${convertToUSD(18)})</SelectItem>
+                            <SelectItem value="3">3 additional ports (+₹27 / +$${convertToUSD(27)})</SelectItem>
+                            <SelectItem value="4">4 additional ports (+₹36 / +$${convertToUSD(36)})</SelectItem>
+                            <SelectItem value="5">5 additional ports (+₹45 / +$${convertToUSD(45)})</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
