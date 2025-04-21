@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Copy, ExternalLink, Mail, paypal } from "lucide-react";
+import { ArrowLeft, Copy, ExternalLink, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -308,10 +308,15 @@ const QRCodePayment = () => {
                     letterSpacing: "0.03em",
                   }}
                 >
-                  <paypal className="w-5 h-5 text-white" />
+                  <img 
+                    src="/lovable-uploads/6b690be5-a7fe-4753-805d-0441a00e0182.png" 
+                    alt="PayPal" 
+                    className="w-5 h-5 mr-1"
+                  />
                   Pay with PayPal (for International customers)
                 </a>
               </div>
+              
               <div className="mb-6 space-y-4">
                 <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
                   <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
