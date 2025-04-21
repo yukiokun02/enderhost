@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Copy, ExternalLink, Mail } from "lucide-react";
+import { ArrowLeft, Copy, ExternalLink, Mail, paypal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -238,6 +238,9 @@ const QRCodePayment = () => {
   const basePlanPrice = planPrices[planId] || 0;
   const backupsCost = additionalBackups * 19;
   const portsCost = additionalPorts * 9;
+  const usdBasePlanPrice = (basePlanPrice / INR_TO_USD).toFixed(2);
+  const usdBackupsCost = (backupsCost / INR_TO_USD).toFixed(2);
+  const usdPortsCost = (portsCost / INR_TO_USD).toFixed(2);
   const usdTotalPrice = (totalPrice / INR_TO_USD).toFixed(2);
 
   return (
@@ -289,108 +292,82 @@ const QRCodePayment = () => {
               <p className="text-sm text-gray-400 mb-6">
                 Scan the QR code below to make your payment
               </p>
-              
-              <div className="mb-6 bg-white mx-auto p-4 rounded-lg w-64 h-64 flex items-center justify-center">
+              <div className="mb-6 flex flex-col gap-3 items-center justify-center bg-white mx-auto p-4 rounded-lg w-64 h-auto">
                 <img
                   src={PAYMENT_QR_CODE}
                   alt="Payment QR Code"
                   className="max-w-full max-h-full object-contain"
                 />
+                <a
+                  href="https://www.paypal.com/paypalme/TanumoyMaity11?v=1&utm_source=unp&utm_medium=email&utm_campaign=RT000481&utm_unptid=efe5e861-1e64-11f0-8f3c-f92b756e43a6&ppid=RT000481&cnac=IN&rsta=en_GB%28en-IN%29&cust=3ER7BYTW5RDBL&unptid=efe5e861-1e64-11f0-8f3c-f92b756e43a6&calc=1889953fc8849&unp_tpcid=ppme-social-business-profile-created&page=main%3Aemail%3ART000481&pgrp=main%3Aemail&e=cl&mchn=em&s=ci&mail=sys&appVersion=1.324.0&tenant_name=PAYPAL&xt=145585%2C154413%2C104038&link_ref=paypalme_tanumoymaity11"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center mt-2 gap-3 font-semibold py-3 px-5 rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 border-b-2 border-blue-700 shadow-lg outline-none transition-all focus:ring-2"
+                  style={{
+                    fontSize: "1.14rem",
+                    letterSpacing: "0.03em",
+                  }}
+                >
+                  <paypal className="w-5 h-5 text-white" />
+                  Pay with PayPal (for International customers)
+                </a>
               </div>
-              
               <div className="mb-6 space-y-4">
-                <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
-                  <p className="text-sm font-medium text-gray-400">UPI ID</p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="font-mono text-gray-100">{UPI_ID}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={copyUpiId}
-                      className="ml-2 h-8 border-gray-700 hover:bg-gray-800 text-gray-200"
-                    >
-                      <Copy className="h-4 w-4 mr-1" />
-                      Copy
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
-                  <p className="text-sm font-medium text-gray-400">Email Support</p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="font-mono text-gray-100">{SUPPORT_EMAIL}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={copyEmail}
-                      className="ml-2 h-8 border-gray-700 hover:bg-gray-800 text-gray-200"
-                    >
-                      <Copy className="h-4 w-4 mr-1" />
-                      Copy
-                    </Button>
-                  </div>
-                </div>
-                
                 <div className="text-left bg-gray-900/50 p-4 rounded-lg border border-gray-800">
                   <p className="text-sm font-medium text-gray-400 mb-2">Order Summary</p>
                   <div className="space-y-1 text-sm mb-3">
                     <div className="flex justify-between">
                       <span className="text-gray-300">Base Plan:</span>
-                      <span className="text-gray-300">
+                      <span className="text-gray-300 flex items-center gap-2">
                         ₹{basePlanPrice}/month
-                        <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
-                          ($ {(basePlanPrice / INR_TO_USD).toFixed(2)})
+                        <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle font-medium">
+                          (${usdBasePlanPrice})
                         </span>
                       </span>
                     </div>
-                    
                     {additionalBackups > 0 && (
                       <div className="flex justify-between">
                         <span className="text-gray-300">Additional Backups ({additionalBackups}):</span>
-                        <span className="text-gray-300">
+                        <span className="text-gray-300 flex items-center gap-2">
                           +₹{backupsCost}
-                          <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
-                            ($ {(backupsCost / INR_TO_USD).toFixed(2)})
+                          <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle font-medium">
+                            (${usdBackupsCost})
                           </span>
                         </span>
                       </div>
                     )}
-                    
                     {additionalPorts > 0 && (
                       <div className="flex justify-between">
                         <span className="text-gray-300">Additional Ports ({additionalPorts}):</span>
-                        <span className="text-gray-300">
+                        <span className="text-gray-300 flex items-center gap-2">
                           +₹{portsCost}
-                          <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
-                            ($ {(portsCost / INR_TO_USD).toFixed(2)})
+                          <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle font-medium">
+                            (${usdPortsCost})
                           </span>
                         </span>
                       </div>
                     )}
-                    
                     {discountApplied && (
                       <div className="flex justify-between text-green-400 font-medium">
                         <span>Discount ({discountApplied.code}):</span>
                         <span>
-                          {discountApplied.type === 'percent' 
-                            ? `-${discountApplied.amount}%` 
+                          {discountApplied.type === 'percent'
+                            ? `-${discountApplied.amount}%`
                             : `-₹${discountApplied.amount}`}
                         </span>
                       </div>
                     )}
-                    
                     <div className="border-t border-gray-700 mt-2 pt-2 flex justify-between font-medium">
                       <span className="text-white">Total price:</span>
-                      <span className="text-white">
-                        ₹{totalPrice.toLocaleString()}.00
+                      <span className="text-white flex items-center gap-2">
+                        ₹{totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}
                         <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-base align-middle font-bold">
-                          ($ {usdTotalPrice})
+                          (${usdTotalPrice})
                         </span>
                       </span>
                     </div>
                   </div>
                 </div>
-                
                 <div className="text-left bg-blue-900/30 p-4 rounded-lg border border-blue-800">
                   <h3 className="text-sm font-medium text-blue-300 mb-2">Server Login Information</h3>
                   <p className="text-xs text-gray-300">
@@ -399,7 +376,6 @@ const QRCodePayment = () => {
                   </p>
                 </div>
               </div>
-              
               <p className="text-center text-gray-400 mb-4">
                 Scan to pay with any UPI app
               </p>

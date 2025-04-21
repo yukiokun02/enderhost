@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu, HardDrive, Gauge, Signal, Cloud, KeyRound, X, Check } from "lucide-react";
-
+import { paypal } from "lucide-react/icons";
 import {
   Select,
   SelectContent,
@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import DiscordPopup from "@/components/DiscordPopup";
 
 const allPlans = [
@@ -220,16 +220,10 @@ const PurchaseForm = () => {
   
   const calculateTotalPrice = () => {
     if (!selectedPlan) return 0;
-    
     let basePrice = selectedPlan.price;
-    
-    // Add additional costs
     const backupPrice = parseInt(formData.additionalBackups) * 19;
     const portPrice = parseInt(formData.additionalPorts) * 9;
-    
     let totalPrice = basePrice + backupPrice + portPrice;
-    
-    // Apply discount if redeem code is valid
     if (isRedeemCodeValid && redeemCodeDiscount) {
       if (redeemCodeDiscount.type === 'percent') {
         totalPrice = totalPrice * (1 - redeemCodeDiscount.amount / 100);
@@ -237,7 +231,6 @@ const PurchaseForm = () => {
         totalPrice = Math.max(0, totalPrice - redeemCodeDiscount.amount);
       }
     }
-    
     return Math.round(totalPrice);
   };
 
@@ -711,20 +704,35 @@ const PurchaseForm = () => {
                         <div className="p-3 bg-minecraft-accent/10 rounded-md border border-minecraft-accent/20">
                           <div className="flex justify-between text-white">
                             <span>Monthly price:</span>
-                            <span>₹{selectedPlan.price}/month</span>
+                            <span>
+                              ₹{selectedPlan.price}/month
+                              <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
+                                (${convertToUSD(selectedPlan.price)})
+                              </span>
+                            </span>
                           </div>
                           
                           {parseInt(formData.additionalBackups) > 0 && (
                             <div className="flex justify-between text-white">
                               <span>Additional backups ({formData.additionalBackups}):</span>
-                              <span>+₹{parseInt(formData.additionalBackups) * 19}</span>
+                              <span>
+                                +₹{parseInt(formData.additionalBackups) * 19}
+                                <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
+                                  (${convertToUSD(parseInt(formData.additionalBackups) * 19)})
+                                </span>
+                              </span>
                             </div>
                           )}
                           
                           {parseInt(formData.additionalPorts) > 0 && (
                             <div className="flex justify-between text-white">
                               <span>Additional ports ({formData.additionalPorts}):</span>
-                              <span>+₹{parseInt(formData.additionalPorts) * 9}</span>
+                              <span>
+                                +₹{parseInt(formData.additionalPorts) * 9}
+                                <span className="ml-2 text-cyan-200 bg-cyan-900/40 px-2 py-0.5 rounded text-xs align-middle">
+                                  (${convertToUSD(parseInt(formData.additionalPorts) * 9)})
+                                </span>
+                              </span>
                             </div>
                           )}
                           
@@ -732,8 +740,8 @@ const PurchaseForm = () => {
                             <div className="flex justify-between text-green-400 font-medium">
                               <span>Discount:</span>
                               <span>
-                                {redeemCodeDiscount.type === 'percent' 
-                                  ? `-${redeemCodeDiscount.amount}%` 
+                                {redeemCodeDiscount.type === 'percent'
+                                  ? `-${redeemCodeDiscount.amount}%`
                                   : `-₹${redeemCodeDiscount.amount}`}
                               </span>
                             </div>
@@ -742,8 +750,12 @@ const PurchaseForm = () => {
                           <div className="flex justify-between text-white font-bold mt-2 pt-2 border-t border-white/20">
                             <span>Total price:</span>
                             <div className="flex flex-col items-end">
-                              <span>₹{calculateTotalPrice()}/month</span>
-                              <span className="text-cyan-200 text-sm">(${calculateTotalUSD()}/month)</span>
+                              <span>
+                                ₹{calculateTotalPrice()}
+                                <span className="ml-2 bg-cyan-900/40 text-cyan-200 px-2 py-0.5 rounded text-base align-middle font-bold">
+                                  (${calculateTotalUSD()})
+                                </span>
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -755,7 +767,7 @@ const PurchaseForm = () => {
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Cloud Backups (₹19 each / $${convertToUSD(19)} each)
+                          Additional Cloud Backups (₹19 each / ${convertToUSD(19)} each)
                         </label>
                         <Select
                           name="additionalBackups"
@@ -766,19 +778,21 @@ const PurchaseForm = () => {
                             <SelectValue placeholder="Select number of additional backups" />
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">No additional backups</SelectItem>
-                            <SelectItem value="1">1 additional backup (+₹19 / +$${convertToUSD(19)})</SelectItem>
-                            <SelectItem value="2">2 additional backups (+₹38 / +$${convertToUSD(38)})</SelectItem>
-                            <SelectItem value="3">3 additional backups (+₹57 / +$${convertToUSD(57)})</SelectItem>
-                            <SelectItem value="4">4 additional backups (+₹76 / +$${convertToUSD(76)})</SelectItem>
-                            <SelectItem value="5">5 additional backups (+₹95 / +$${convertToUSD(95)})</SelectItem>
+                            <SelectItem value="0">
+                              No additional backups
+                            </SelectItem>
+                            {[1,2,3,4,5].map(num =>
+                              <SelectItem key={num} value={String(num)}>
+                                {num} additional backup{num > 1 ? 's' : ''} (+₹{num*19} / +${convertToUSD(num*19)})
+                              </SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
                       
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/90">
-                          Additional Ports (₹9 each / $${convertToUSD(9)} each)
+                          Additional Ports (₹9 each / ${convertToUSD(9)} each)
                         </label>
                         <Select
                           name="additionalPorts"
@@ -789,12 +803,14 @@ const PurchaseForm = () => {
                             <SelectValue placeholder="Select number of additional ports" />
                           </SelectTrigger>
                           <SelectContent className="bg-black/90 border-white/10 text-white">
-                            <SelectItem value="0">No additional ports</SelectItem>
-                            <SelectItem value="1">1 additional port (+₹9 / +$${convertToUSD(9)})</SelectItem>
-                            <SelectItem value="2">2 additional ports (+₹18 / +$${convertToUSD(18)})</SelectItem>
-                            <SelectItem value="3">3 additional ports (+₹27 / +$${convertToUSD(27)})</SelectItem>
-                            <SelectItem value="4">4 additional ports (+₹36 / +$${convertToUSD(36)})</SelectItem>
-                            <SelectItem value="5">5 additional ports (+₹45 / +$${convertToUSD(45)})</SelectItem>
+                            <SelectItem value="0">
+                              No additional ports
+                            </SelectItem>
+                            {[1,2,3,4,5].map(num =>
+                              <SelectItem key={num} value={String(num)}>
+                                {num} additional port{num > 1 ? 's' : ''} (+₹{num*9} / +${convertToUSD(num*9)})
+                              </SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
