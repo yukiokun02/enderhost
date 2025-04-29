@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,7 +20,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        minecraft: ["MinecraftTen", "Mojangles", "monospace"],
+        minecraft: ["Minecraft", "sans-serif"],
       },
       fontWeight: {
         minecraft: 400,
