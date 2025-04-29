@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -73,7 +72,7 @@
   
   html {
     @apply scroll-smooth;
-    font-family: 'MinecraftTen', 'Mojangles', monospace;
+    font-family: 'Minecraft', 'minecraft-4', monospace;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -87,14 +86,14 @@
 
   /* Apply Minecraft font to all text elements with adjusted weights */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'MinecraftTen', 'Mojangles', monospace;
+    font-family: 'Minecraft', 'minecraft-4', monospace;
     font-weight: 400;
     letter-spacing: 0.025em;
     line-height: 1.2;
   }
   
   p, span, div, button, a, input, textarea, select, label {
-    font-family: 'MinecraftTen', 'Mojangles', monospace;
+    font-family: 'Minecraft', 'minecraft-4', monospace;
     font-weight: 400;
     letter-spacing: 0.025em;
   }
