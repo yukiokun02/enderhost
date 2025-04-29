@@ -73,7 +73,7 @@
   
   html {
     @apply scroll-smooth;
-    font-family: 'MinecraftTen', 'Mojangles', monospace;
+    font-family: 'Minecraft', monospace;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -82,20 +82,17 @@
     @apply bg-black text-foreground antialiased font-minecraft;
     scroll-behavior: smooth;
     letter-spacing: 0.025em;
-    font-weight: 400;
   }
 
-  /* Apply Minecraft font to all text elements with adjusted weights */
+  /* Apply Minecraft font to all text elements */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'MinecraftTen', 'Mojangles', monospace;
-    font-weight: 400;
+    font-family: 'Minecraft', monospace;
     letter-spacing: 0.025em;
     line-height: 1.2;
   }
   
   p, span, div, button, a, input, textarea, select, label {
-    font-family: 'MinecraftTen', 'Mojangles', monospace;
-    font-weight: 400;
+    font-family: 'Minecraft', monospace;
     letter-spacing: 0.025em;
   }
   
@@ -143,7 +140,6 @@
   
   /* Utility for thinner text appearance */
   .minecraft-text {
-    font-weight: 400;
     letter-spacing: 0.025em;
     font-feature-settings: "tnum" on, "lnum" on;
   }
