@@ -1,32 +1,45 @@
 
 import React from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme, FontOption } from '@/contexts/ThemeContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Check, Paintbrush } from 'lucide-react';
 
-interface FontOption {
-  value: string;
-  label: string;
+interface ThemeSwitcherProps {
+  variant?: 'default' | 'compact';
+  showLabel?: boolean;
 }
 
-const fontOptions: FontOption[] = [
-  { value: 'minecraft', label: 'Minecraft' },
-  // Add more font options here as needed
-];
-
-export default function ThemeSwitcher() {
-  const { fontFamily, setFontFamily } = useTheme();
+export default function ThemeSwitcher({ variant = 'default', showLabel = true }: ThemeSwitcherProps) {
+  const { fontFamily, setFontFamily, availableFonts } = useTheme();
   
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm">Font:</span>
+      {showLabel && (
+        <span className={`${variant === 'compact' ? 'text-xs' : 'text-sm'} flex items-center gap-1`}>
+          <Paintbrush className="h-3.5 w-3.5" />
+          {variant !== 'compact' && 'Font:'}
+        </span>
+      )}
       <Select value={fontFamily} onValueChange={setFontFamily}>
-        <SelectTrigger className="w-[150px]">
+        <SelectTrigger className={`${variant === 'compact' ? 'w-[120px] h-8 text-xs' : 'w-[150px]'}`}>
           <SelectValue placeholder="Select font" />
         </SelectTrigger>
         <SelectContent>
-          {fontOptions.map((font) => (
-            <SelectItem key={font.value} value={font.value}>
-              {font.label}
+          {availableFonts.map((font) => (
+            <SelectItem 
+              key={font.value} 
+              value={font.value}
+              className={`font-${font.value}`}
+            >
+              <div className="flex justify-between items-center w-full">
+                <span>{font.label}</span>
+                {fontFamily === font.value && <Check className="h-4 w-4 ml-2 text-green-500" />}
+              </div>
+              {font.description && (
+                <span className="text-xs text-muted-foreground block">
+                  {font.description}
+                </span>
+              )}
             </SelectItem>
           ))}
         </SelectContent>

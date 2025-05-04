@@ -11,7 +11,8 @@ import {
   Home,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  Paintbrush
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -26,6 +27,7 @@ import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
 import RedeemCodeManager from "@/components/admin/RedeemCodeManager";
 import ActivityLog from "@/components/admin/ActivityLog";
 import SiteNav from "@/components/admin/SiteNav";
+import FontManagement from "@/components/admin/FontManagement";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const AdminDashboard = () => {
@@ -105,6 +107,7 @@ const AdminDashboard = () => {
     { id: "users", label: "User Management", icon: <UserCog className="h-4 w-4" /> },
     { id: "redeemCodes", label: "Redeem Codes", icon: <KeyRound className="h-4 w-4" /> },
     { id: "changePassword", label: "Change Password", icon: <Lock className="h-4 w-4" /> },
+    { id: "fonts", label: "Font Settings", icon: <Paintbrush className="h-4 w-4" /> },
     { id: "siteNav", label: "Site Navigation", icon: <Home className="h-4 w-4" /> }
   ];
 
@@ -214,6 +217,7 @@ const AdminDashboard = () => {
             {activeTab === "users" && "User Management"}
             {activeTab === "redeemCodes" && "Redeem Codes"}
             {activeTab === "changePassword" && "Change Password"}
+            {activeTab === "fonts" && "Font Settings"}
             {activeTab === "siteNav" && "Site Navigation"}
           </h1>
           
@@ -232,6 +236,7 @@ const AdminDashboard = () => {
           {activeTab === "users" && <UserManagement />}
           {activeTab === "redeemCodes" && <RedeemCodeManager />}
           {activeTab === "changePassword" && <ChangePasswordForm />}
+          {activeTab === "fonts" && <FontManagement />}
           {activeTab === "siteNav" && <SiteNav />}
         </main>
       </div>

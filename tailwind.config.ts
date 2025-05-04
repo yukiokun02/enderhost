@@ -21,9 +21,9 @@ export default {
     extend: {
       fontFamily: {
         minecraft: ["Minecraft", "monospace"],
-        // Add additional fonts here when needed
-        // Example: roboto: ["Roboto", "sans-serif"],
-        // Example: poppins: ["Poppins", "sans-serif"],
+        roboto: ["Roboto", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
+        pixel: ['"Press Start 2P"', "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",

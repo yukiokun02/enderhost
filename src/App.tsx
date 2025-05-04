@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TermsOfService from "@/pages/TermsOfService";
@@ -136,13 +135,11 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <ThemeProvider defaultFont="minecraft">
-        <BrowserRouter>
-          <AppInitializer />
-          <AnimatedRoutes />
-          <AdminToolbar />
-        </BrowserRouter>
-      </ThemeProvider>
+      <BrowserRouter>
+        <AppInitializer />
+        <AnimatedRoutes />
+        <AdminToolbar />
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
