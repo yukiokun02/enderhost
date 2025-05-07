@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,10 +19,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        minecraft: ["Minecraft", "monospace"],
-        roboto: ["Roboto", "sans-serif"],
-        poppins: ["Poppins", "sans-serif"],
-        pixel: ['"Press Start 2P"', "cursive"],
+        minecraft: ["MinecraftTen", "Mojangles", "monospace"],
+      },
+      fontWeight: {
+        minecraft: 400,
       },
       colors: {
         border: "hsl(var(--border))",
