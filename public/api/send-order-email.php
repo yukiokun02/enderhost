@@ -1,4 +1,3 @@
-
 <?php
 /**
  * EnderHOST Order Email Notification Script
@@ -321,12 +320,12 @@ if (USE_SMTP) {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
         $mail->SMTPDebug = 2; // Enable verbose debug output
-        $mail->Host = SMTP_HOST;
+        $mail->Host = SMTP_HOST; // Using AWS SES SMTP host from config
         $mail->SMTPAuth = true;
-        $mail->Username = SMTP_USER;
-        $mail->Password = SMTP_PASS;
+        $mail->Username = SMTP_USER; // AWS SES SMTP username from config
+        $mail->Password = SMTP_PASS; // AWS SES SMTP password from config
         $mail->SMTPSecure = 'tls';
-        $mail->Port = SMTP_PORT;
+        $mail->Port = SMTP_PORT; // AWS SES SMTP port from config
         
         // Log SMTP settings for debugging
         logError("SMTP Settings - Host: " . SMTP_HOST . ", User: " . SMTP_USER . ", Port: " . SMTP_PORT, "DEBUG");

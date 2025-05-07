@@ -1,4 +1,3 @@
-
 <?php
 /**
  * EnderHOST SMTP Testing Utility
@@ -156,8 +155,8 @@ if ($phpmailer_missing) {
     use PHPMailer\PHPMailer\Exception;
     
     // Send test email
-    output("<h3>Attempting to send test email...</h3>", false);
-    
+    output("<h3>Attempting to send test email using AWS SES...</h3>", false);
+
     try {
         $mail = new PHPMailer(true);
         

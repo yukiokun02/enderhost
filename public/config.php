@@ -19,10 +19,10 @@ define('ADMIN_EMAIL', 'mail.enderhost@gmail.com');
 define('USE_SMTP', true); // Using SMTP for email delivery
 
 // SMTP Configuration 
-define('SMTP_HOST', 'smtp-relay.brevo.com');
+define('SMTP_HOST', 'email-smtp.ap-south-1.amazonaws.com');
 define('SMTP_PORT', 587);
-define('SMTP_USER', '87821c001@smtp-brevo.com');
-define('SMTP_PASS', 'G5yfcVOZT84BaAMI');
+define('SMTP_USER', 'AKIAZ7OS72ZGTC3I2GQV');
+define('SMTP_PASS', 'BCRfClIfmpjrla18owNHYgk43eYTJBgWWjkMrUQuzL4O');
 define('SMTP_FROM_EMAIL', 'no-reply@enderhost.in');
 define('SMTP_FROM_NAME', 'EnderHOST');
 
