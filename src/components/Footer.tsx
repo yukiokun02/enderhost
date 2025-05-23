@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { GamepadIcon, CreditCard, Mail, HelpCircle } from "lucide-react";
+import { GamepadIcon, CreditCard, Mail, HelpCircle, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import DiscordPopup from "./DiscordPopup";
 
@@ -55,6 +55,18 @@ export default function Footer({ simplified = false, copyrightOnly = false }: Fo
                   <Mail className="w-5 h-5" />
                   mail@enderhost.in
                 </a>
+              </li>
+              <li>
+                <a href="tel:+913331509383" className="text-gray-400 hover:text-minecraft-secondary flex items-center gap-2 text-base">
+                  <Phone className="w-5 h-5" />
+                  +91-3331509383
+                </a>
+              </li>
+              <li>
+                <div className="text-gray-400 flex items-start gap-2 text-base">
+                  <MapPin className="w-5 h-5 mt-1 flex-shrink-0" />
+                  <span>Ariadaha Haricharan Chatterjee Street, South Nawdapara, Kolkata, West Bengal 700057</span>
+                </div>
               </li>
               {!simplified && (
                 <li>
