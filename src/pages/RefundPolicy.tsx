@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -9,15 +8,7 @@ export default function RefundPolicy() {
 
   return (
     <div className="min-h-screen bg-black overflow-x-hidden pt-16 relative">
-      {/* Global Grid Pattern */}
-      <div 
-        className="fixed inset-0 opacity-10 mix-blend-soft-light pointer-events-none"
-        style={{ 
-          backgroundImage: `linear-gradient(#8E9196 0.5px, transparent 0.5px), linear-gradient(to right, #8E9196 0.5px, transparent 0.5px)`,
-          backgroundSize: '40px 40px',
-          backgroundPosition: 'center center'
-        }}
-      />
+      {/* The old grid background div has been removed */}
       
       {/* Back button - repositioned for mobile */}
       <button 
@@ -31,7 +22,7 @@ export default function RefundPolicy() {
       <Navigation />
 
       <main className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-10">
+        <div className="max-w-4xl mx-auto bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-10 relative z-[1]"> {/* Added relative z-[1] */}
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-10 text-center">Refund Policy</h1>
           
           <div className="text-gray-300 space-y-8">

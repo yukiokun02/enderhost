@@ -79,12 +79,48 @@
   }
   
   body {
-    @apply bg-black text-foreground antialiased font-minecraft;
+    @apply text-foreground antialiased font-minecraft;
     scroll-behavior: smooth;
     letter-spacing: 0.025em;
     font-weight: 400;
+    
+    /* New Abstract Background */
+    background-color: #0a0a18; /* Dark deep blue/purple base */
+    position: relative; /* For pseudo-elements */
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scroll from large shapes */
   }
 
+  body::before,
+  body::after,
+  html::before { /* Using html::before for a third layer */
+    content: "";
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -10; /* Further behind to ensure it's under everything */
+    pointer-events: none; /* Ensure they don't interfere with interactions */
+  }
+
+  body::before {
+    background: radial-gradient(ellipse at 10% 15%, hsla(250, 70%, 50%, 0.25) 0%, transparent 70%),
+                radial-gradient(ellipse at 90% 25%, hsla(180, 60%, 45%, 0.2) 0%, transparent 60%);
+    filter: blur(40px); /* Soften the edges */
+  }
+
+  body::after {
+    background: radial-gradient(circle at 70% 85%, hsla(300, 65%, 55%, 0.15) 0%, transparent 65%),
+                radial-gradient(circle at 30% 60%, hsla(220, 70%, 60%, 0.2) 0%, transparent 70%);
+    filter: blur(50px);
+  }
+  
+  html::before { /* A more subtle, larger shape or different color */
+    background: radial-gradient(ellipse at 50% 50%, hsla(270, 50%, 30%, 0.1) 0%, transparent 80%);
+    filter: blur(60px);
+  }
+  
   /* Apply Minecraft font to all text elements with adjusted weights */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'MinecraftTen', 'Mojangles', monospace;
@@ -132,14 +168,7 @@
     text-shadow: 0 0 5px rgba(94, 66, 227, 0.8), 0 0 10px rgba(94, 66, 227, 0.4);
   }
   
-  .grid-background {
-    background-image: linear-gradient(#8E9196 0.5px, transparent 0.5px), linear-gradient(to right, #8E9196 0.5px, transparent 0.5px);
-    background-size: 40px 40px;
-    background-position: center center;
-    opacity: 0.1;
-    mix-blend-mode: soft-light;
-    pointer-events: none;
-  }
+  /* Removed .grid-background as it's no longer needed */
   
   /* Utility for thinner text appearance */
   .minecraft-text {
