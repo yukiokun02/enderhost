@@ -28,6 +28,7 @@
   }
 
   .dark {
+    /* ... keep existing code (.dark theme variables) */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -84,44 +85,49 @@
     letter-spacing: 0.025em;
     font-weight: 400;
     
-    /* New Abstract Background */
+    /* New Abstract Background Base Color */
     background-color: #0a0a18; /* Dark deep blue/purple base */
-    position: relative; /* For pseudo-elements */
+    position: relative; 
     min-height: 100vh;
-    overflow-x: hidden; /* Prevent horizontal scroll from large shapes */
+    overflow-x: hidden; 
   }
 
   body::before,
   body::after,
-  html::before { /* Using html::before for a third layer */
+  html::before { 
     content: "";
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: -10; /* Further behind to ensure it's under everything */
-    pointer-events: none; /* Ensure they don't interfere with interactions */
+    z-index: -10; 
+    pointer-events: none; 
   }
 
   body::before {
-    background: radial-gradient(ellipse at 10% 15%, hsla(250, 70%, 50%, 0.25) 0%, transparent 70%),
-                radial-gradient(ellipse at 90% 25%, hsla(180, 60%, 45%, 0.2) 0%, transparent 60%);
-    filter: blur(40px); /* Soften the edges */
+    /* Shape 1: Vibrant purple, Shape 2: Bright teal */
+    background: 
+      radial-gradient(ellipse at 15% 20%, hsla(275, 70%, 60%, 0.45) 0%, transparent 60%),
+      radial-gradient(ellipse at 85% 30%, hsla(175, 65%, 50%, 0.35) 0%, transparent 55%);
+    filter: blur(55px); 
   }
 
   body::after {
-    background: radial-gradient(circle at 70% 85%, hsla(300, 65%, 55%, 0.15) 0%, transparent 65%),
-                radial-gradient(circle at 30% 60%, hsla(220, 70%, 60%, 0.2) 0%, transparent 70%);
-    filter: blur(50px);
+    /* Shape 3: Vivid magenta, Shape 4: Deep blue */
+    background: 
+      radial-gradient(circle at 80% 75%, hsla(310, 75%, 55%, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 25% 70%, hsla(220, 70%, 65%, 0.3) 0%, transparent 60%);
+    filter: blur(65px);
   }
   
-  html::before { /* A more subtle, larger shape or different color */
-    background: radial-gradient(ellipse at 50% 50%, hsla(270, 50%, 30%, 0.1) 0%, transparent 80%);
-    filter: blur(60px);
+  html::before { 
+    /* Shape 5: Large, subtle cyan/blueish central diffusion */
+    background: radial-gradient(ellipse at 50% 50%, hsla(200, 60%, 40%, 0.15) 0%, transparent 70%);
+    filter: blur(75px);
   }
   
-  /* Apply Minecraft font to all text elements with adjusted weights */
+  /* ... keep existing code (font styles for h1, h2, p, etc.) */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'MinecraftTen', 'Mojangles', monospace;
     font-weight: 400;
@@ -160,6 +166,7 @@
 }
 
 @layer utilities {
+  /* ... keep existing code (utility classes like neon-glow, neon-text, minecraft-text) */
   .neon-glow {
     box-shadow: 0 0 15px rgba(94, 66, 227, 0.5), 0 0 30px rgba(94, 66, 227, 0.3);
   }
@@ -168,12 +175,10 @@
     text-shadow: 0 0 5px rgba(94, 66, 227, 0.8), 0 0 10px rgba(94, 66, 227, 0.4);
   }
   
-  /* Removed .grid-background as it's no longer needed */
-  
-  /* Utility for thinner text appearance */
   .minecraft-text {
     font-weight: 400;
     letter-spacing: 0.025em;
     font-feature-settings: "tnum" on, "lnum" on;
   }
 }
+
