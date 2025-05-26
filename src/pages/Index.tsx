@@ -31,8 +31,14 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen overflow-hidden relative">
-      {/* The old grid background div has been removed */}
+    <div className="min-h-screen bg-black overflow-hidden relative">
+      {/* Global Grid Pattern */}
+      <div 
+        className="fixed inset-0 grid-background"
+        style={{ 
+          zIndex: 0
+        }}
+      />
       
       <Navigation />
       <Hero />

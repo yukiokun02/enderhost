@@ -28,7 +28,6 @@
   }
 
   .dark {
-    /* ... keep existing code (.dark theme variables) */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -80,54 +79,13 @@
   }
   
   body {
-    @apply text-foreground antialiased font-minecraft;
+    @apply bg-black text-foreground antialiased font-minecraft;
     scroll-behavior: smooth;
     letter-spacing: 0.025em;
     font-weight: 400;
-    
-    /* New Abstract Background Base Color */
-    background-color: #0a0a18; /* Dark deep blue/purple base */
-    position: relative; 
-    min-height: 100vh;
-    overflow-x: hidden; 
   }
 
-  body::before,
-  body::after,
-  html::before { 
-    content: "";
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -10; 
-    pointer-events: none; 
-  }
-
-  body::before {
-    /* Shape 1: Vibrant purple, Shape 2: Bright teal */
-    background: 
-      radial-gradient(ellipse at 15% 20%, hsla(275, 70%, 60%, 0.45) 0%, transparent 60%),
-      radial-gradient(ellipse at 85% 30%, hsla(175, 65%, 50%, 0.35) 0%, transparent 55%);
-    filter: blur(55px); 
-  }
-
-  body::after {
-    /* Shape 3: Vivid magenta, Shape 4: Deep blue */
-    background: 
-      radial-gradient(circle at 80% 75%, hsla(310, 75%, 55%, 0.4) 0%, transparent 50%),
-      radial-gradient(circle at 25% 70%, hsla(220, 70%, 65%, 0.3) 0%, transparent 60%);
-    filter: blur(65px);
-  }
-  
-  html::before { 
-    /* Shape 5: Large, subtle cyan/blueish central diffusion */
-    background: radial-gradient(ellipse at 50% 50%, hsla(200, 60%, 40%, 0.15) 0%, transparent 70%);
-    filter: blur(75px);
-  }
-  
-  /* ... keep existing code (font styles for h1, h2, p, etc.) */
+  /* Apply Minecraft font to all text elements with adjusted weights */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'MinecraftTen', 'Mojangles', monospace;
     font-weight: 400;
@@ -166,7 +124,6 @@
 }
 
 @layer utilities {
-  /* ... keep existing code (utility classes like neon-glow, neon-text, minecraft-text) */
   .neon-glow {
     box-shadow: 0 0 15px rgba(94, 66, 227, 0.5), 0 0 30px rgba(94, 66, 227, 0.3);
   }
@@ -175,10 +132,19 @@
     text-shadow: 0 0 5px rgba(94, 66, 227, 0.8), 0 0 10px rgba(94, 66, 227, 0.4);
   }
   
+  .grid-background {
+    background-image: linear-gradient(#8E9196 0.5px, transparent 0.5px), linear-gradient(to right, #8E9196 0.5px, transparent 0.5px);
+    background-size: 40px 40px;
+    background-position: center center;
+    opacity: 0.1;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+  
+  /* Utility for thinner text appearance */
   .minecraft-text {
     font-weight: 400;
     letter-spacing: 0.025em;
     font-feature-settings: "tnum" on, "lnum" on;
   }
 }
-
