@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +15,13 @@ export interface FormDataState {
   additionalBackups: string;
   additionalPorts: string;
   redeemCode: string;
+}
+
+// Define a type for the backend verification response
+interface EmailVerificationResponse {
+  isValid: boolean;
+  message?: string; // e.g., "Email is deliverable", "Email does not exist", "Bad syntax"
+  suggestion?: string; // e.g., "Did you mean user@gmail.com?"
 }
 
 export const usePurchaseForm = () => {
@@ -48,6 +54,8 @@ export const usePurchaseForm = () => {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [isEmailValid, setIsEmailValid] = useState<boolean | null>(null);
   const [emailTouched, setEmailTouched] = useState(false);
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false); // New state for loading
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null); // New state for suggestions
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -79,13 +87,15 @@ export const usePurchaseForm = () => {
   const totalPrice = calculateTotalPrice();
   const totalUSD = (totalPrice / INR_TO_USD_RATE).toFixed(2);
 
-  const handleEmailValidation = useCallback((emailValue: string, isSubmitAttempt = false): boolean => {
+  const handleEmailValidation = useCallback(async (emailValue: string, isSubmitAttempt = false): Promise<boolean> => {
     const trimmedEmail = emailValue.trim();
+    setEmailSuggestion(null); // Reset suggestion
 
     if (!trimmedEmail) {
       if (isSubmitAttempt || emailTouched) {
         setIsEmailValid(false);
         setEmailError("Email address is required.");
+        setIsVerifyingEmail(false);
       } else {
         setIsEmailValid(null);
         setEmailError(null);
@@ -93,19 +103,64 @@ export const usePurchaseForm = () => {
       return false;
     }
 
-    if (isValidEmailFormat(trimmedEmail)) {
-      setIsEmailValid(true);
-      setEmailError(null);
-      return true;
-    } else {
+    // Basic format check first
+    if (!isValidEmailFormat(trimmedEmail)) {
       if (isSubmitAttempt || emailTouched) {
         setIsEmailValid(false);
-        setEmailError("Please enter a valid email address (e.g., user@example.com). Ensure it's correctly formatted.");
+        setEmailError("Please enter a valid email address format (e.g., user@example.com).");
+        setIsVerifyingEmail(false);
       } else {
         setIsEmailValid(null);
         setEmailError(null);
       }
       return false;
+    }
+
+    // If format is okay, proceed to server-side validation
+    setIsVerifyingEmail(true);
+    setIsEmailValid(null); // Reset while verifying
+    setEmailError(null);
+
+    try {
+      // IMPORTANT: Replace '/api/verify-email.php' with the actual URL of your backend endpoint on your VPS.
+      // Your backend should expect a POST request with a JSON body like { email: "user@example.com" }
+      // and return a JSON response like { isValid: true/false, message: "...", suggestion: "..." }
+      const response = await fetch('/api/verify-email.php', { // <-- REPLACE THIS URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: trimmedEmail }),
+      });
+
+      if (!response.ok) {
+        // Handle HTTP errors from your backend (e.g., 500 Internal Server Error)
+        const errorData = await response.json().catch(() => ({ message: "Verification request failed. Please try again." }));
+        setIsEmailValid(false);
+        setEmailError(errorData.message || "Email verification failed. Server error.");
+        return false;
+      }
+
+      const data: EmailVerificationResponse = await response.json();
+
+      setIsEmailValid(data.isValid);
+      if (!data.isValid) {
+        setEmailError(data.message || "This email address appears to be invalid or unreachable.");
+      } else {
+        setEmailError(null); // Clear error if valid
+      }
+      if (data.suggestion) {
+        setEmailSuggestion(data.suggestion);
+      }
+      return data.isValid;
+
+    } catch (error) {
+      console.error("Email verification API call failed:", error);
+      setIsEmailValid(false);
+      setEmailError("Could not verify email. Please check your connection and try again.");
+      return false;
+    } finally {
+      setIsVerifyingEmail(false);
     }
   }, [emailTouched]);
 
@@ -119,17 +174,19 @@ export const usePurchaseForm = () => {
     }
 
     if (name === 'email') {
-      if (emailTouched) {
-        setIsEmailValid(null);
-        setEmailError(null);
-      }
+      // Reset validation status on change, will re-validate on blur or submit
+      setIsEmailValid(null);
+      setEmailError(null);
+      setEmailSuggestion(null);
+      // No need to set emailTouched here, blur handles it.
     }
   };
 
-  const handleEmailBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     if (!emailTouched) {
       setEmailTouched(true);
     }
+    // Don't await here, let it run in background. Form submission will await.
     handleEmailValidation(e.target.value);
   };
 
@@ -214,8 +271,11 @@ export const usePurchaseForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const isEmailCurrentlyValid = handleEmailValidation(formData.email, true);
-    setEmailTouched(true);
+    if (!emailTouched) {
+      setEmailTouched(true);
+    }
+    // Await the validation result before proceeding
+    const isEmailCurrentlyValid = await handleEmailValidation(formData.email, true);
 
     if (!formData.serverName || !formData.name || !formData.password || !formData.plan) {
       toast({
@@ -229,7 +289,7 @@ export const usePurchaseForm = () => {
     if (!isEmailCurrentlyValid) {
       toast({
         title: "Invalid Email",
-        description: emailError || "Please provide a valid email address.",
+        description: emailError || "Please provide a valid and reachable email address.",
         variant: "destructive",
       });
       document.getElementById('email')?.focus();
@@ -256,13 +316,14 @@ export const usePurchaseForm = () => {
       state: {
         ...formData,
         totalPrice: finalTotalPrice,
-        billingCycle: 1,
+        billingCycle: 1, // Assuming monthly billing cycle
         discountApplied: isRedeemCodeValid && redeemCodeDiscount ? {
           code: formData.redeemCode,
           ...redeemCodeDiscount
         } : null
       }
     });
+    // setIsSubmitting(false); // Typically, navigation occurs, so unsetting might not be needed or done in a finally block if there was an async operation here
   };
 
   return {
@@ -273,6 +334,8 @@ export const usePurchaseForm = () => {
     emailError,
     isEmailValid,
     emailTouched,
+    isVerifyingEmail, // Expose new state
+    emailSuggestion, // Expose suggestion state
     selectedPlan,
     validateRedeemCode,
     isCheckingCode,
@@ -284,4 +347,3 @@ export const usePurchaseForm = () => {
     handleSubmit,
   };
 };
-

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { usePurchaseForm } from "@/hooks/usePurchaseForm";
 import DiscordPopup from "@/components/DiscordPopup";
@@ -22,6 +21,8 @@ const PurchaseForm = () => {
     emailError,
     isEmailValid,
     emailTouched,
+    isVerifyingEmail,
+    emailSuggestion,
     selectedPlan,
     validateRedeemCode,
     isCheckingCode,
@@ -46,6 +47,8 @@ const PurchaseForm = () => {
             emailError={emailError}
             isEmailValid={isEmailValid}
             emailTouched={emailTouched}
+            isVerifyingEmail={isVerifyingEmail}
+            emailSuggestion={emailSuggestion}
           />
 
           <PlanSelector

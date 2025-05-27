@@ -1,8 +1,6 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; // Assuming you'll use Label, or remove if not.
-import { Check, X } from "lucide-react";
+import { Check, X, Loader2 } from "lucide-react";
 import { FormDataState } from "@/hooks/usePurchaseForm";
 
 interface PurchaseFormFieldsProps {
@@ -12,6 +10,8 @@ interface PurchaseFormFieldsProps {
   emailError: string | null;
   isEmailValid: boolean | null;
   emailTouched: boolean;
+  isVerifyingEmail: boolean;
+  emailSuggestion?: string | null;
 }
 
 const PurchaseFormFields: React.FC<PurchaseFormFieldsProps> = ({
@@ -21,6 +21,8 @@ const PurchaseFormFields: React.FC<PurchaseFormFieldsProps> = ({
   emailError,
   isEmailValid,
   emailTouched,
+  isVerifyingEmail,
+  emailSuggestion,
 }) => {
   return (
     <>
@@ -62,23 +64,30 @@ const PurchaseFormFields: React.FC<PurchaseFormFieldsProps> = ({
             onChange={handleChange}
             onBlur={handleEmailBlur}
             className={`bg-black/70 border-white/10 text-white placeholder:text-gray-500 pr-10
-              ${isEmailValid === false && emailTouched ? 'border-red-500 focus:border-red-500 ring-red-500' : ''}
-              ${isEmailValid === true && emailTouched ? 'border-green-500 focus:border-green-500 ring-green-500' : ''}`}
+              ${isEmailValid === false && emailTouched && !isVerifyingEmail ? 'border-red-500 focus:border-red-500 ring-red-500' : ''}
+              ${isEmailValid === true && emailTouched && !isVerifyingEmail ? 'border-green-500 focus:border-green-500 ring-green-500' : ''}`}
             required
-            aria-invalid={isEmailValid === false && emailTouched}
-            aria-describedby="email-error"
+            aria-invalid={isEmailValid === false && emailTouched && !isVerifyingEmail}
+            aria-describedby="email-error email-suggestion"
           />
-          {isEmailValid !== null && emailTouched && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              {isEmailValid ? (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            {isVerifyingEmail ? (
+              <Loader2 className="h-5 w-5 text-minecraft-secondary animate-spin" />
+            ) : emailTouched && isEmailValid !== null ? (
+              isEmailValid ? (
                 <Check className="h-5 w-5 text-green-500" />
               ) : (
                 <X className="h-5 w-5 text-red-500" />
-              )}
-            </div>
-          )}
+              )
+            ) : null}
+          </div>
         </div>
-        {emailError && emailTouched && <p id="email-error" className="text-xs text-red-500 mt-1">{emailError}</p>}
+        {emailError && emailTouched && !isVerifyingEmail && <p id="email-error" className="text-xs text-red-500 mt-1">{emailError}</p>}
+        {emailSuggestion && !isVerifyingEmail && isEmailValid === false && (
+          <p id="email-suggestion" className="text-xs text-yellow-400 mt-1">
+            {emailSuggestion}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
