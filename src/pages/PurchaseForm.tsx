@@ -206,6 +206,11 @@ const PurchaseForm = () => {
   const [isCheckingCode, setIsCheckingCode] = useState(false);
   const [checkedCodes, setCheckedCodes] = useState<string[]>([]);
   
+  // New state for email validation
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [isEmailValid, setIsEmailValid] = useState<boolean | null>(null);
+  const [emailTouched, setEmailTouched] = useState(false);
+  
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const planFromUrl = queryParams.get('plan');
@@ -242,15 +247,69 @@ const PurchaseForm = () => {
     return (inrAmount / INR_TO_USD).toFixed(2);
   };
 
+  const isValidEmailFormat = (email: string): boolean => {
+    const emailRegex = new RegExp(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+    return emailRegex.test(String(email).toLowerCase());
+  };
+
+  const handleEmailValidation = (emailValue: string, isSubmitAttempt = false): boolean => {
+    const trimmedEmail = emailValue.trim();
+
+    if (!trimmedEmail) {
+      if (isSubmitAttempt || emailTouched) {
+        setIsEmailValid(false);
+        setEmailError("Email address is required.");
+      } else {
+        setIsEmailValid(null);
+        setEmailError(null);
+      }
+      return false; // Invalid if empty
+    }
+
+    if (isValidEmailFormat(trimmedEmail)) {
+      setIsEmailValid(true);
+      setEmailError(null);
+      // Note on email existence: True email *existence* validation (checking if the mailbox is active)
+      // can't be reliably done from the frontend. It requires a backend service.
+      // This validation checks the format and structure against common email standards.
+      return true; // Valid
+    } else {
+      if (isSubmitAttempt || emailTouched) {
+        setIsEmailValid(false);
+        setEmailError("Please enter a valid email address (e.g., user@example.com). Ensure it's correctly formatted.");
+      } else {
+        setIsEmailValid(null);
+        setEmailError(null);
+      }
+      return false; // Invalid
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     
-    // Reset validation if redeem code changes
     if (name === 'redeemCode') {
       setIsRedeemCodeValid(null);
       setRedeemCodeDiscount(null);
     }
+
+    if (name === 'email') {
+      // Clear previous validation state while typing
+      if (emailTouched) { // Only clear if already touched, to avoid clearing on initial load if prefilled
+        setIsEmailValid(null);
+        setEmailError(null);
+      }
+    }
+  };
+
+  const handleEmailBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!emailTouched) {
+      setEmailTouched(true);
+    }
+    handleEmailValidation(e.target.value);
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -347,12 +406,27 @@ const PurchaseForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.serverName || !formData.name || !formData.email || !formData.password || !formData.plan) {
+    // Perform final validation for email before submitting
+    const isEmailCurrentlyValid = handleEmailValidation(formData.email, true); // true for isSubmitAttempt
+    setEmailTouched(true); // Mark as touched on submit attempt
+
+    if (!formData.serverName || !formData.name || !formData.password || !formData.plan) {
       toast({
         title: "Missing information",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (excluding optional ones).",
         variant: "destructive",
       });
+      return;
+    }
+
+    if (!isEmailCurrentlyValid) {
+      toast({
+        title: "Invalid Email",
+        // emailError state should be up-to-date from handleEmailValidation call
+        description: emailError || "Please provide a valid email address.",
+        variant: "destructive",
+      });
+      document.getElementById('email')?.focus();
       return;
     }
     
@@ -500,6 +574,7 @@ const PurchaseForm = () => {
                   />
                 </div>
 
+                {/* Email Input with Validation */}
                 <div className="space-y-2">
                   <label
                     htmlFor="email"
@@ -507,16 +582,33 @@ const PurchaseForm = () => {
                   >
                     Email Address
                   </label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Your Email Address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="bg-black/70 border-white/10 text-white placeholder:text-gray-500"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="Your Email Address"
+                      value={formData.email}
+                      onChange={handleChange}
+                      onBlur={handleEmailBlur}
+                      className={`bg-black/70 border-white/10 text-white placeholder:text-gray-500 pr-10
+                        ${isEmailValid === false && emailTouched ? 'border-red-500 focus:border-red-500 ring-red-500' : ''}
+                        ${isEmailValid === true && emailTouched ? 'border-green-500 focus:border-green-500 ring-green-500' : ''}`}
+                      required // HTML5 required for basic check, custom validation enhances it
+                      aria-invalid={isEmailValid === false && emailTouched}
+                      aria-describedby="email-error"
+                    />
+                    {isEmailValid !== null && emailTouched && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        {isEmailValid ? (
+                          <Check className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <X className="h-5 w-5 text-red-500" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {emailError && emailTouched && <p id="email-error" className="text-xs text-red-500 mt-1">{emailError}</p>}
                 </div>
 
                 <div className="space-y-2">
